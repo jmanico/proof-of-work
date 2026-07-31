@@ -85,6 +85,7 @@
 - **FR-9.6** The system MUST display a disclaimer stating that the plans and content are not medical advice, and MUST require the user to acknowledge it before they first use a plan.
 - **FR-9.7** The system MUST record an audit entry for each access to or modification of a user's health data, capturing the acting account, the action, and the time.
 - **FR-9.8** The system MUST NOT transmit user health data to any external service.
+- **FR-9.9** The system MUST allow a user to withdraw their previously given consent to health-data collection, and MUST NOT record new health data for that user while consent is withdrawn. Existing records remain subject to FR-9.3–FR-9.5. *(Threat-model-derived: SECURITY.md TM-P-2.)*
 
 ### Fitness Consultants
 
@@ -96,6 +97,7 @@
 ### Administration
 
 - **FR-10.1** The system MUST restrict plan authoring, verification, publication, and unpublication to accounts with the `admin` role, and MUST deny those actions to subscribers.
+- **FR-10.2** The system MUST record an audit entry for every admin plan lifecycle action — create, edit, verify, publish, unpublish — capturing the acting admin, the action, the affected plan, and the time. *(Threat-model-derived: SECURITY.md TM-R-1, TM-T-5.)*
 
 # Open Questions
 
@@ -113,3 +115,5 @@
 - **OQ-12** What can a fitness consultant actually do — view a subscriber's plans and logs, edit their plans, message them, or something else? FR-11.x currently only bounds their access, not their capabilities.
 - **OQ-13** How are consultants onboarded and vetted, are they platform staff or third parties, and how is the paid consultant option purchased (the same payments gap as OQ-1)?
 - **OQ-14** Is offline use required for logging entries without a connection? Not selected, so assumed out of scope.
+- **OQ-15** *(Threat-model-derived: SECURITY.md TM-S-3.)* What is the email-verification flow at registration — when verification occurs, token expiry, and resend behavior? SECURITY.md SEC-AUTHN-8 requires that control of the registered email be verified before health data is recorded or the address is used in recovery; the product flow is undecided.
+- **OQ-16** *(Threat-model-derived: SECURITY.md TM-T-5.)* Should plan verification (FR-4.5) require an admin other than the plan's author (dual control)? A single compromised admin account can currently author, verify, and publish harmful exercise or diet content alone.
