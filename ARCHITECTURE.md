@@ -15,7 +15,7 @@
 - **Data model expectations:** Relational (RDBMS) (architecture notes). Entities from REQUIREMENTS.md: user account; subscription; consultant engagement; exercise plan and diet plan (each with cited sources and verification record); user plan copy; workout log entry; food log entry; body weight entry; body measurement entry; consent record; audit entry. Specific engine, schema, and migration strategy: TO BE DECIDED.
 - **Deployment model:** Terraform-managed infrastructure on AWS (architecture notes). Specific services, topology, and environments: TO BE DECIDED.
 - **Scale expectations:** Global (architecture notes). Concrete load, latency, availability, and data-residency targets: UNKNOWN. Note that global reach interacts with GDPR/CCPA and US health-law obligations (REQUIREMENTS.md, Regulatory constraints; OQ-3) — residency implications are TO BE DECIDED.
-- **Security expectations:** TO BE DECIDED — addressed in a later security specification, SECURITY.md.
+- **Security expectations:** Defined in SECURITY.md, including the initial document-based threat model (2026-07-31), which added trust boundaries 4 and 5 below.
 
 ### Initial Architecture (Provisional)
 
@@ -51,7 +51,7 @@ All business rules are enforced server-side. The client renders and validates fo
   - **Data owned or accessed:** Stores all entities listed under Data model expectations. Stores no data that originates outside the system.
   - **Open decisions:** Engine, schema design, indexing, retention behavior for audit entries, and deletion mechanics satisfying FR-9.4 (hard delete vs. anonymization, and the completion deadline, both TO BE DECIDED in REQUIREMENTS.md) — TO BE DECIDED. Global-scale replication and data residency — TO BE DECIDED.
 
-**Trust boundaries.** Three: (1) between the Browser Client and the REST API Application — the client is untrusted, and all authorization and validation decisions are re-made server-side regardless of what the client sent; (2) between unauthenticated and authenticated request handling at Identity and Session Handling; (3) between the REST API Application and Relational Persistence, which accepts requests from no other origin. There is no external-system boundary: health data does not leave the system (FR-9.8). Role separation (subscriber / consultant / admin) and consultant engagement scoping are enforced inside the REST API Application, not at the network edge.
+**Trust boundaries.** Five: (1) between the Browser Client and the REST API Application — the client is untrusted, and all authorization and validation decisions are re-made server-side regardless of what the client sent; (2) between unauthenticated and authenticated request handling at Identity and Session Handling; (3) between the REST API Application and Relational Persistence, which accepts requests from no other origin; (4) between the CI/CD-and-IaC path and the production environment — the build and deploy pipeline can rewrite the system itself, so its identities and Terraform state are a distinct trust concern (SECURITY.md SEC-CICD-*, SEC-SECRET-3); (5) between the application and human operational access below it — operators and holders of persistence or backup credentials reach health data without traversing the REST API's enforcement point (SECURITY.md SEC-OPS-1, SEC-LOG-7, SQ-13). Boundaries 4 and 5 were identified by the 2026-07-31 threat model (SECURITY.md, Threat Model). There is no external-system boundary: health data does not leave the system (FR-9.8). Role separation (subscriber / consultant / admin) and consultant engagement scoping are enforced inside the REST API Application, not at the network edge.
 
 **Primary data flows.**
 1. *Authentication:* Client → Identity and Session Handling → credential/passkey verification → session context returned to client; subsequent requests carry it.
@@ -61,6 +61,7 @@ All business rules are enforced server-side. The client renders and validates fo
 5. *Progress viewing:* Client → REST API → owner scoping → aggregated log history, and for diet, logged intake compared against the selected plan's targets → Client.
 6. *Admin publication:* Admin client → REST API → role check, citation-presence gate, verification record → plan published.
 7. *Consultant access:* Consultant client → REST API → active-engagement check → scoped subscriber data → audit entry written.
+8. *Data export and deletion:* Client → REST API → owner scoping and sensitive-operation authorization → export assembled or deletion executed → audit entry written. Synchronous vs. deferred execution remains TO BE DECIDED; if deferred, any generated export artifact is itself health data at rest and carries the controls in SECURITY.md SEC-DATA-6.
 
 **Note on DESIGN.md:** DESIGN.md targets WCAG 2.2 AA, which resolves REQUIREMENTS.md OQ-11. The client boundary is therefore treated as having a firm accessibility target, not an open one.
 
@@ -83,7 +84,9 @@ All business rules are enforced server-side. The client renders and validates fo
 | FR-9.3, FR-9.4 (Export and deletion) | REST API Application; Relational Persistence | PARTIALLY DEFINED — synchronous vs. deferred execution and deletion mechanics unresolved |
 | FR-9.7 (Health-data audit) | REST API Application; Relational Persistence | SUPPORTED |
 | FR-9.8 (No external transmission) | System boundary — no external integration exists by construction | SUPPORTED |
+| FR-9.9 (Consent withdrawal) | REST API Application | SUPPORTED |
 | FR-10.1 (Administration) | REST API Application | SUPPORTED |
+| FR-10.2 (Admin plan-action audit) | REST API Application; Relational Persistence | SUPPORTED |
 | FR-11.1 (Paid consultant option) | REST API Application | PARTIALLY DEFINED — the paid-option mechanism shares the unresolved payments gap (REQUIREMENTS.md OQ-13) |
 | FR-11.2–FR-11.4 (Consultant scoping and audit) | REST API Application | SUPPORTED |
 

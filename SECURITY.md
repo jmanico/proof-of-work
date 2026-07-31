@@ -18,7 +18,7 @@
 - **Applicable privacy or regulatory obligations:** Security notes state US federal and US state law. REQUIREMENTS.md additionally asserts GDPR and CCPA data-subject rights and HIPAA obligations, and sets scale expectations to "global". These are not consistent — see SQ-1. Confirmed and in scope regardless of resolution, because REQUIREMENTS.md mandates them as behavior: explicit consent before health-data collection (FR-9.2), data export (FR-9.3), deletion (FR-9.4), correction (FR-9.5), medical disclaimer (FR-9.6), and health-data audit logging (FR-9.7). Specific statutory obligations beyond those behaviors: TO BE DECIDED.
 - **Security assurance target:** OWASP ASVS 5.0.0 Level 3 (security notes). This is a stated target, not a conformance claim; no verification has been performed.
 - **Security verification reference:** OWASP ASVS 5.0.0.
-- **Threat model status:** Not started — deferred by the security notes ("do that later"). No STRIDE, attack-tree, or data-flow threat analysis exists. The rules below are derived from documented boundaries and data sensitivity, not from a completed threat model. TO BE DECIDED — see SQ-9.
+- **Threat model status:** Initial document-based threat model completed 2026-07-31 — see the Threat Model section below. STRIDE applied per trust boundary and LINDDUN applied to health-data flows, over the four specification documents only (no implementation exists). Single-perspective (security analyst); cross-functional validation, ownership, and refresh cadence are TO BE DECIDED — see SQ-9.
 
 ### Selected Security References and Prompt Imports
 
@@ -59,6 +59,67 @@ Public references selected as authoritative defaults for the identified stack. T
 | `REF-DEPS` | OWASP Vulnerable Dependency Management Cheat Sheet | `https://cheatsheetseries.owasp.org/cheatsheets/Vulnerable_Dependency_Management_Cheat_Sheet.html` |
 
 `REF-PASSKEY` and `REF-WEBAUTHN` are included because passkeys are explicitly selected for `admin` and `consultant` accounts (FR-2.8), not by default.
+
+### Threat Model
+
+**Conducted:** 2026-07-31. **Method:** Document and Architecture Absorption (prompt 06 of the threat-modeling suite) over REQUIREMENTS.md, ARCHITECTURE.md, SECURITY.md, and DESIGN.md, with STRIDE applied per trust boundary and LINDDUN applied to the health-data flows. No repository reconnaissance was possible (no implementation exists) and no cross-functional interview was held. **Perspective coverage:** single analyst, security-engineering perspective only — product, legal/privacy, and operations validation is outstanding and required by the methodology before the model is considered complete.
+
+**Scope and limits.** The model covers the documented system, not imagined code. Threats that depend on an unresolved decision (session transport, revocation mechanism, deployment topology, consultant capabilities) are recorded as CONDITIONAL on the open question that resolves them, not assumed one way. It MUST be revisited when SQ-1, SQ-2, SQ-4, and SQ-7 resolve, and again once implementation exists (repository reconnaissance, prompt 05).
+
+**Adversary actors considered:**
+
+| Actor | Position | Notes |
+|---|---|---|
+| Anonymous internet attacker | Outside boundary 1 | Credential attacks, enumeration, DoS, injection |
+| Malicious subscriber | Authenticated, `subscriber` role | Horizontal attacks on other subscribers' data (BOLA), entitlement bypass |
+| Malicious or compromised consultant | Authenticated, `consultant` role | Over-access beyond engagement scope, residual access after engagement ends |
+| Compromised admin account | Authenticated, `admin` role | Content poisoning of published plans, bulk access to plan library; admin has no documented access to subscriber health data — ASSUMPTION: admin capabilities are limited to plan and account administration, which REQUIREMENTS.md does not fully define |
+| Malicious or careless operator / insider | Below the application layer | Direct persistence, backup, log, and Terraform-state access; controls UNKNOWN (SQ-13) |
+| Compromised CI/CD identity or dependency | Build/deploy path | Malicious deploy, IaC tamper, supply-chain injection (SQ-7 platform UNKNOWN) |
+
+**Trust boundaries.** ARCHITECTURE.md's three boundaries, plus two the threat model identifies that the architecture did not previously name: **(4)** the CI/CD-and-IaC-to-production boundary (a compromised pipeline or Terraform state rewrites the system itself), and **(5)** the operational/human-access boundary below the application (operators, support staff, and anyone holding persistence or backup credentials reach health data without traversing the REST API's enforcement point). ARCHITECTURE.md has been updated to carry all five.
+
+**Threat inventory.** Severity is qualitative (H/M/L), judged pre-implementation against health-data impact. Status meanings — MITIGATED BY RULE: an existing or new rule in this document covers it (implementation and verification still pending); CONDITIONAL: mitigation depends on an unresolved decision, tracked by the named open question; GAP: no covering rule or requirement existed before this model — the named artifact was added to close or track it.
+
+| ID | Threat | Class | Target / boundary | Sev | Coverage | Status |
+|---|---|---|---|---|---|---|
+| TM-S-1 | Credential stuffing / password spraying against subscriber login | S | Identity, boundary 2 | H | SEC-AUTHN-3, SEC-AUTHN-6 | CONDITIONAL — thresholds undecided (SQ-3) |
+| TM-S-2 | Account/MFA recovery flow used to bypass MFA or passkey | S | Identity, boundary 2 | H | SEC-AUTHN-2 (recovery paths), SEC-AUTHN-6 | CONDITIONAL — recovery flows UNKNOWN (REQUIREMENTS OQ-8) |
+| TM-S-3 | Registration with an email the registrant does not control — health data bound to a third party's identity, recovery hijack | S/L | Identity, boundary 2 | M | None previously | GAP → SEC-AUTHN-8; REQUIREMENTS OQ-15 |
+| TM-S-4 | Privileged-account bootstrap: first passkey enrolment path for `admin`/`consultant` unspecified and attackable | S | Identity | H | SEC-AUTHN-2, SEC-AUTHN-7 | CONDITIONAL — provisioning UNKNOWN (SQ-12) |
+| TM-S-5 | Theft and replay of a JWT (XSS, transport, shared device) | S | Boundary 1 | H | SEC-SESSION-1, SEC-SESSION-2, SEC-SESSION-5 | CONDITIONAL — transport, lifetime, revocation undecided (SQ-2) |
+| TM-S-6 | CSRF against state-changing operations if tokens ride in cookies | S/T | Boundary 1 | M | SEC-HTTP-4 | CONDITIONAL — on SEC-SESSION-5 outcome (SQ-2) |
+| TM-T-1 | Tampered client payloads: forged roles, foreign owner IDs, mass assignment of server-controlled fields | T/E | Boundary 1 | H | SEC-TB-1, SEC-INPUT-1, SEC-INPUT-3 | MITIGATED BY RULE |
+| TM-T-2 | SQL injection through any input-bearing endpoint | T | Boundary 3 | H | SEC-INPUT-5 | MITIGATED BY RULE |
+| TM-T-3 | JWT signature/algorithm confusion (`alg: none`, key confusion, claim omission) | T/S | Boundary 2 | H | SEC-SESSION-1, SEC-SESSION-2 | MITIGATED BY RULE |
+| TM-T-4 | Stored XSS via admin-authored plan content, citation URLs, or subscriber-entered fields | T | Browser Client | H | SEC-RENDER-1, SEC-RENDER-2, SEC-RENDER-3, SEC-HTTP-2 | MITIGATED BY RULE — CSP directives still TO BE DECIDED |
+| TM-T-5 | Compromised admin publishes harmful exercise/diet content; author and verifier may be the same account (no dual control) | T (safety) | Plan library | H | FR-4.4, FR-4.5 gate exists but is single-admin | GAP → REQUIREMENTS OQ-16 (dual-control verification); FR-10.2 / SEC-LOG-6 for accountability |
+| TM-T-6 | CI/CD or Terraform-state compromise deploys attacker-controlled code or infrastructure | T/E | Boundary 4 | H | SEC-CICD-1–4, SEC-SECRET-3 | CONDITIONAL — platform and topology UNKNOWN (SQ-7) |
+| TM-T-7 | Malicious or vulnerable dependency enters the build | T/E | Boundary 4 | H | DEP-1–DEP-8, SEC-CICD-4 | MITIGATED BY RULE |
+| TM-T-8 | Prototype pollution / unsafe dynamic evaluation in the Node.js runtime | T/E | REST API Application | M | SEC-INPUT-6 | MITIGATED BY RULE |
+| TM-R-1 | Admin plan lifecycle actions (create, edit, publish, unpublish) unaudited — only verification was recorded, so a hostile admin action is repudiable | R | Plan library | M | FR-4.5 only | GAP → REQUIREMENTS FR-10.2; SEC-LOG-6 |
+| TM-R-2 | Audit entries alterable below the application (DB credential holder, operator); SEC-LOG-2 binds the application only | R/T | Boundary 5 | M | SEC-LOG-2 (app layer) | GAP → SEC-LOG-7; SQ-8, SQ-13 |
+| TM-I-1 | BOLA/IDOR: subscriber A reads or mutates subscriber B's plan copies, logs, or export | I/T | REST API | H | SEC-AUTHZ-1, SEC-AUTHZ-2, SEC-DATA-3 | MITIGATED BY RULE |
+| TM-I-2 | Consultant retains access after engagement ends via still-valid JWT | I | REST API | H | SEC-AUTHZ-3, SEC-SESSION-4 | CONDITIONAL — revocation mechanism undecided (SQ-2) |
+| TM-I-3 | Excessive data exposure / bulk retrieval of subscriber records through any role | I | REST API | H | SEC-DATA-5 | MITIGATED BY RULE |
+| TM-I-4 | Account-existence enumeration via response content or timing | I/L | Identity | L | SEC-AUTHN-3 | MITIGATED BY RULE |
+| TM-I-5 | Health data leaks into logs, error responses, or external analytics/monitoring | I | All outbound paths | H | SEC-TB-3, SEC-LOG-3, SEC-ERR-1 | MITIGATED BY RULE |
+| TM-I-6 | Backups, replicas, snapshots hold unencrypted or over-retained health data | I | Persistence | H | SEC-DATA-1, SEC-DATA-4 | CONDITIONAL — deletion mechanics and backup handling undecided (SQ-5) |
+| TM-I-7 | Data export (FR-9.3) as an exfiltration channel; an asynchronously generated export artifact is a new health-data store with no stated controls | I | REST API; artifact storage | H | SEC-DATA-3 | GAP → SEC-DATA-6; conditional on ARCHITECTURE.md sync/async decision |
+| TM-I-8 | Operator or support staff reads production health data directly; no rule constrained human access below the application | I | Boundary 5 | H | None previously | GAP → SEC-OPS-1; SQ-13 |
+| TM-I-9 | Health data residue in browser storage, cache, or history on shared devices | I | Browser Client | M | SEC-SESSION-5, SEC-RENDER-4, SEC-HTTP-2 | MITIGATED BY RULE |
+| TM-D-1 | Resource exhaustion on the public surface, amplified by expensive endpoints (export, history aggregation) | D | Boundary 1 | M | SEC-HTTP-5 | CONDITIONAL — limits undecided (SQ-3) |
+| TM-D-2 | Targeted victim lockout: attacker triggers failed-auth lockout against a chosen account | D | Identity | M | None — lockout behavior itself creates the risk | CONDITIONAL — lockout design undecided (OQ-8, SQ-3); design MUST NOT allow third-party-triggered permanent lockout |
+| TM-E-1 | Privilege escalation via role change or account-provisioning flows | E | Identity; REST API | H | SEC-INPUT-3 (request path) | CONDITIONAL — provisioning and role lifecycle UNKNOWN (SQ-12) |
+| TM-E-2 | Authorization policy gap or fail-open evaluation grants unintended access | E | REST API | H | SEC-AUTHZ-5, SEC-AUTHZ-6, SEC-AUTHZ-7 | MITIGATED BY RULE — policy design still open (SQ-4) |
+| TM-E-3 | Consultant capability creep: capabilities undefined, so scope of consultant write access cannot be bounded | E | REST API | M | SEC-AUTHZ-3 bounds *who*, not *what* | CONDITIONAL — REQUIREMENTS OQ-12 |
+| TM-E-4 | Subscription entitlement bypass: whatever mechanism flips a subscription "active" is an unguarded target while undefined | E | REST API | M | SEC-AUTHZ-8 | CONDITIONAL — REQUIREMENTS OQ-1 |
+| TM-P-1 | Identifiability: health data is linked to real identity by design; deletion may not de-identify backups and derived copies | L/I (LINDDUN) | Persistence | H | SEC-DATA-4 | CONDITIONAL — SQ-5 |
+| TM-P-2 | Unawareness: consent is captured (FR-9.2) but no path existed to withdraw it short of account deletion | U (LINDDUN) | REST API | M | None previously | GAP → REQUIREMENTS FR-9.9 |
+| TM-P-3 | Non-compliance: governing privacy regimes unresolved; no incident-response or breach-notification process defined | Nc (LINDDUN) | System-wide | H | — | CONDITIONAL — SQ-1, SQ-11 |
+| TM-P-4 | The health-data audit trail is itself sensitive personal data with undefined retention and access control | I/Nc | Audit storage | M | SEC-LOG-5 | CONDITIONAL — SQ-8 |
+
+**Resulting changes.** This model added: FR-9.9 and FR-10.2 plus OQ-15 and OQ-16 to REQUIREMENTS.md; trust boundaries 4 and 5 and traceability rows to ARCHITECTURE.md; and, in this document, rules SEC-AUTHN-8, SEC-DATA-6, SEC-LOG-6, SEC-LOG-7, SEC-OPS-1, open question SQ-13, and the rewrite of SQ-9. No previously documented statement was contradicted by the model; no conflict between the four source documents was found beyond the jurisdiction inconsistency already recorded as SQ-1.
 
 ### Provisional Security Rules
 
@@ -108,6 +169,11 @@ Rules marked **Confirmed** trace to an explicit statement in REQUIREMENTS.md, AR
 - **SEC-AUTHN-7** (Provisional) Security-relevant account changes — password change, MFA enable/disable, passkey registration or replacement — MUST require re-authentication and MUST generate an audit entry.
   - **Applies to:** Identity and Session Handling (FR-2.5, FR-2.9)
   - **Verification:** Test asserting each change is refused without fresh authentication and produces an audit record
+  - **References:** `REF-AUTH`, `REF-63B`, `REF-ASVS-5`
+
+- **SEC-AUTHN-8** (Provisional) Control of a registered email address MUST be verified before the account can record health data or be relied upon in any account-recovery flow. Verification flow specifics (timing, token expiry, resend): TO BE DECIDED (REQUIREMENTS.md OQ-15).
+  - **Applies to:** Identity and Session Handling; registration (threat TM-S-3)
+  - **Verification:** Test attempting a health-data write on an account with an unverified email, asserting rejection
   - **References:** `REF-AUTH`, `REF-63B`, `REF-ASVS-5`
 
 #### Session Management (JWT)
@@ -274,6 +340,18 @@ Applies because JWTs are explicitly selected in the security notes.
   - **Verification:** Response-shape assertions per endpoint; review for excessive data exposure
   - **References:** `REF-API-2023`, `REF-PROMPT-API`
 
+- **SEC-DATA-6** (Conditional, Provisional) If data export (FR-9.3) or account deletion (FR-9.4) executes asynchronously, any generated export artifact is health data at rest: it MUST be encrypted, retrievable only by the requesting actor, automatically expired after a bounded lifetime, and covered by account deletion. Applicability depends on the synchronous-vs-deferred decision in ARCHITECTURE.md (threat TM-I-7).
+  - **Applies to:** REST API Application; any artifact storage introduced for export
+  - **Verification:** Test asserting a second actor cannot retrieve an export artifact and that expired artifacts are inaccessible
+  - **References:** `REF-API-2023`, `REF-ASVS-5`
+
+#### Operational Access
+
+- **SEC-OPS-1** (Provisional) Human access to production health data below the application layer — direct database access, backup restoration, support tooling — MUST be denied by default, granted only through a documented break-glass process with per-use justification, time-bound credentials, and an audit record. Specific mechanism and approver model: TO BE DECIDED (SQ-13; threat TM-I-8).
+  - **Applies to:** Operational/human-access boundary (ARCHITECTURE.md trust boundary 5)
+  - **Verification:** Review of production access paths asserting no standing human credential can read health data; break-glass drill producing the expected audit trail
+  - **References:** `REF-PROMPT-TF-AWS`, `REF-LOG`, `REF-ASVS-5`
+
 #### Secrets and Keys
 
 - **SEC-SECRET-1** (Confirmed) Secrets — token signing keys, database credentials, and any future integration credentials — MUST NOT appear in source control, client bundles, logs, error responses, or container images.
@@ -319,6 +397,14 @@ Applies because JWTs are explicitly selected in the security notes.
   - **Applies to:** Logging and audit storage
   - **Verification:** Documented retention policy exists and is enforced by configuration
   - **References:** `REF-LOG`
+- **SEC-LOG-6** (Confirmed) Every admin plan lifecycle action — create, edit, verify, publish, unpublish — MUST produce an audit entry recording the acting admin, the action, the plan, and the time.
+  - **Applies to:** REST API Application (FR-10.2; threats TM-R-1, TM-T-5)
+  - **Verification:** Test asserting each admin plan operation emits exactly one audit entry with the required fields
+  - **References:** `REF-LOG`, `REF-ASVS-5`
+- **SEC-LOG-7** (Provisional) Audit storage MUST be tamper-evident against actors below the application layer, including holders of database or backup credentials; SEC-LOG-2 binds only the application. Mechanism (write-once storage, integrity chaining, or segregated log account): TO BE DECIDED (SQ-8, SQ-13; threat TM-R-2).
+  - **Applies to:** Relational Persistence; audit storage; operational-access boundary
+  - **Verification:** Attempted out-of-band modification of an audit record is detectable in review
+  - **References:** `REF-LOG`, `REF-PROMPT-TF-AWS`
 
 #### External Integrations
 
@@ -415,6 +501,11 @@ Applies because JWTs are explicitly selected in the security notes.
 | SEC-CICD-3 | FR-9.1, FR-9.8 | AWS infrastructure | PROVISIONAL |
 | SEC-CICD-4 | — | CI pipeline | PROVISIONAL |
 | SEC-CICD-5 | FR-9.1, FR-9.8 | Environment management | PROVISIONAL |
+| SEC-AUTHN-8 | FR-2.2, FR-9.1 | Identity and Session Handling | PROVISIONAL — verification flow undecided (REQUIREMENTS.md OQ-15) |
+| SEC-DATA-6 | FR-9.3, FR-9.4 | REST API Application; artifact storage | TO BE DECIDED — conditional on sync/async export decision (ARCHITECTURE.md) |
+| SEC-LOG-6 | FR-10.2 | REST API Application | CONFIRMED |
+| SEC-LOG-7 | FR-9.7 | Relational Persistence; audit storage | PROVISIONAL — mechanism undecided (SQ-8, SQ-13) |
+| SEC-OPS-1 | FR-9.1, FR-9.8 | Operational-access boundary (5) | PROVISIONAL — access model undecided (SQ-13) |
 | DEP-1 … DEP-8 | — | All components | PROVISIONAL — no implementation and no dependencies exist yet |
 
 ### Dependency Security Rules
@@ -451,7 +542,8 @@ Applicable sources: `REF-SUPPLY`, `REF-DEPS`, `REF-SSDF`, `REF-PROMPT-NODE`, `RE
 - **SQ-6** Is the REST surface ever exposed to third-party consumers, or is it strictly a private backend for the first-party Vue client? This changes the API threat surface, versioning obligations, and CORS posture.
 - **SQ-7** What are the CI/CD platform, secret-management service, and AWS service topology? Least-privilege deployment identities, secret resolution, and IaC scanning cannot be specified concretely without them.
 - **SQ-8** What retention periods and access controls apply to audit entries and security logs? Audit records of health-data access are themselves sensitive, and retention interacts directly with SQ-1 and SQ-5.
-- **SQ-9** When will a threat model be produced, and who owns it? The security notes defer it. ASVS Level 3 is claimed as the assurance target, but Level 3 is normally justified by a documented threat and risk assessment — the current rule set is boundary-derived, not threat-derived, so coverage gaps cannot be ruled out.
+- **SQ-9** The initial document-based threat model was produced 2026-07-31 (see Threat Model section) — single-perspective and pre-implementation. Who owns it, its refresh cadence, and its cross-functional validation (product, legal/privacy, operations) are TO BE DECIDED. It MUST be revisited when SQ-1, SQ-2, SQ-4, and SQ-7 resolve, and re-run against the repository once implementation exists, before any ASVS Level 3 conformance claim.
 - **SQ-10** Is ASVS Level 3 the right target, and who verifies it? Level 3 is intended for the highest-risk applications and carries substantial verification cost. No conformance claim is made here, and no gap assessment against ASVS 5.0.0 has been performed.
 - **SQ-11** What is the incident response and breach-notification process, including who is notified and within what window if health data is exposed? This is unaddressed by all input documents and is likely required by whichever regime SQ-1 resolves to.
-- **SQ-12** How are `admin` and `consultant` accounts provisioned, vetted, and deprovisioned? Both hold elevated access to subscriber health data, and REQUIREMENTS.md OQ-13 leaves consultant onboarding open.
+- **SQ-12** How are `admin` and `consultant` accounts provisioned, vetted, and deprovisioned? Both hold elevated access to subscriber health data, and REQUIREMENTS.md OQ-13 leaves consultant onboarding open. The threat model adds: how is the *first* passkey for a privileged account enrolled, and how are role changes authorized (TM-S-4, TM-E-1)?
+- **SQ-13** What is the operational human-access model for production health data — who can reach the database, backups, and logs below the application layer, under what break-glass process, and with what audit? No input document addressed access below the application (TM-I-8, TM-R-2; SEC-OPS-1, SEC-LOG-7).
