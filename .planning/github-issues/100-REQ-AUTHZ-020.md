@@ -82,7 +82,7 @@
 - **Compliance Tests / Evidence**: Evidence that no cross-subject access is possible, retained for FR-9.1.
 - **Acceptance-Criteria Traceability**: AC-01 and AC-02 — two-subscriber suite; AC-03 — query-shape assertion and a static check for post-retrieval filtering; AC-04 — response-equivalence test.
 - **Coverage Target**: Every identifier-addressed operation covered by a positive and a cross-subject negative test.
-- **Required Test Environment**: At least two subscriber identities, one consultant, one admin, and seeded owned records; test framework TO BE DECIDED.
+- **Required Test Environment**: At least two subscriber identities, one consultant, one admin, and seeded owned records; Vitest as the runner.
 
 ## Dependencies
 
@@ -94,7 +94,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine and query layer TO BE DECIDED. Scoping MUST be expressed in the query (SEC-AUTHZ-2).
+- **Constraints**: PostgreSQL accessed through Drizzle ORM. Scoping MUST be expressed in the query (SEC-AUTHZ-2).
 - **Prohibited Approaches**: Retrieve-then-check; trusting an owner identifier from the request; relying on unguessable identifiers as the access control; distinguishing "not found" from "forbidden" in the response.
 - **Implementation Guidance**: A single scope-resolution function used by every owned-record operation makes AC-03 mechanically reviewable and keeps the rule out of individual handlers (`SECURITY.md` code-quality resolution).
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-ABAC`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

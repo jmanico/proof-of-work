@@ -82,7 +82,7 @@
 - **Compliance Tests / Evidence**: Retained differential and timing test output as evidence for FR-2.3 and SEC-AUTHN-3.
 - **Acceptance-Criteria Traceability**: AC-01 and AC-03 — response-uniformity suite; AC-02 — paired differential and timing tests; AC-04 — log-content assertion.
 - **Coverage Target**: Every authentication-related endpoint and every failure cause class exercised.
-- **Required Test Environment**: A registered identity and a known-unregistered identifier; latency measurement harness. Test framework TO BE DECIDED.
+- **Required Test Environment**: A registered identity and a known-unregistered identifier; latency measurement harness. Vitest as the runner.
 
 ## Dependencies
 
@@ -94,7 +94,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime and framework TO BE DECIDED. Registration and recovery flows are blocked, so this issue delivers the contract and applies it to the paths that exist today; it MUST be re-applied to each new credential path.
+- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). Registration and recovery flows are blocked, so this issue delivers the contract and applies it to the paths that exist today; it MUST be re-applied to each new credential path.
 - **Prohibited Approaches**: "User not found" versus "incorrect password"; different status codes by account state; short-circuiting credential verification when the account does not exist, which creates the timing signal AC-02 forbids; revealing a collision during registration.
 - **Implementation Guidance**: Perform equivalent work on the unregistered path — including a dummy verification of comparable cost — so timing does not separate the cases. The same uniformity helper serves REQ-AUTHZ-040's denial responses.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-NODE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

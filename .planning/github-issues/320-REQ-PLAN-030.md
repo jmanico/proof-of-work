@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Audit entries for create and edit, retained as accountability evidence for FR-10.2.
 - **Acceptance-Criteria Traceability**: AC-01 — create suite; AC-02 — edit validation suite; AC-03 — role and mass-assignment negative suites; AC-04 — copy-stability cross-check with REQ-CUSTOM-030; AC-05 — form error presentation test.
 - **Coverage Target**: Both plan types × create and edit, positive and negative; all three roles exercised against each operation.
-- **Required Test Environment**: Two admin identities, one subscriber, one consultant; seeded plans in draft and published states. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: Two admin identities, one subscriber, one consultant; seeded plans in draft and published states. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine, server framework, and client tooling TO BE DECIDED. Whether an edit invalidates a prior verification is unresolved (`REQUIREMENTS.md` OQ-10) — this issue MUST NOT decide it; the edit operation leaves the verification record as it found it, and the question is recorded as open.
+- **Constraints**: PostgreSQL with Drizzle ORM and Fastify (`CLAUDE.md`); client build tooling TO BE DECIDED. Whether an edit invalidates a prior verification is unresolved (`REQUIREMENTS.md` OQ-10) — this issue MUST NOT decide it; the edit operation leaves the verification record as it found it, and the question is recorded as open.
 - **Prohibited Approaches**: A combined "save and publish" operation that bypasses the publication gate; binding the request body wholesale; treating the admin role as a reason to skip input validation; writing the audit entry outside the transaction.
 - **Implementation Guidance**: Keep create and edit as distinct operations with distinct audit action values so REQ-AUDIT-030's five-action enumeration stays exact.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

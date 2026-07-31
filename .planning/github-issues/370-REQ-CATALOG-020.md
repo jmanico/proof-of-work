@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Accessibility evidence for the detail view at 320px and 200% zoom.
 - **Acceptance-Criteria Traceability**: AC-01 — browse and view suite; AC-02 — unpublished access suite; AC-03 — parameter and shape tests; AC-04 — unit labelling and typography tests; AC-05 — reflow tests.
 - **Coverage Target**: Published and unpublished states × listing and detail; the empty case; every target field rendered.
-- **Required Test Environment**: A subscriber identity, seeded published and unpublished diet plans with citations and full target sets. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: A subscriber identity, seeded published and unpublished diet plans with citations and full target sets. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine and client tooling TO BE DECIDED. Subscription entitlement is blocked by `REQUIREMENTS.md` OQ-1, so this surface is gated by authentication only; that gap must be stated when the issue is closed.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling TO BE DECIDED. Subscription entitlement is blocked by `REQUIREMENTS.md` OQ-1, so this surface is gated by authentication only; that gap must be stated when the issue is closed.
 - **Prohibited Approaches**: Client-side filtering of unpublished plans; deriving displayed targets by recomputation rather than showing the authored values; rendering meal content through a raw HTML binding (SEC-RENDER-1); rounding or reformatting target values in a way that changes their meaning.
 - **Implementation Guidance**: Share the published-only query predicate with REQ-CATALOG-010 and REQ-PLAN-050. Present targets as authored, with units, so that the later FR-8.5 comparison has an unambiguous reference once OQ-5 resolves.
 - **AI Development Guidance**: `REF-PROMPT-VUE`, `REF-PROMPT-API`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

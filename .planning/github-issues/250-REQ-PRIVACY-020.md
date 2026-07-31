@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Audit entries for withdrawal and re-grant, plus evidence that retained records remain accessible to the subject, as evidence for FR-9.9.
 - **Acceptance-Criteria Traceability**: AC-01 — withdrawal suite; AC-02 — post-withdrawal refusal suite across entity types and actors; AC-03 — record-preservation and client-flag negative tests; AC-04 — retained-rights test; AC-05 — re-grant suite.
 - **Coverage Target**: Every health-data write path covered by a post-withdrawal refusal test.
-- **Required Test Environment**: A subscriber with consent granted and seeded health records, an engaged consultant, and a session captured before withdrawal. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: A subscriber with consent granted and seeded health records, an engaged consultant, and a session captured before withdrawal. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine TO BE DECIDED. FR-9.9 explicitly keeps existing records subject to FR-9.3–FR-9.5, so withdrawal MUST NOT be implemented as deletion.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`). FR-9.9 explicitly keeps existing records subject to FR-9.3–FR-9.5, so withdrawal MUST NOT be implemented as deletion.
 - **Prohibited Approaches**: Deleting or anonymizing records on withdrawal; caching consent in the session or token (which SEC-SESSION-6 already forbids for sensitive claims and SEC-SESSION-4's revocation principle argues against generally); hiding the logging UI without enforcing server-side; requiring account deletion as the only withdrawal path.
 - **Implementation Guidance**: Model consent as a record with an explicit state and timestamps rather than a boolean, so withdrawal and re-grant are both auditable events and the history is reconstructable.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

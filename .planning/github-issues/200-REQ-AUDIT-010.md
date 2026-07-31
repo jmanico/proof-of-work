@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Sample audit entries and the database privilege grant, retained as evidence for FR-9.7.
 - **Acceptance-Criteria Traceability**: AC-01 — write-and-read suite; AC-02 — mutation denial matrix; AC-03 — content assertions; AC-04 — privilege review; AC-05 — forgery test.
 - **Coverage Target**: Every role × every mutation interface exercised; all four required fields covered positive and negative.
-- **Required Test Environment**: The selected RDBMS with a distinct application role, identities for all three roles. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: PostgreSQL with a distinct application role, identities for all three roles; Vitest as the runner.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine and migration tooling TO BE DECIDED. `SECURITY.md` SEC-LOG-2 binds the application only; protection against a database-credential holder is explicitly a separate, unresolved rule (SEC-LOG-7) and this issue MUST NOT be described as delivering it.
+- **Constraints**: PostgreSQL with Drizzle ORM and drizzle-kit migrations (`CLAUDE.md`). `SECURITY.md` SEC-LOG-2 binds the application only; protection against a database-credential holder is explicitly a separate, unresolved rule (SEC-LOG-7) and this issue MUST NOT be described as delivering it.
 - **Prohibited Approaches**: An `updated_at` column or any mutation path on audit entries; storing the accessed health values "for context"; taking the acting account from the request; writing the entry outside the audited action's transaction.
 - **Implementation Guidance**: Model the affected subject as a reference (subject account identifier plus record type and identifier) rather than embedded content, which satisfies SEC-LOG-3 by construction and keeps FR-9.4's deletion obligations tractable.
 - **AI Development Guidance**: `REF-LOG`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

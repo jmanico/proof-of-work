@@ -82,7 +82,7 @@
 - **Compliance Tests / Evidence**: N/A
 - **Acceptance-Criteria Traceability**: AC-01 and AC-02 — role matrix suite; AC-03 — role-claim injection tests; AC-04 — route inventory assertion that no subscriber submit or share operation exists.
 - **Coverage Target**: Every plan lifecycle operation × every role.
-- **Required Test Environment**: One identity per role; seeded published and unpublished plans. Test framework TO BE DECIDED.
+- **Required Test Environment**: One identity per role; seeded published and unpublished plans. Vitest as the runner.
 
 ## Dependencies
 
@@ -94,7 +94,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime; framework TO BE DECIDED. Admin and consultant accounts authenticate with passkeys (FR-2.8), so this gate composes with REQ-AUTH-020 but does not replace it.
+- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). Admin and consultant accounts authenticate with passkeys (FR-2.8), so this gate composes with REQ-AUTH-020 but does not replace it.
 - **Prohibited Approaches**: Hiding admin controls in the client as the enforcement (DR-2); role checks duplicated ad hoc per handler with no shared gate; inferring privilege from the route prefix alone.
 - **Implementation Guidance**: Express the role requirement declaratively next to the route so the role matrix test can be generated from the same source.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-ABAC`; `CLAUDE.md`.

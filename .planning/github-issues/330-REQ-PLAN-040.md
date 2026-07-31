@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Evidence that published plans carry citations, supporting FR-4.4 alongside REQ-PLAN-050.
 - **Acceptance-Criteria Traceability**: AC-01 — add-and-retrieve suite; AC-02 — scheme rejection matrix; AC-03 — SSRF and parsing-method assertions; AC-04 — last-citation removal test; AC-05 — internal-address suite.
 - **Coverage Target**: Every permitted and prohibited scheme covered; every citation operation covered positive and negative.
-- **Required Test Environment**: An admin identity, seeded published and unpublished plans, and a network interception layer to prove no outbound request occurs. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: An admin identity, seeded published and unpublished plans, and a network interception layer to prove no outbound request occurs. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine and framework TO BE DECIDED. The scheme allow-list itself is not enumerated by any source document; `https` is the only scheme a peer-reviewed citation plausibly needs, but that choice must be recorded and confirmed rather than assumed to be settled.
+- **Constraints**: PostgreSQL with Drizzle ORM and Fastify (`CLAUDE.md`). The scheme allow-list itself is not enumerated by any source document; `https` is the only scheme a peer-reviewed citation plausibly needs, but that choice must be recorded and confirmed rather than assumed to be settled.
 - **Prohibited Approaches**: Fetching the URL to validate it, to check for link rot, or to build a preview; substring or regular-expression scheme checks on the raw string; storing an unvalidated URL and relying on the renderer alone; auto-correcting a malformed URL.
 - **Implementation Guidance**: Perform the same scheme check at storage and at render (REQ-CATALOG-030), so a record written before a rule change cannot render as an active hostile link. `DESIGN.md` requires citation links to be visibly links; external links must not grant opener access to the application window (SEC-RENDER-3), which REQ-CATALOG-030 implements.
 - **AI Development Guidance**: `REF-PC-2024`, `REF-XSS`, `REF-PROMPT-VUE`, `REF-PROMPT-API`; `CLAUDE.md`.

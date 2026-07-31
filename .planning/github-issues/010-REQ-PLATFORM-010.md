@@ -82,7 +82,7 @@
 - **Compliance Tests / Evidence**: Automated contrast report for all documented pairings, retained as accessibility evidence for the WCAG 2.2 AA target.
 - **Acceptance-Criteria Traceability**: AC-01 and AC-02 — contrast test suite; AC-03 — style lint rule with a deliberate failing fixture; AC-04 — rendered numeric table test.
 - **Coverage Target**: Every documented token and every documented pairing exercised.
-- **Required Test Environment**: Client build and test runner — TO BE DECIDED (`CLAUDE.md`, Repository state).
+- **Required Test Environment**: Vitest as the runner; client build tooling remains TO BE DECIDED (`CLAUDE.md`, Repository state).
 
 ## Dependencies
 
@@ -94,7 +94,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Vue.js client (`ARCHITECTURE.md`). Client build tooling, styling approach, and directory layout are TO BE DECIDED (`CLAUDE.md`) and MUST NOT be selected within this issue without an explicit decision recorded there.
+- **Constraints**: Vue.js client written in TypeScript under `apps/web` (`CLAUDE.md`). Client build tooling and styling approach remain TO BE DECIDED and MUST NOT be selected within this issue without an explicit decision recorded there.
 - **Prohibited Approaches**: Introducing hues, weights, sizes, or spacing steps absent from `DESIGN.md`; encoding meaning in color alone (`DESIGN.md`, Accessibility); web font downloads while brand typography is UNKNOWN.
 - **Implementation Guidance**: Name tokens exactly as `DESIGN.md` names them (`primary`, `secondary`, `background`, `surface`, `text`, `error`, `success`) so review against the table is mechanical.
 - **AI Development Guidance**: `REF-PROMPT-VUE`; `CLAUDE.md`.

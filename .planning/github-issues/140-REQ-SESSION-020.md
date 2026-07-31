@@ -82,7 +82,7 @@
 - **Compliance Tests / Evidence**: The documented allow-list with per-claim purpose and trust level, retained for the SEC-AUTHZ-6 attribute schema work.
 - **Acceptance-Criteria Traceability**: AC-01 and AC-02 — issued-token claim-set assertion; AC-03 — sensitive-content scan over decoded payloads; AC-04 — allow-list documentation review.
 - **Coverage Target**: Every issuance path and every role covered.
-- **Required Test Environment**: One identity per role with seeded health data, so AC-03 can assert absence against real values. Test framework TO BE DECIDED.
+- **Required Test Environment**: One identity per role with seeded health data, so AC-03 can assert absence against real values. Vitest as the runner.
 
 ## Dependencies
 

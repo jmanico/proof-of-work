@@ -82,7 +82,7 @@
 - **Compliance Tests / Evidence**: N/A
 - **Acceptance-Criteria Traceability**: AC-01 — resolution suite; AC-02 — constraint violation suite; AC-03 — role-injection suite; AC-04 — unresolvable-role denial test.
 - **Coverage Target**: All three role values and every invalid role state exercised.
-- **Required Test Environment**: One account per role plus fixtures for the invalid states. RDBMS engine and test framework TO BE DECIDED.
+- **Required Test Environment**: One account per role plus fixtures for the invalid states. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -94,7 +94,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine and migration tooling TO BE DECIDED (`CLAUDE.md`). The invariant MUST hold in schema, not only in application code, so that operator-level writes (trust boundary 5) cannot create an ambiguous account.
+- **Constraints**: PostgreSQL with Drizzle ORM and drizzle-kit migrations (`CLAUDE.md`). The invariant MUST hold in schema, not only in application code, so that operator-level writes (trust boundary 5) cannot create an ambiguous account.
 - **Prohibited Approaches**: A nullable role column with an application-side default; a role list or bitmask; deriving role from group membership or from which credential type was used; permitting a request to carry role as an optimization.
 - **Implementation Guidance**: Represent role as an immutable value in the session context so that a time-of-check-to-time-of-use gap cannot open mid-request (`SECURITY.md` code-quality resolution).
 - **AI Development Guidance**: `REF-PROMPT-ABAC`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

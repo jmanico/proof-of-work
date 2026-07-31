@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Before-and-after content comparisons, retained as evidence for FR-7.5.
 - **Acceptance-Criteria Traceability**: AC-01 — edit-propagation suite; AC-02 — unpublication suite; AC-03 — schema and referential-action review; AC-04 — orphaned-source retrieval test; AC-05 — read-path independence test.
 - **Coverage Target**: Every plan content field exercised by the edit-propagation suite, for both plan types.
-- **Required Test Environment**: A subscriber holding copies of both plan types, an admin able to edit and unpublish, and full content snapshots. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: A subscriber holding copies of both plan types, an admin able to edit and unpublish, and full content snapshots. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine, schema design, and migration tooling TO BE DECIDED. This issue is largely a schema and data-model guarantee, so it must be settled before REQ-CUSTOM-010 persists its first copy — retrofitting independence after copies exist is a migration, not a change.
+- **Constraints**: PostgreSQL with Drizzle ORM and drizzle-kit migrations (`CLAUDE.md`); schema design remains TO BE DECIDED. This issue is largely a schema and data-model guarantee, so it must be settled before REQ-CUSTOM-010 persists its first copy — retrofitting independence after copies exist is a migration, not a change.
 - **Prohibited Approaches**: Storing a copy as a plan identifier plus an overrides map; sharing exercise or meal child tables between plans and copies; `ON DELETE CASCADE` or `ON UPDATE CASCADE` from plans to copies; resolving any copy field from the source plan at read time.
 - **Implementation Guidance**: Retaining the source plan identifier for provenance is permitted and useful, provided AC-05 holds — nothing is resolved through it. Verify the invariant with the same snapshot comparison used in REQ-PLAN-030 AC-04 and REQ-PLAN-060 AC-02 so the three issues assert one guarantee from three directions.
 - **AI Development Guidance**: `REF-PROMPT-QUALITY`, `REF-PROMPT-API`; `CLAUDE.md`.

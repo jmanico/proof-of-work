@@ -82,7 +82,7 @@
 - **Compliance Tests / Evidence**: Record of the passkey-only enforcement test across all authentication paths, as evidence for FR-2.8.
 - **Acceptance-Criteria Traceability**: AC-01 — passkey success suite; AC-02 — password-denial suite; AC-03 — all-paths enforcement suite plus route inventory; AC-04 — assertion negative suite.
 - **Coverage Target**: Both privileged roles × every session-issuing path, positive and negative.
-- **Required Test Environment**: A WebAuthn authenticator simulator, one `admin` and one `consultant` identity with registered passkeys, and one `subscriber` for contrast. Test framework TO BE DECIDED.
+- **Required Test Environment**: A WebAuthn authenticator simulator, one `admin` and one `consultant` identity with registered passkeys, and one `subscriber` for contrast. Vitest as the runner.
 
 ## Dependencies
 
@@ -94,7 +94,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime and framework TO BE DECIDED. Passkeys are mandatory only for `admin` and `consultant`; subscriber authentication is a separate, currently blocked path and MUST NOT be conflated with this one.
+- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). Passkeys are mandatory only for `admin` and `consultant`; subscriber authentication is a separate, currently blocked path and MUST NOT be conflated with this one.
 - **Prohibited Approaches**: A shared login endpoint that branches on a client-supplied flag; a "temporary" password path for privileged accounts; recovery that issues a session on email possession alone (SEC-AUTHN-2 covers recovery explicitly); logging assertions or challenges.
 - **Implementation Guidance**: Resolve the account's role before deciding which credential the endpoint will accept, so the rule cannot be bypassed by choosing a different form. Keep challenge generation on the cryptographically secure generator required by SEC-SECRET-4.
 - **AI Development Guidance**: `REF-PROMPT-JWT` (session issuance), `REF-PROMPT-NODE`, `REF-PROMPT-QUALITY`; `REF-WEBAUTHN`, `REF-PASSKEY`; `CLAUDE.md`.

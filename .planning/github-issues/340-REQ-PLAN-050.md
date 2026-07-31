@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Verification records and publish audit entries, retained as evidence for FR-4.5 and FR-10.2.
 - **Acceptance-Criteria Traceability**: AC-01 — publish success suite; AC-02 — precondition refusal matrix; AC-03 — mass-assignment and direct-API suites; AC-04 — verification record assertions; AC-05 — subscriber visibility tests.
 - **Coverage Target**: Every combination of citation-present and verification-present exercised; all three roles against the publish operation.
-- **Required Test Environment**: Two admin identities, one subscriber, one consultant; plans seeded in each precondition state. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: Two admin identities, one subscriber, one consultant; plans seeded in each precondition state. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine and framework TO BE DECIDED. The gate checks that a verification record is *present*; whether the verifier must differ from the author (`REQUIREMENTS.md` OQ-16) and whether an edit invalidates verification (OQ-10) are open and MUST NOT be decided here. This makes the issue's coverage of FR-4.5 partial: the record and the gate are delivered, the workflow is not.
+- **Constraints**: PostgreSQL with Drizzle ORM and Fastify (`CLAUDE.md`). The gate checks that a verification record is *present*; whether the verifier must differ from the author (`REQUIREMENTS.md` OQ-16) and whether an edit invalidates verification (OQ-10) are open and MUST NOT be decided here. This makes the issue's coverage of FR-4.5 partial: the record and the gate are delivered, the workflow is not.
 - **Prohibited Approaches**: A combined save-and-publish path; enforcing the gate only in the admin UI; allowing publication state to be set through create or edit; treating a citation count cached on the plan row as authoritative without checking the citation records themselves.
 - **Implementation Guidance**: Because REQ-PLAN-040 refuses removal of the last citation from a published plan, and this gate refuses publication without one, the invariant "published implies at least one citation" holds from both directions — assert it as a test in both issues.
 - **AI Development Guidance**: `REF-PC-2024`, `REF-PROMPT-API`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

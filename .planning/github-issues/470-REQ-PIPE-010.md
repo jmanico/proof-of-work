@@ -20,7 +20,7 @@
 - **Assumptions**: No implementation and no dependencies exist yet (`SECURITY.md`, Dependency Security Rules — "No dependency has been assessed"), so this policy applies from the first dependency onward.
 - **Out of Scope**: The CI platform and its pipeline configuration, blocked by `SECURITY.md` SQ-7 — including the automated dependency-scanning gate SEC-CICD-4 requires; secret scanning and IaC scanning (also SEC-CICD-4, blocked); build and deployment identities (SEC-CICD-1, blocked).
 - **Design Traceability**: N/A
-- **Architecture Traceability**: `ARCHITECTURE.md` — trust boundary 4 (CI/CD-and-IaC to production); DR-8 (unresolved decisions must not be hard-coded); Note that the language and package manager are `TO BE DECIDED` in `CLAUDE.md`.
+- **Architecture Traceability**: `ARCHITECTURE.md` — trust boundary 4 (CI/CD-and-IaC to production); DR-8 (unresolved decisions must not be hard-coded). The language and package manager are TypeScript and npm (`CLAUDE.md`).
 - **Security Traceability**: DEP-1 … DEP-8; supports SEC-CICD-4, SEC-SECRET-1, SEC-TB-3 (a dependency that phones home would breach it).
 
 ## Scope
@@ -29,7 +29,7 @@
 - **Components**: All components; the build process
 - **Interfaces / Operations**: Dependency installation and resolution in local, CI, and production builds; the dependency review step in a pull request
 - **Actors**: Developers; the CI/CD identity; a compromised upstream maintainer as adversary
-- **Preconditions**: A language and package manager have been chosen
+- **Preconditions**: None — TypeScript and npm are recorded in `CLAUDE.md`, so this issue is unblocked
 - **Data Classification**: Internal
 - **Personal or Regulated Data**: None directly — but a compromised dependency reaches all health data
 - **Jurisdiction / Regulatory Scope**: N/A
@@ -83,24 +83,24 @@
 - **Compliance Tests / Evidence**: The committed lockfile, the per-dependency justification records, and the vulnerability check output, retained as supply-chain evidence for `REF-SSDF`.
 - **Acceptance-Criteria Traceability**: AC-01 — reproducible build test; AC-02 — stale and floating lockfile failure tests; AC-03 and AC-04 — pull request review checklist with recorded evidence; AC-05 — code review of security-critical paths.
 - **Coverage Target**: Every dependency in the graph covered by the vulnerability check; every addition covered by a justification record.
-- **Required Test Environment**: A clean build environment and the chosen package manager — package manager and CI platform TO BE DECIDED (`CLAUDE.md`, `SECURITY.md` SQ-7).
+- **Required Test Environment**: A clean build environment with npm, and a GitHub Actions runner; the pipeline gate set remains TO BE DECIDED (`SECURITY.md` SQ-7).
 
 ## Dependencies
 
 - **Upstream Requirements**: None
 - **Downstream Requirements**: Every issue that introduces a library — REQ-API-010 (validation), REQ-API-030 (database driver), REQ-SESSION-010 (JWT), REQ-AUTH-020 (WebAuthn), REQ-CATALOG-030 (sanitizer, if rich text is adopted)
 - **External Dependencies**: The package registry for the chosen ecosystem.
-- **Dependency Assumptions**: The chosen package manager supports a committed lockfile and a frozen-install mode; if it does not, DEP-7 is unsatisfiable and the choice must be revisited.
+- **Dependency Assumptions**: npm supports a committed `package-lock.json` and `npm ci` frozen installs, which is what DEP-7 requires.
 - **Failure Impact**: A compromised dependency executes inside the trust boundary that holds all health data, with none of the application's authorization controls applying to it.
 
 ## Implementation Notes
 
-- **Constraints**: Language, package manager, and CI platform are TO BE DECIDED (`CLAUDE.md`, `SECURITY.md` SQ-7). The policy is implementable as a documented review gate and a lockfile discipline before the CI platform exists; the automated gate SEC-CICD-4 requires is blocked and tracked separately. This issue's coverage of the dependency rules is therefore process-and-lockfile, not enforcement-in-pipeline.
+- **Constraints**: TypeScript with npm workspaces, and GitHub Actions as the CI platform (`CLAUDE.md`). `npm ci` against the committed `package-lock.json` supplies DEP-7's frozen resolution. The policy is implementable now as a documented review gate and lockfile discipline; the SEC-CICD-4 automated gate set remains TO BE DECIDED (`SECURITY.md` SQ-7) and is tracked separately. This issue's coverage of the dependency rules is therefore process-and-lockfile, not enforcement-in-pipeline.
 - **Prohibited Approaches**: Version ranges resolved at install time in CI or production; a lockfile excluded from source control; adding a dependency without the DEP-2 justification; writing custom cryptography, authentication, authorization, parsing, encoding, or sanitization to avoid a dependency (DEP-1); accepting a large opaque transitive tree for a small convenience (DEP-6).
 - **Implementation Guidance**: `SECURITY.md` DEP-2 prefers zero new dependencies, while DEP-1 forbids replacing vetted security functionality with custom code — the two together mean the dependencies this project should accept are precisely the security-critical ones, and few others.
 - **AI Development Guidance**: `REF-SUPPLY`, `REF-DEPS`, `REF-SSDF`, `REF-PROMPT-NODE`, `REF-PROMPT-VUE`; `CLAUDE.md`.
-- **Required Human Review**: Security review of every dependency addition; architecture review of the package manager choice against DEP-7.
-- **Open Decisions**: Language, package manager, and CI platform (`CLAUDE.md`, `SECURITY.md` SQ-7). Until the CI platform is chosen, the automated scanning gate (SEC-CICD-4) cannot be built and this control depends on human review.
+- **Required Human Review**: Security review of every dependency addition.
+- **Open Decisions**: The pipeline gate set (`SECURITY.md` SQ-7). GitHub Actions is selected, but until the blocking-check set is designed, the automated scanning gate (SEC-CICD-4) is not built and this control depends on human review.
 
 **Estimated effort**: 0.5–1 engineer-day. **Estimated changed lines**: 50–200 (configuration and documentation; excludes the lockfile itself, which is a generated file).
 **Recommended model**: Claude Opus (`claude-opus-5`) — a small but consequential supply-chain discipline where the judgement calls (DEP-1 versus DEP-2) matter more than the code.

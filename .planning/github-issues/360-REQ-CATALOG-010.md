@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Accessibility evidence for the plan detail view at 320px and 200% zoom.
 - **Acceptance-Criteria Traceability**: AC-01 — browse and view suite; AC-02 — unpublished access suite; AC-03 — parameter manipulation and response-shape tests; AC-04 — empty state test; AC-05 — reflow and typography tests.
 - **Coverage Target**: Published and unpublished states × listing and detail operations; the empty case.
-- **Required Test Environment**: A subscriber identity, seeded published and unpublished exercise plans with citations. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: A subscriber identity, seeded published and unpublished exercise plans with citations. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine, client tooling, and routing strategy TO BE DECIDED. Subscription entitlement (FR-3.1, FR-3.2) is blocked by `REQUIREMENTS.md` OQ-1, so this issue delivers authenticated access only; the entitlement check must be added at this boundary when unblocked, and that gap should be stated when the issue is closed.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling and routing strategy TO BE DECIDED. Subscription entitlement (FR-3.1, FR-3.2) is blocked by `REQUIREMENTS.md` OQ-1, so this issue delivers authenticated access only; the entitlement check must be added at this boundary when unblocked, and that gap should be stated when the issue is closed.
 - **Prohibited Approaches**: Returning all plans and filtering in the client; a publication filter applied after retrieval; exposing the verification record's internal fields beyond what the view needs; using `v-html` or any raw HTML binding for plan content (SEC-RENDER-1, enforced in REQ-CATALOG-030).
 - **Implementation Guidance**: Reuse the published-only query predicate established in REQ-PLAN-050 rather than writing a second one, so unpublication takes effect everywhere at once.
 - **AI Development Guidance**: `REF-PROMPT-VUE`, `REF-PROMPT-API`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: The per-path audit coverage report, retained as evidence for FR-9.7 and FR-11.4.
 - **Acceptance-Criteria Traceability**: AC-01 — per-operation entry assertions; AC-02 — audit-failure fault injection; AC-03 — single-entry and content assertions plus the structural check; AC-04 — consultant access test; AC-05 — path inventory test.
 - **Coverage Target**: 100% of health-data operations covered by the inventory test.
-- **Required Test Environment**: Two subscribers, one consultant with an active engagement, seeded health records, audit storage, and a fault-injectable audit writer. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: Two subscribers, one consultant with an active engagement, seeded health records, audit storage, and a fault-injectable audit writer. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine TO BE DECIDED. DR-9 requires the audit write to be a *dependency* of the access path, so a convention of "remember to call the audit function" does not satisfy this issue.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`). DR-9 requires the audit write to be a *dependency* of the access path, so a convention of "remember to call the audit function" does not satisfy this issue.
 - **Prohibited Approaches**: Audit calls scattered through handlers; a middleware that infers health-data access from the URL rather than from the data layer; asynchronous best-effort audit writes that let the operation succeed when the entry fails; copying health values into the entry for context.
 - **Implementation Guidance**: Route every health-data read and write through a single accessor that takes the audit context as a required argument, so that omitting it is a compile-time or construction-time failure rather than a review miss. That structure is what makes AC-05 enforceable.
 - **AI Development Guidance**: `REF-LOG`, `REF-PROMPT-QUALITY`, `REF-PROMPT-API`; `CLAUDE.md`.

@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: The per-endpoint response-shape report, retained as minimization evidence.
 - **Acceptance-Criteria Traceability**: AC-01 — shape assertions; AC-02 — pagination bound tests; AC-03 — exposure sweep and bulk-retrieval matrix; AC-04 — field-selection narrowing test; AC-05 — cache header assertion.
 - **Coverage Target**: Every read operation covered by a response-shape assertion.
-- **Required Test Environment**: Fully populated entities for every type, identities for all three roles, and a second subscriber. Test framework TO BE DECIDED.
+- **Required Test Environment**: Fully populated entities for every type, identities for all three roles, and a second subscriber. Vitest as the runner.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine and serialization approach TO BE DECIDED. `SECURITY.md` records an explicit assumption that admin capabilities are limited to plan and account administration and that `REQUIREMENTS.md` does not fully define admin access to health data; this issue enforces the bulk-retrieval prohibition without resolving that gap.
+- **Constraints**: PostgreSQL with Drizzle ORM; Fastify response schemas govern serialization, so a field absent from the schema cannot be emitted. `SECURITY.md` records an explicit assumption that admin capabilities are limited to plan and account administration and that `REQUIREMENTS.md` does not fully define admin access to health data; this issue enforces the bulk-retrieval prohibition without resolving that gap.
 - **Prohibited Approaches**: Serializing the persisted entity directly; a generic serializer that includes every column by default; a client-controlled field parameter that can request additional fields; unbounded list endpoints.
 - **Implementation Guidance**: Declare the response shape next to the operation's input schema (REQ-API-010) and binding allow-list (REQ-API-020), so a new persisted field is not automatically exposed in three directions at once.
 - **AI Development Guidance**: `REF-API-2023`, `REF-PROMPT-API`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

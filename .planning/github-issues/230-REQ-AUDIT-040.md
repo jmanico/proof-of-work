@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: The corpus scan report and the egress review, retained as evidence for FR-9.8 and SEC-TB-3.
 - **Acceptance-Criteria Traceability**: AC-01 — redactor unit suite; AC-02 — corpus scan; AC-03 — egress review; AC-04 — unknown-field default test; AC-05 — client console test.
 - **Coverage Target**: Every logged event and every protected field class exercised.
-- **Required Test Environment**: Seeded health data with distinctive values, log capture across server and client, and access to the deployment configuration for egress review. Logging stack and deployment topology TO BE DECIDED (`SECURITY.md` SQ-7).
+- **Required Test Environment**: Seeded health data with distinctive values, log capture across server and client, and access to the deployment configuration for egress review. pino log capture on Vitest; the log sink and deployment topology remain TO BE DECIDED (`SECURITY.md` SQ-7, SQ-8).
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime; logging stack TO BE DECIDED. `SECURITY.md` explicitly anticipates future integrations ("none YET"), so the egress prohibition must be enforced by configuration review, not only by the current absence of integrations.
+- **Constraints**: Node.js runtime with Fastify and its pino logger, whose redaction paths are the intended delivery mechanism for SEC-LOG-3; the log sink remains TO BE DECIDED (`SECURITY.md` SQ-8). `SECURITY.md` explicitly anticipates future integrations ("none YET"), so the egress prohibition must be enforced by configuration review, not only by the current absence of integrations.
 - **Prohibited Approaches**: Deny-lists of field names as the only mechanism; logging whole request or response bodies at any level including debug; enabling a third-party APM, error-reporting, or session-replay tool; redacting in the sink rather than before emission.
 - **Implementation Guidance**: Prefer an allow-list of loggable fields over a deny-list of forbidden ones, which is what makes AC-04 achievable. Audit entries reference data by identifier rather than copying it (REQ-AUDIT-010), so the same discipline applies on both surfaces.
 - **AI Development Guidance**: `REF-LOG`, `REF-PROMPT-NODE`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

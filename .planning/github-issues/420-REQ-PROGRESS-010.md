@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Audit entries for weight-data access, retained per FR-9.7.
 - **Acceptance-Criteria Traceability**: AC-01 — create-and-retrieve suite; AC-02 — validation matrix; AC-03 — cross-subscriber and audit-dependency suites; AC-04 — backdating test; AC-05 — edit, delete, and confirmation tests.
 - **Coverage Target**: Every operation positive and negative; every validation branch.
-- **Required Test Environment**: Two subscribers with consent, one without consent, one with consent withdrawn; audit capture. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: Two subscribers with consent, one without consent, one with consent withdrawn; audit capture. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine and client tooling TO BE DECIDED. The unit system for weight is open (`REQUIREMENTS.md` OQ-4, `DESIGN.md` OQ-8) — store the unit explicitly with each entry rather than assuming one, so resolving OQ-4 does not require reinterpreting stored data.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling TO BE DECIDED. The unit system for weight is open (`REQUIREMENTS.md` OQ-4, `DESIGN.md` OQ-8) — store the unit explicitly with each entry rather than assuming one, so resolving OQ-4 does not require reinterpreting stored data.
 - **Prohibited Approaches**: Deriving the owner from the request; a shared "log entry" endpoint that switches on a client-supplied type discriminator without per-type validation; logging the value for debugging; allowing a future date without a documented decision, since no source document addresses it — reject future dates and record the choice as provisional.
 - **Implementation Guidance**: Route the write through the health-data accessor established by REQ-AUDIT-020 so consent and audit obligations are carried structurally rather than by convention.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Consultant-access audit entries, retained as evidence for FR-11.4.
 - **Acceptance-Criteria Traceability**: AC-01 — engaged-access suite; AC-02 — unengaged denial suite; AC-03 — injection, enumeration, and audit-dependency tests; AC-04 — multi-engagement scoping test; AC-05 — audit distinguishability assertion.
 - **Coverage Target**: Every consultant-reachable operation × the three engagement states.
-- **Required Test Environment**: One consultant, two subscribers (one engaged, one not), a third with an ended engagement, seeded health data and copies, audit capture. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: One consultant, two subscribers (one engaged, one not), a third with an ended engagement, seeded health data and copies, audit capture. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine TO BE DECIDED. This issue bounds *who* a consultant may reach, not *what* they may do once inside scope — `REQUIREMENTS.md` OQ-12 is open and `SECURITY.md` records the gap as TM-E-3. Implement read access consistent with the subscriber's own read paths and do not grant write capabilities, since none are specified; record that as the provisional position rather than a decision.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`). This issue bounds *who* a consultant may reach, not *what* they may do once inside scope — `REQUIREMENTS.md` OQ-12 is open and `SECURITY.md` records the gap as TM-E-3. Implement read access consistent with the subscriber's own read paths and do not grant write capabilities, since none are specified; record that as the provisional position rather than a decision.
 - **Prohibited Approaches**: Caching engagement state in the session or token, which would defeat SEC-SESSION-4 and REQ-CONSULT-020; a role check without an engagement check; a consultant-wide listing endpoint that returns data across subjects; treating an ended engagement as active until token expiry.
 - **Implementation Guidance**: Compose the engagement predicate with the owner predicate from REQ-AUTHZ-020 in a single scope resolver, so that a consultant's scope is a strict subset of the subject's own scope and cannot exceed it.
 - **AI Development Guidance**: `REF-PROMPT-ABAC`, `REF-PROMPT-API`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

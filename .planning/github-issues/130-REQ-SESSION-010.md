@@ -82,7 +82,7 @@
 - **Compliance Tests / Evidence**: N/A
 - **Acceptance-Criteria Traceability**: AC-01 — happy-path verification test; AC-02 — invalid-token matrix; AC-03 — claim-omission and header-algorithm tests; AC-04 — response-uniformity test.
 - **Coverage Target**: Every rejection cause covered by a negative test; positive and negative coverage for all verification branches.
-- **Required Test Environment**: Test signing keys distinct from any real key material; test framework and key store TO BE DECIDED (`CLAUDE.md`, `SECURITY.md` SQ-7).
+- **Required Test Environment**: Test signing keys distinct from any real key material; Vitest as the runner, with the signing key store TO BE DECIDED (`SECURITY.md` SQ-7).
 
 ## Dependencies
 
