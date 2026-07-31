@@ -1,12 +1,12 @@
 # Required Requirement Inputs
 
 - **Project purpose:** A fitness web application that provides science-based exercise plans and diet plans, supports customization, and lets users track their progress.
-- **Primary users / actors:** UNKNOWN (notes imply an end user who follows plans and tracks progress; no roles named)
+- **Primary users / actors:** registered users, fitness consultants and helpers (paid option), admin
 - **Core workflows:** Obtain/follow an exercise plan; customize a plan; obtain/follow a diet plan; track progress
 - **Business objects / data entities:** Exercise plan, diet plan, progress record
 - **External integrations:** UNKNOWN
-- **Authentication / roles:** UNKNOWN
-- **Regulatory or privacy constraints:** UNKNOWN
+- **Authentication / roles:** standard consumer AuthN for users, passkey for admins and consultants
+- **Regulatory or privacy constraints:** health related laws in the US
 
 # Functional Requirements
 
