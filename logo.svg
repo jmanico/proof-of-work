@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Product logo: three ascending bars with a goal marker">
+  <rect width="64" height="64" rx="14" fill="#0F766E"/>
+  <g fill="#FFFFFF">
+    <rect x="14" y="38" width="8" height="14" rx="4"/>
+    <rect x="28" y="30" width="8" height="22" rx="4"/>
+    <rect x="42" y="22" width="8" height="30" rx="4"/>
+  </g>
+  <circle cx="46" cy="14" r="4" fill="#5EEAD4"/>
+</svg>
