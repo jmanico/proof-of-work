@@ -94,7 +94,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js server framework TO BE DECIDED (`CLAUDE.md`); AWS/Terraform deployment with topology TO BE DECIDED (`SECURITY.md` SQ-7). The header set MUST be applied centrally so the route-inventory test can be exhaustive.
+- **Constraints**: Node.js with Fastify (`CLAUDE.md`); AWS/Terraform deployment with topology TO BE DECIDED (`SECURITY.md` SQ-7). The header set MUST be applied centrally so the route-inventory test can be exhaustive.
 - **Prohibited Approaches**: Per-endpoint header opt-in; a CSP permitting `unsafe-inline` or `unsafe-eval`; sending CSP reports to any destination outside the system boundary (SEC-TB-3, FR-9.8); relying on the client to avoid caching.
 - **Implementation Guidance**: Ship a policy that satisfies the stated prohibitions now and record the full directive list as an open decision until SEC-HTTP-2 is resolved; the prohibition on inline and eval script is itself normative and not open.
 - **AI Development Guidance**: `REF-PROMPT-NODE`, `REF-PROMPT-VUE`; `CLAUDE.md`.

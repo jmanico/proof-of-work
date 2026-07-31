@@ -80,8 +80,8 @@
 - **Security Tests**: N/A at epic level.
 - **Compliance Tests / Evidence**: `ISSUE_PLAN.md` coverage table is the evidence that every FR maps to an issue or to a blocking question.
 - **Acceptance-Criteria Traceability**: AC-01…AC-03 are verified by review of the coverage table and the child issue states.
-- **Coverage Target**: TO BE DECIDED — no test framework or coverage tooling is selected (`CLAUDE.md`, Repository state).
-- **Required Test Environment**: TO BE DECIDED — no runtime, package manager, or test runner is selected.
+- **Coverage Target**: TO BE DECIDED — Vitest is selected, but no coverage threshold has been set (`CLAUDE.md`, Repository state).
+- **Required Test Environment**: N/A at epic level; the toolchain is recorded in `CLAUDE.md`, Repository state.
 
 ## Dependencies
 
@@ -93,7 +93,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js server runtime and Vue.js client are fixed by `ARCHITECTURE.md`; REST over HTTPS; relational persistence; Terraform-managed AWS deployment; JWT session format (`SECURITY.md`). Language, package manager, server framework, RDBMS engine, migration tooling, test framework, lint/format tooling, CI platform, and directory layout are all `TO BE DECIDED` per `CLAUDE.md` and MUST NOT be chosen inside an implementation issue.
+- **Constraints**: Node.js server runtime and Vue.js client are fixed by `ARCHITECTURE.md`; REST over HTTPS; relational persistence; Terraform-managed AWS deployment; JWT session format (`SECURITY.md`). The toolchain was selected on 2026-07-31 and is recorded in `CLAUDE.md`, Repository state: TypeScript with npm workspaces, Fastify, PostgreSQL with Drizzle ORM and drizzle-kit, Vitest, ESLint with Prettier, GitHub Actions, and the `apps/api` / `apps/web` / `packages/shared` / `db/migrations` / `infra` layout. No implementation issue may revisit it; anything still marked open there MUST NOT be chosen inside an implementation issue.
 - **Prohibited Approaches**: Client-side enforcement of any business rule (DR-2); resolving an open question by writing code that assumes one answer (`CLAUDE.md`, Working rules); creating "build the backend", "add security", or "write tests" issues.
 - **Implementation Guidance**: Child issues are ordered topologically in `ISSUE_PLAN.md`. Cross-cutting enforcement issues (REQ-AUTHZ-*, REQ-API-*, REQ-AUDIT-*) precede the feature issues that depend on them.
 - **AI Development Guidance**: `CLAUDE.md`; `SECURITY.md` prompt imports `REF-PROMPT-NODE`, `REF-PROMPT-VUE`, `REF-PROMPT-JWT`, `REF-PROMPT-API`, `REF-PROMPT-ABAC`, `REF-PROMPT-QUALITY`, `REF-PROMPT-TF-AWS`.

@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Unpublish audit entries, retained as accountability evidence for FR-10.2.
 - **Acceptance-Criteria Traceability**: AC-01 — unpublish suite; AC-02 — copy-immutability comparison; AC-03 — role matrix and data-preservation assertions; AC-04 — response-equivalence test; AC-05 — confirmation flow test.
 - **Coverage Target**: Both plan types; all three roles; published and already-unpublished starting states.
-- **Required Test Environment**: An admin, a subscriber holding a customized copy of the target plan, and a consultant. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: An admin, a subscriber holding a customized copy of the target plan, and a consultant. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine and framework TO BE DECIDED. Whether a subscriber currently following an unpublished plan retains access to it through their own copy is answered by FR-7.5 for copies; for plan *selection* it depends on `REQUIREMENTS.md` OQ-6 and is out of scope.
+- **Constraints**: PostgreSQL with Drizzle ORM and Fastify (`CLAUDE.md`). Whether a subscriber currently following an unpublished plan retains access to it through their own copy is answered by FR-7.5 for copies; for plan *selection* it depends on `REQUIREMENTS.md` OQ-6 and is out of scope.
 - **Prohibited Approaches**: Deleting the plan instead of unpublishing it; cascading the state change to derived copies; soft-deleting copies; relying on the client to stop displaying an unpublished plan.
 - **Implementation Guidance**: Treat unpublication as a state transition on the plan alone. The subscriber-facing filter established in REQ-PLAN-050 is what makes visibility follow automatically; do not add a second filtering mechanism.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

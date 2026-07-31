@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Evidence that a data subject can view and correct their own record, retained for FR-9.5.
 - **Acceptance-Criteria Traceability**: AC-01 — own-data read suite; AC-02 — validation and focus-management tests; AC-03 — mass-assignment and cross-account negative suite; AC-04 — audit and announcement tests; AC-05 — form accessibility test.
 - **Coverage Target**: Every correctable field positive and negative; every server-controlled field covered by a mass-assignment test.
-- **Required Test Environment**: Two accounts of the same role plus one of each other role; test framework TO BE DECIDED.
+- **Required Test Environment**: Two accounts of the same role plus one of each other role; Vitest as the runner.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine and client tooling TO BE DECIDED. Email address changes are excluded because control of a registered address must be verified before it is relied upon (SEC-AUTHN-8) and that flow is blocked by `REQUIREMENTS.md` OQ-15.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling TO BE DECIDED. Email address changes are excluded because control of a registered address must be verified before it is relied upon (SEC-AUTHN-8) and that flow is blocked by `REQUIREMENTS.md` OQ-15.
 - **Prohibited Approaches**: A generic profile-update endpoint that binds the whole body; returning the full account record including credential, role, and audit fields; treating correction as sufficient to satisfy export (FR-9.3) or deletion (FR-9.4), which are separate and blocked.
 - **Implementation Guidance**: Derive the correctable-field allow-list from the same declaration used by REQ-API-020 so a new account field cannot become silently correctable.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

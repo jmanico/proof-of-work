@@ -82,7 +82,7 @@
 - **Compliance Tests / Evidence**: The public-route declaration and its review record.
 - **Acceptance-Criteria Traceability**: AC-01 — guard unit suite; AC-02 — unauthenticated enumeration suite; AC-03 — fail-closed exception test and a new-route fixture; AC-04 — route inventory test.
 - **Coverage Target**: 100% of routes exercised by the unauthenticated enumeration test.
-- **Required Test Environment**: HTTP test client and a route inventory source; test framework TO BE DECIDED.
+- **Required Test Environment**: HTTP test client and a route inventory source; Vitest as the runner.
 
 ## Dependencies
 
@@ -94,7 +94,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime and server framework TO BE DECIDED. The guard MUST be part of the request pipeline, not an opt-in decorator, so that omission cannot silently open a route.
+- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). The guard MUST be part of the request pipeline, not an opt-in decorator, so that omission cannot silently open a route.
 - **Prohibited Approaches**: Per-endpoint opt-in protection; deriving identity from a request header or body (DR-3); treating an unverified token payload as identity; catching and ignoring session-resolution errors.
 - **Implementation Guidance**: `SECURITY.md` SEC-AUTHZ-5 requires a single enforcement point for authorization policy; this guard is the natural site for it once SQ-4 resolves, so structure it to accept a policy decision component later without moving the enforcement point.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-ABAC`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

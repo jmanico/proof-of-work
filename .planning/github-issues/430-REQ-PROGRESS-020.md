@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Audit entries for workout-data access, retained per FR-9.7.
 - **Acceptance-Criteria Traceability**: AC-01 — record-and-retrieve suite; AC-02 — per-exercise validation matrix; AC-03 — reference authorization and audit-dependency suites; AC-04 — backdating test; AC-05 — edit, delete, and atomicity tests.
 - **Coverage Target**: Every operation and every validation branch, positive and negative; every reference type covered by an inaccessible-target test.
-- **Required Test Environment**: Two subscribers each with a customized copy, seeded published and unpublished plans, consent variations, audit capture. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: Two subscribers each with a customized copy, seeded published and unpublished plans, consent variations, audit capture. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine and client tooling TO BE DECIDED. The weight unit is open (`REQUIREMENTS.md` OQ-4, `DESIGN.md` OQ-8) — store it explicitly per record. Plan selection is blocked (OQ-6), so an entry references a plan or copy the subscriber can access rather than a system-designated active plan; that choice is provisional and must be revisited when OQ-6 resolves.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling TO BE DECIDED. The weight unit is open (`REQUIREMENTS.md` OQ-4, `DESIGN.md` OQ-8) — store it explicitly per record. Plan selection is blocked (OQ-6), so an entry references a plan or copy the subscriber can access rather than a system-designated active plan; that choice is provisional and must be revisited when OQ-6 resolves.
 - **Prohibited Approaches**: Accepting exercise references without re-checking accessibility server-side; storing per-exercise performance as an opaque blob, which would defeat the FR-8.6 history requirement when it unblocks; partial writes when one exercise fails validation; logging performance values.
 - **Implementation Guidance**: Validate the whole entry before writing anything, so AC-02 and AC-05's atomicity hold together. Route the write through the health-data accessor from REQ-AUDIT-020.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

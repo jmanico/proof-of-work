@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: The lifecycle audit coverage report, retained as accountability evidence for FR-10.2.
 - **Acceptance-Criteria Traceability**: AC-01 — per-action entry assertions; AC-02 — audit-failure fault injection; AC-03 — denial and identity-binding tests; AC-04 — sequence reconstruction test; AC-05 — inventory test.
 - **Coverage Target**: All five lifecycle actions, positive and negative.
-- **Required Test Environment**: Two admin identities (so authorship and verification can be distinguished for the OQ-16 decision later), seeded draft and published plans, audit storage. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: Two admin identities (so authorship and verification can be distinguished for the OQ-16 decision later), seeded draft and published plans, audit storage. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine TO BE DECIDED. The verify action is auditable here even though the verification *workflow* is blocked by `REQUIREMENTS.md` OQ-10 and OQ-16 — recording who verified and when is required by FR-4.5 and FR-10.2 independently of those questions.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`). The verify action is auditable here even though the verification *workflow* is blocked by `REQUIREMENTS.md` OQ-10 and OQ-16 — recording who verified and when is required by FR-4.5 and FR-10.2 independently of those questions.
 - **Prohibited Approaches**: A generic "plan changed" entry that does not distinguish the five actions; audit calls placed in handlers rather than in the lifecycle service; writing the entry outside the state change's transaction; recording the full plan body in the entry.
 - **Implementation Guidance**: Record the action as a closed enumeration of the five values so AC-04's reconstruction and any later review query are exact.
 - **AI Development Guidance**: `REF-LOG`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

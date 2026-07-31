@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: N/A
 - **Acceptance-Criteria Traceability**: AC-01 — round-trip test; AC-02 — validation matrix; AC-03 — mass-assignment and required-target tests; AC-04 — ordering test; AC-05 — schema shape assertion.
 - **Coverage Target**: Every modelled field covered positive and negative.
-- **Required Test Environment**: The selected RDBMS with migrations; an admin identity. Engine, migration tooling, and test framework TO BE DECIDED.
+- **Required Test Environment**: PostgreSQL with drizzle-kit migrations applied; an admin identity; Vitest as the runner.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine, schema design, and migration tooling TO BE DECIDED. Which macronutrients must be modelled is not enumerated by `REQUIREMENTS.md` beyond "macronutrient targets"; the conventional set is protein, carbohydrate, and fat, but this MUST be confirmed by product rather than assumed silently — record it as an open decision if it is not confirmed before implementation.
+- **Constraints**: PostgreSQL with Drizzle ORM and drizzle-kit migrations (`CLAUDE.md`); schema design remains TO BE DECIDED. Which macronutrients must be modelled is not enumerated by `REQUIREMENTS.md` beyond "macronutrient targets"; the conventional set is protein, carbohydrate, and fat, but this MUST be confirmed by product rather than assumed silently — record it as an open decision if it is not confirmed before implementation.
 - **Prohibited Approaches**: A single free-text "targets" field; storing targets only as a computed percentage without absolute values; a shared plan table that merges exercise and diet plans; introducing an external nutrition data source, which is out of scope and would cross the FR-9.8 boundary.
 - **Implementation Guidance**: Model meals as ordered child records so customization (FR-7.1) can edit individual meals. Keep units explicit on calorie and macronutrient values.
 - **AI Development Guidance**: `REF-PROMPT-QUALITY`, `REF-PROMPT-NODE`; `CLAUDE.md`.

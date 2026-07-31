@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Accessibility evidence for the error presentation — association, announcement, focus movement — retained under the WCAG 2.2 AA target.
 - **Acceptance-Criteria Traceability**: AC-01 — happy-path validation; AC-02 — rejection matrix per field; AC-03 — disclosure and coercion negatives plus direct-API enforcement; AC-04 — client error presentation and focus tests; AC-05 — zero-boundary tests.
 - **Coverage Target**: Every numeric field of every unblocked log type covered by the full boundary matrix.
-- **Required Test Environment**: A subscriber identity, forms for each unblocked log type, assistive-technology testing capability. Client tooling and test framework TO BE DECIDED.
+- **Required Test Environment**: A subscriber identity, forms for each unblocked log type, assistive-technology testing capability. Vitest as the runner; client build tooling remains TO BE DECIDED.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime and client tooling TO BE DECIDED. The unit system is open (`REQUIREMENTS.md` OQ-4, `DESIGN.md` OQ-8), so validation must not encode unit-specific ranges; range plausibility beyond "non-negative numeric" is not specified by any source document and MUST NOT be invented.
+- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`); client build tooling TO BE DECIDED. The unit system is open (`REQUIREMENTS.md` OQ-4, `DESIGN.md` OQ-8), so validation must not encode unit-specific ranges; range plausibility beyond "non-negative numeric" is not specified by any source document and MUST NOT be invented.
 - **Prohibited Approaches**: Coercing strings to numbers; accepting `NaN` or infinity; a single generic "invalid input" message that does not name the field; enforcing the rule only in the client; echoing the submitted value back in the error message.
 - **Implementation Guidance**: Express the rules once, server-side, and let the client render the returned structure (DR-2). The client may pre-validate for immediate feedback, but its rules must be derived from the same declaration rather than restated.
 - **AI Development Guidance**: `REF-INPUT`, `REF-ERROR`, `REF-PROMPT-VUE`, `REF-PROMPT-API`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

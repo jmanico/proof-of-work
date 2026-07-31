@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Retained consent records and audit entries demonstrating consent precedes the first health-data write, as evidence for FR-9.2.
 - **Acceptance-Criteria Traceability**: AC-01 — consent grant suite; AC-02 — pre-consent refusal suite across all entity types; AC-03 — assertion and inference negative tests; AC-04 — client accessibility test; AC-05 — audit assertion.
 - **Coverage Target**: Every health-data write path covered by a pre-consent refusal test.
-- **Required Test Environment**: Subscribers with and without consent, one consultant with an active engagement, seeded entity fixtures. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: Subscribers with and without consent, one consultant with an active engagement, seeded entity fixtures. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine TO BE DECIDED. The consent text's legal sufficiency depends on the unresolved regime (`SECURITY.md` SQ-1) — implement the mechanism and treat the wording as content to be supplied, not invented.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`). The consent text's legal sufficiency depends on the unresolved regime (`SECURITY.md` SQ-1) — implement the mechanism and treat the wording as content to be supplied, not invented.
 - **Prohibited Approaches**: A pre-ticked or implied consent control; bundling consent into subscription checkout or the medical disclaimer; caching consent in the session so a withdrawal does not take effect (REQ-PRIVACY-020 depends on this check reading current state); creating the record as a side effect of the first log entry.
 - **Implementation Guidance**: Place the consent check inside the same health-data accessor that carries the audit dependency (REQ-AUDIT-020), so a new health-data path cannot acquire one obligation without the other.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

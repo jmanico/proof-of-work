@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Audit records produced by the registration tests, retained as accountability evidence.
 - **Acceptance-Criteria Traceability**: AC-01 — registration success suite; AC-02 — re-authentication requirement test; AC-03 — binding and audit negative tests; AC-04 — replacement continuity test; AC-05 — subscriber denial test.
 - **Coverage Target**: Both privileged roles, registration and replacement, positive and negative.
-- **Required Test Environment**: WebAuthn authenticator simulator; one `admin`, one `consultant`, one `subscriber`; audit log capture. Test framework TO BE DECIDED.
+- **Required Test Environment**: WebAuthn authenticator simulator; one `admin`, one `consultant`, one `subscriber`; audit log capture. Vitest as the runner.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime and framework TO BE DECIDED. The meaning of "fresh" re-authentication is not fixed by any source document; implement it as a named constant with a documented value and record the choice as an open decision rather than treating it as settled policy.
+- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). The meaning of "fresh" re-authentication is not fixed by any source document; implement it as a named constant with a documented value and record the choice as an open decision rather than treating it as settled policy.
 - **Prohibited Approaches**: Accepting the existing session as sufficient authorization; removing the old passkey before the replacement is confirmed usable; allowing registration for a subscriber "for future use"; completing the operation when the audit write failed.
 - **Implementation Guidance**: Perform the audit write inside the same transaction as the registration so AC-03 cannot fail silently.
 - **AI Development Guidance**: `REF-WEBAUTHN`, `REF-PASSKEY`, `REF-PROMPT-NODE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

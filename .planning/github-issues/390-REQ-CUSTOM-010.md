@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Audit entries for copy creation, retained per FR-9.7.
 - **Acceptance-Criteria Traceability**: AC-01 — customization suite; AC-02 — validation and focus tests; AC-03 — source-immutability, mass-assignment, and route-inventory tests; AC-04 — unpublished source test; AC-05 — audit assertion.
 - **Coverage Target**: Both plan types; valid and invalid edits; cross-subscriber and unpublished-source negatives.
-- **Required Test Environment**: Two subscriber identities, seeded published and unpublished plans of both types, audit capture. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: Two subscriber identities, seeded published and unpublished plans of both types, audit capture. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine and client tooling TO BE DECIDED. Whether a subscriber may hold copies of more than one plan at a time is `REQUIREMENTS.md` OQ-6 and is not decided here; this issue permits creating a copy without asserting how many may be *active*.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling TO BE DECIDED. Whether a subscriber may hold copies of more than one plan at a time is `REQUIREMENTS.md` OQ-6 and is not decided here; this issue permits creating a copy without asserting how many may be *active*.
 - **Prohibited Approaches**: Storing the copy as a reference or a diff against the published plan, which makes FR-7.5 unachievable; a shared update handler for published plans and copies; deriving the owner from the request; adding a share or publish action to copies.
 - **Implementation Guidance**: Write the copy as a complete, independent record at creation time — that is what makes REQ-CUSTOM-030's stability guarantee structural rather than a runtime check.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

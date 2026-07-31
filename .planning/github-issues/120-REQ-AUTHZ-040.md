@@ -82,7 +82,7 @@
 - **Compliance Tests / Evidence**: Retained sample of denial log records demonstrating the field set, for accountability evidence.
 - **Acceptance-Criteria Traceability**: AC-01 — denial formatting and logging suite; AC-02 — differential response test; AC-03 — log and response content assertions; AC-04 — client presentation test.
 - **Coverage Target**: Every denial reason class exercised, positive and negative.
-- **Required Test Environment**: Identities for each role, log capture, and a second subscriber for cross-owner probes. Test framework TO BE DECIDED.
+- **Required Test Environment**: Identities for each role, log capture, and a second subscriber for cross-owner probes. Vitest as the runner.
 
 ## Dependencies
 
@@ -94,7 +94,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime; logging sink and framework TO BE DECIDED (`SECURITY.md` SQ-7, SQ-8).
+- **Constraints**: Node.js runtime with Fastify and its pino logger (`CLAUDE.md`); the log sink and retention remain TO BE DECIDED (`SECURITY.md` SQ-7, SQ-8).
 - **Prohibited Approaches**: Distinct status codes or messages for "not found" versus "forbidden" on owned records; echoing the requested identifier's associated content; logging the presented token or credential; shipping logs to an external analytics or monitoring destination (SEC-TB-3).
 - **Implementation Guidance**: Timing uniformity need only be addressed to the extent it is observable at the response level; `SECURITY.md` SEC-AUTHN-3 already requires timing-insensitive authentication responses, and the same helper can serve both.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

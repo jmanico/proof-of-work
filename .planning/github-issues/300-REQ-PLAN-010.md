@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: N/A
 - **Acceptance-Criteria Traceability**: AC-01 — round-trip retrieval test; AC-02 — field validation matrix; AC-03 — mass-assignment and invariant tests; AC-04 — ordering stability test; AC-05 — referential integrity tests.
 - **Coverage Target**: Every modelled field covered positive and negative.
-- **Required Test Environment**: The selected RDBMS with migrations applied; an admin identity. Engine, migration tooling, and test framework TO BE DECIDED (`CLAUDE.md`).
+- **Required Test Environment**: PostgreSQL with drizzle-kit migrations applied; an admin identity; Vitest as the runner.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine, schema design, and migration tooling are TO BE DECIDED (`CLAUDE.md`, `ARCHITECTURE.md`); this issue cannot start until they are chosen, though the required content is fixed by FR-5.1.
+- **Constraints**: PostgreSQL with Drizzle ORM and drizzle-kit migrations (`CLAUDE.md`). Schema design remains TO BE DECIDED, though the required content is fixed by FR-5.1.
 - **Prohibited Approaches**: Storing exercise prescriptions as free text when FR-5.1 names sets and repetitions as distinct content; a shared polymorphic plan table that blurs exercise and diet plans, which `ARCHITECTURE.md` lists as separate entities; embedding rendered HTML in plan content while SEC-RENDER-2 leaves rich text undecided.
 - **Implementation Guidance**: Model exercises as ordered child records rather than an opaque blob, so FR-7.1 customization and FR-8.3 workout logging can reference individual exercises. Keep units of prescription explicit where they exist, noting that `REQUIREMENTS.md` OQ-4 leaves the unit system open for measurements — do not generalize that decision to exercise prescriptions without a documented choice.
 - **AI Development Guidance**: `REF-PROMPT-QUALITY`, `REF-PROMPT-NODE`; `CLAUDE.md`.

@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Retained acknowledgement records and audit entries demonstrating acknowledgement preceded first plan use, as evidence for FR-9.6.
 - **Acceptance-Criteria Traceability**: AC-01 — pre-acknowledgement refusal suite; AC-02 — acknowledgement and failure-path tests; AC-03 — client-assertion negative suite; AC-04 — presentation and keyboard tests; AC-05 — audit assertion.
 - **Coverage Target**: Every plan-use operation covered by a pre-acknowledgement refusal test.
-- **Required Test Environment**: Subscribers with and without an acknowledgement; seeded published plans. Test framework TO BE DECIDED.
+- **Required Test Environment**: Subscribers with and without an acknowledgement; seeded published plans. Vitest as the runner.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine and client tooling TO BE DECIDED. `DESIGN.md` OQ-6 leaves the presentation form open, so this issue delivers the mechanism and a presentation that satisfies the documented layout and accessibility rules; the chosen form must be confirmed when OQ-6 resolves. The disclaimer wording is content to be supplied by legal review, not invented here.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling TO BE DECIDED. `DESIGN.md` OQ-6 leaves the presentation form open, so this issue delivers the mechanism and a presentation that satisfies the documented layout and accessibility rules; the chosen form must be confirmed when OQ-6 resolves. The disclaimer wording is content to be supplied by legal review, not invented here.
 - **Prohibited Approaches**: Storing the acknowledgement only in the client; a pre-checked acknowledgement control; treating a page view as acknowledgement; bundling the disclaimer acknowledgement with health-data consent (FR-9.2), which is a separate right with separate withdrawal semantics.
 - **Implementation Guidance**: Because plan *selection* is blocked by `REQUIREMENTS.md` OQ-6, apply the precondition to the plan-use operations that do exist — customization (REQ-CUSTOM-010) and workout logging against a plan (REQ-PROGRESS-020) — and extend it to selection when OQ-6 resolves.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`; `CLAUDE.md`.

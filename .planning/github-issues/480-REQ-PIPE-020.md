@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: CI platform, AWS services, and environment topology are UNKNOWN (`SECURITY.md` SQ-7), so the configuration half of this control — account separation, network isolation, IAM boundaries preventing cross-environment data movement — cannot be specified. This issue delivers the synthetic data generator and the provenance discipline; the infrastructure enforcement is blocked.
+- **Constraints**: The CI platform is GitHub Actions (`CLAUDE.md`), but AWS services and environment topology remain UNKNOWN (`SECURITY.md` SQ-7), so the configuration half of this control — account separation, network isolation, IAM boundaries preventing cross-environment data movement — cannot be specified. This issue delivers the synthetic data generator and the provenance discipline; the infrastructure enforcement is blocked.
 - **Prohibited Approaches**: Restoring a production snapshot "temporarily"; ad-hoc anonymization scripts applied to production exports without verification; seeding from a support ticket attachment; sharing one database across environments.
 - **Implementation Guidance**: Build the generator alongside the entity models so that every test environment has realistic data from the start and no one is tempted to reach for production. Generated values should be recognizably synthetic so that a scan can distinguish them.
 - **AI Development Guidance**: `REF-SSDF`, `REF-PROMPT-TF-AWS`; `CLAUDE.md`.

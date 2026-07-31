@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Sample records per event type, retained as accountability evidence.
 - **Acceptance-Criteria Traceability**: AC-01 — event emission suite; AC-02 — sink-failure test; AC-03 — content assertions plus egress review; AC-04 — injection test; AC-05 — paired log-and-audit test.
 - **Coverage Target**: Every event type emitted and asserted; positive and negative coverage of redaction.
-- **Required Test Environment**: Log capture; identities for each role; a failing sink fixture. Test framework and logging stack TO BE DECIDED (`SECURITY.md` SQ-7).
+- **Required Test Environment**: Log capture; identities for each role; a failing sink fixture. Vitest as the runner, capturing pino output; the log sink remains TO BE DECIDED (`SECURITY.md` SQ-7, SQ-8).
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime; logging stack TO BE DECIDED. Log storage protection against operator tampering is unresolved (SEC-LOG-7, `SECURITY.md` SQ-13) and is not delivered here.
+- **Constraints**: Node.js runtime with Fastify and its pino logger, whose redaction paths are the intended delivery mechanism for SEC-LOG-3; the log sink remains TO BE DECIDED (`SECURITY.md` SQ-8). Log storage protection against operator tampering is unresolved (SEC-LOG-7, `SECURITY.md` SQ-13) and is not delivered here.
 - **Prohibited Approaches**: Logging the submitted credential "temporarily for debugging"; free-text log lines that cannot be queried by field; shipping security logs to an external analytics or error-reporting service; emitting an event per code path so that one action produces several ambiguous records.
 - **Implementation Guidance**: Emit events from the enforcement points themselves so that adding a new credential path without logging is visible in review. Where an account cannot be resolved, log a stable hash of the submitted identifier rather than the identifier itself, so patterns remain detectable without storing unverified personal data.
 - **AI Development Guidance**: `REF-LOG`, `REF-PROMPT-NODE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

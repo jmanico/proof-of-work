@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Records of engagement termination and subsequent denials, retained as evidence for FR-11.3.
 - **Acceptance-Criteria Traceability**: AC-01 — termination suite; AC-02 — captured-token revocation test; AC-03 — token-claim and actor-authorization negatives; AC-04 — response-equivalence test; AC-05 — confirmation flow test.
 - **Coverage Target**: Every consultant-reachable operation asserted denied after termination.
-- **Required Test Environment**: One consultant, one subscriber with an active engagement, a captured pre-termination token, seeded health data. Engine and test framework TO BE DECIDED.
+- **Required Test Environment**: One consultant, one subscriber with an active engagement, a captured pre-termination token, seeded health data. Runs against PostgreSQL on Vitest.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: RDBMS engine TO BE DECIDED. `SECURITY.md` SQ-2 leaves the general JWT revocation mechanism undecided, and TM-I-2 is recorded as CONDITIONAL on it. This issue achieves FR-11.3 without depending on that decision, by never caching engagement state in the session — but note that SEC-SESSION-3's logout revocation remains unsatisfied and blocked, so the session model as a whole is still incomplete.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`). `SECURITY.md` SQ-2 leaves the general JWT revocation mechanism undecided, and TM-I-2 is recorded as CONDITIONAL on it. This issue achieves FR-11.3 without depending on that decision, by never caching engagement state in the session — but note that SEC-SESSION-3's logout revocation remains unsatisfied and blocked, so the session model as a whole is still incomplete.
 - **Prohibited Approaches**: Placing engagement state in a JWT claim; caching it for the session's lifetime; deferring revocation to token expiry; letting a consultant terminate or reinstate an engagement; soft-hiding the subscriber's data in the client while the API still serves it.
 - **Implementation Guidance**: Because REQ-CONSULT-010 evaluates the engagement predicate per request, this issue's revocation is a state change plus a test that proves the predicate is genuinely per-request. Keep the ended state rather than deleting the engagement record, so the historical audit trail remains interpretable.
 - **AI Development Guidance**: `REF-PROMPT-JWT`, `REF-PROMPT-ABAC`, `REF-PROMPT-API`; `CLAUDE.md`.
