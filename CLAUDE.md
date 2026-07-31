@@ -15,18 +15,22 @@ These are normative. Read them before proposing or writing anything, and follow 
 
 ## Repository state
 
-No application code exists. The repository contains specifications only. Anything about how the system is built, tested, deployed, or run is unwritten, not undiscovered.
+No application code exists. The repository contains specifications only. The toolchain below is decided; nothing has been built with it yet.
 
-- **Language, package manager, build tooling:** TO BE DECIDED
-- **Node.js server framework:** TO BE DECIDED (ARCHITECTURE.md fixes Node.js; the framework within it is open)
-- **RDBMS engine and migration tooling:** TO BE DECIDED
-- **Test framework and runner commands:** TO BE DECIDED
-- **Lint and format tooling:** TO BE DECIDED
-- **CI platform and pipeline:** TO BE DECIDED (SECURITY.md SQ-7)
-- **Local development and run instructions:** TO BE DECIDED
-- **Directory layout:** TO BE DECIDED
+The toolchain was selected on 2026-07-31, resolving ISSUE_PLAN.md PQ-1. ARCHITECTURE.md and SECURITY.md already fixed Node.js, Vue.js, REST over HTTPS, relational persistence, Terraform on AWS, and the JWT session format; these choices sit within those constraints and do not revisit them.
 
-Do not invent, assume, or silently pick any of the above. When work requires one, state that it is undecided and ask. When one is decided, replace the placeholder here in the same change that introduces it.
+- **Language, package manager, build tooling:** TypeScript, npm with workspaces. Production and CI installs use `npm ci` against the committed `package-lock.json` (DEP-7).
+- **Node.js server framework:** Fastify. Route-level JSON Schema validation (SEC-INPUT-1), response serialization against a declared schema (SEC-DATA-5), lifecycle hooks as the single authorization enforcement point (SEC-AUTHZ-5), and pino redaction paths (SEC-LOG-3) are the reasons it was chosen; use those built-ins rather than reimplementing them per endpoint.
+- **RDBMS engine and migration tooling:** PostgreSQL, with Drizzle ORM and drizzle-kit. Migrations may contain raw SQL, which is how row-level security policies and append-only audit enforcement (SEC-LOG-2, SEC-LOG-7) are expressed below the application layer.
+- **Test framework and runner commands:** Vitest, across both workspaces. Runner commands: TO BE DECIDED — the scripts do not exist until the scaffolding lands. End-to-end and WCAG 2.2 AA accessibility tooling: TO BE DECIDED.
+- **Lint and format tooling:** ESLint (flat config) with typescript-eslint, eslint-plugin-vue, and eslint-plugin-security, plus Prettier. SEC-RENDER-1 and SEC-INPUT-5 name lint rules as their verification method; `vue/no-v-html` and a dynamic-query-construction rule are required, not optional.
+- **CI platform and pipeline:** GitHub Actions is the platform, using OIDC federation to AWS IAM roles rather than static keys (SEC-CICD-1). Pipeline design, the merge-blocking gate set (SEC-CICD-4), secret-management service, and AWS service topology remain TO BE DECIDED (SECURITY.md SQ-7; ISSUE_PLAN.md PQ-19).
+- **Local development and run instructions:** TO BE DECIDED — derived from the toolchain above, but unwritten because no runnable code exists yet.
+- **Directory layout:** npm workspaces — `apps/api` (Fastify REST API, with Identity and Session Handling as an internal module so ARCHITECTURE.md's module-versus-service decision stays open per DR-8), `apps/web` (Vue client), `packages/shared` (request and response contracts and validation schemas), `db/migrations`, `infra` (Terraform).
+
+`packages/shared` carries contract shape only. Every authorization, entitlement, ownership, and validation rule is still enforced in `apps/api`; a rule that exists only in shared or client code violates DR-2.
+
+Do not invent, assume, or silently pick anything still marked above. When work requires one, state that it is undecided and ask. When one is decided, replace the placeholder here in the same change that introduces it.
 
 ## Working rules
 
