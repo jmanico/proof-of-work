@@ -26,6 +26,8 @@
 - **FR-2.7** The system MUST assign every account exactly one of the roles `subscriber`, `consultant`, or `admin`.
 - **FR-2.8** The system MUST require passkey authentication for accounts with the `admin` or `consultant` role, and MUST NOT allow those accounts to authenticate with a password alone.
 - **FR-2.9** The system MUST allow an `admin` or `consultant` account to register a passkey and to register a replacement passkey.
+- **FR-2.10** The system MUST create `admin` and `consultant` accounts only through an invitation issued by an existing `admin`, MUST allow the invited person to register their first passkey through that invitation, and MUST NOT allow a role to be selected or changed by the account holder. The first `admin` account is created by a one-time out-of-band provisioning step that is unavailable once an `admin` exists. *(Decision-derived 2026-08-01: SECURITY.md SEC-AUTHN-9; threats TM-S-4, TM-E-1.)*
+- **FR-2.11** The system MUST require a user to verify control of the email address they registered, and MUST refuse to record health data for an account whose address is not yet verified. An unverified account MAY otherwise exist and authenticate. *(Decision-derived 2026-08-01: SECURITY.md SEC-AUTHN-8; threat TM-S-3.)*
 
 ### Subscription and Access Control
 
@@ -108,12 +110,12 @@
 - **OQ-5** Food logging requires nutrition data, but no external nutrition database is in scope. Do subscribers enter calories and macros manually, or does the system ship its own food catalog, and who maintains it?
 - **OQ-6** Can a subscriber follow more than one exercise plan and one diet plan at a time, or is it one active plan of each type?
 - **OQ-7** What time period and granularity must progress history cover (per day, per week, all-time), and are charts required or is a list sufficient?
-- **OQ-8** What password policy, account-recovery, and MFA-recovery flows apply? MFA is optional, but lockout behavior on lost second factor is unspecified.
-- **OQ-9** Which MFA factors must be supported (authenticator app, SMS, email code, passkey)?
+- **OQ-8** PARTIALLY RESOLVED 2026-08-01. Password policy follows NIST SP 800-63B — 8-character minimum with 15 or more encouraged, no composition rules, no forced rotation, known-breached passwords refused — and anti-automation is exponential backoff throttling rather than account lockout, so no third party can permanently lock an account (SECURITY.md SEC-AUTHN-6, threat TM-D-2). **Still open: account-recovery and MFA-recovery flows.** What happens when a subscriber loses their password, or their TOTP device, is undecided; recovery codes, admin-assisted reset, and passkey-as-fallback are all unevaluated. This blocks the recovery half of FR-2.3 and any lost-second-factor path for FR-2.5 and FR-2.6.
+- **OQ-9** RESOLVED 2026-08-01. Subscribers may enable TOTP (RFC 6238) or a passkey as an optional second factor. SMS and email codes are excluded — NIST SP 800-63B treats SMS as a restricted authenticator, and an email code reduces the second factor to the security of the email account.
 - **OQ-10** Is admin verification of a plan a one-time gate, or must a plan be re-verified after each edit?
 - **OQ-11** Are accessibility conformance targets (e.g. WCAG 2.1 AA) in scope? None were selected.
 - **OQ-12** What can a fitness consultant actually do — view a subscriber's plans and logs, edit their plans, message them, or something else? FR-11.x currently only bounds their access, not their capabilities.
 - **OQ-13** How are consultants onboarded and vetted, are they platform staff or third parties, and how is the paid consultant option purchased (the same payments gap as OQ-1)?
 - **OQ-14** Is offline use required for logging entries without a connection? Not selected, so assumed out of scope.
-- **OQ-15** *(Threat-model-derived: SECURITY.md TM-S-3.)* What is the email-verification flow at registration — when verification occurs, token expiry, and resend behavior? SECURITY.md SEC-AUTHN-8 requires that control of the registered email be verified before health data is recorded or the address is used in recovery; the product flow is undecided.
+- **OQ-15** RESOLVED 2026-08-01 *(threat-model-derived: SECURITY.md TM-S-3)*. An account may be created and may authenticate before verification, but every health-data write is refused until control of the address is proven, and the address cannot be used in recovery until then (FR-2.11, SEC-AUTHN-8). The token is single-use, short-lived, and invalidated on use or replacement; resend is rate-limited and neither request nor response reveals whether an address is registered. Concrete token lifetime and resend interval remain with SECURITY.md SQ-3.
 - **OQ-16** *(Threat-model-derived: SECURITY.md TM-T-5.)* Should plan verification (FR-4.5) require an admin other than the plan's author (dual control)? A single compromised admin account can currently author, verify, and publish harmful exercise or diet content alone.

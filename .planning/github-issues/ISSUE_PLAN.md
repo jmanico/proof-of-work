@@ -4,7 +4,7 @@
 - **Execution mode**: originally `DRAFT_ONLY`; the epic and its 48 leaves were subsequently filed as GitHub issues #8 through #56
 - **Sources**: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, `DESIGN.md`, `REQUIREMENT_TEMPLATE.md`; `CLAUDE.md` followed as agent instruction, not as product specification
 - **Produced**: 2026-07-31; REQ-BUILD-010 added 2026-08-01 once PQ-1 resolved and a scaffolding owner became necessary
-- **Result**: 1 epic + 49 leaf issues drafted; 22 areas of scope blocked with no issue body
+- **Result**: 1 epic + 49 leaf issues drafted; 14 areas of scope still blocked, and 7 areas unblocked on 2026-08-01 but not yet drafted
 
 ---
 
@@ -22,12 +22,12 @@ Each `PQ-*` names the source identifiers it derives from and the scope it blocks
 
 ### Blocking
 
-- **PQ-3 — Session model.** `SECURITY.md` SQ-2, SEC-SESSION-3, SEC-SESSION-5, SEC-SESSION-7; `ARCHITECTURE.md` (Authentication and session model, TO BE DECIDED). Token lifetime, refresh strategy, transport (cookie versus header), storage, revocation mechanism, and signing key store are all undecided. Blocks: FR-2.4 logout revocation; SEC-HTTP-4 CSRF applicability; SEC-SESSION-3, SEC-SESSION-5, SEC-SESSION-7. Threats TM-S-5, TM-S-6 remain CONDITIONAL.
+- **PQ-3 — Session model. RESOLVED 2026-08-01.** A signed token carrying a session identifier and no authorization state, in an `HttpOnly`, `Secure`, `SameSite` cookie, resolved against a server-side session record on every request and revoked by invalidating that record. No refresh rotation is needed because revocation is immediate. SEC-HTTP-4 now applies unconditionally, and TM-S-5 and TM-S-6 are no longer CONDITIONAL. Still open: session lifetimes and the `SameSite` value (SQ-3), and signing key storage (SQ-7, SEC-SESSION-7).
 - **PQ-4 — Subscription activation and payments.** `REQUIREMENTS.md` OQ-1, OQ-2; `ARCHITECTURE.md` (subscription state, UNKNOWN); `SECURITY.md` SEC-AUTHZ-8. What makes a subscription "active", how it is purchased, renewed, cancelled, and whether a trial or free tier exists. Blocks: FR-3.1, FR-3.2, FR-3.3, FR-3.4, FR-11.1. Threat TM-E-4 CONDITIONAL.
-- **PQ-5 — Password policy, account recovery, MFA recovery, lockout.** `REQUIREMENTS.md` OQ-8; `SECURITY.md` SEC-AUTHN-6, TM-D-2 (lockout design must not permit third-party-triggered permanent lockout). Blocks: FR-2.2 registration, all recovery flows. Threat TM-S-2 CONDITIONAL.
-- **PQ-6 — MFA factors.** `REQUIREMENTS.md` OQ-9. Blocks: FR-2.5, FR-2.6.
-- **PQ-7 — Email verification flow.** `REQUIREMENTS.md` OQ-15; `SECURITY.md` SEC-AUTHN-8, threat TM-S-3. Timing, token expiry, resend behavior. Blocks: FR-2.2 and the email-change path in REQ-PRIVACY-030.
-- **PQ-8 — Password hashing algorithm and parameters.** `SECURITY.md` SEC-AUTHN-5 (`TO BE DECIDED`). A security control, so blocking. Blocks: credential storage.
+- **PQ-5 — Password policy and lockout. PARTIALLY RESOLVED 2026-08-01.** `REF-63B`-aligned policy — 8-character minimum with 15 or more encouraged, no composition rules, no forced rotation, known-breached passwords refused from a locally hosted list — and exponential backoff throttling instead of account lockout, which closes TM-D-2 by making third-party-triggered lockout impossible by construction. FR-2.2 registration is unblocked. **Still blocking: account-recovery and MFA-recovery flows (`REQUIREMENTS.md` OQ-8).** Lost password and lost TOTP device have no defined path, so threat TM-S-2 remains CONDITIONAL and the recovery half of FR-2.3 stays blocked.
+- **PQ-6 — MFA factors. RESOLVED 2026-08-01.** TOTP (RFC 6238) or a passkey, user-enabled and optional per FR-2.5. SMS and email codes excluded — `REF-63B` treats SMS as a restricted authenticator, and an email code reduces the second factor to email-account security. FR-2.5 and FR-2.6 are unblocked; the lost-device path depends on the recovery flows still open in PQ-5.
+- **PQ-7 — Email verification flow. RESOLVED 2026-08-01.** An account may be created and may authenticate before verification, but every health-data write is refused until control is proven, and the address cannot be relied on for recovery until then. Single-use short-lived token, invalidated on use or replacement, rate-limited resend, no enumeration in the response. Recorded as `REQUIREMENTS.md` FR-2.11 and `SECURITY.md` SEC-AUTHN-8; threat TM-S-3 is closed. Concrete lifetime and resend interval sit with SQ-3.
+- **PQ-8 — Password hashing. RESOLVED 2026-08-01.** Argon2id with a per-credential salt from a cryptographically secure generator; bcrypt and non-memory-hard functions are prohibited outright. Parameters must be named constants with a documented tuning basis; concrete values await production instance sizing (SQ-7). Credential storage is unblocked.
 - **PQ-9 — Body measurement fields and unit system.** `REQUIREMENTS.md` OQ-4; `DESIGN.md` OQ-8. Blocks: FR-8.2. Also leaves the unit for body weight and workout load open, which REQ-PROGRESS-010 and REQ-PROGRESS-020 handle by storing units explicitly.
 - **PQ-10 — Nutrition data source.** `REQUIREMENTS.md` OQ-5. No external nutrition database is in scope and no first-party catalog is specified. Blocks: FR-8.4, FR-8.5.
 - **PQ-11 — Progress history period, granularity, and visualization.** `REQUIREMENTS.md` OQ-7; `DESIGN.md` OQ-4; `ARCHITECTURE.md` Browser Client open decision. Blocks: FR-8.6.
@@ -41,7 +41,7 @@ Each `PQ-*` names the source identifiers it derives from and the scope it blocks
 - **PQ-19 — CI/CD platform, secret store, AWS topology. PARTIALLY RESOLVED 2026-07-31.** The platform is GitHub Actions with OIDC federation to AWS IAM roles, which settles SEC-CICD-1's credential model. `SECURITY.md` SQ-7, SEC-CICD-3, SEC-CICD-4, SEC-SECRET-2, SEC-SESSION-7 remain open. Still blocks: the pipeline security gate set, IaC baseline, secret management, encryption-at-rest configuration, network tiering, and egress restriction. Threat TM-T-6 remains CONDITIONAL.
 - **PQ-20 — Audit and log retention, access control, and tamper-evidence.** `SECURITY.md` SQ-8, SQ-13, SEC-LOG-5, SEC-LOG-7, SEC-OPS-1. Blocks: retention policy, tamper-evident audit storage, the operational break-glass model. Threats TM-R-2, TM-I-8, TM-P-4 open.
 - **PQ-21 — Governing privacy regime.** `SECURITY.md` SQ-1, SQ-11; `REQUIREMENTS.md` OQ-3. The US-federal/state framing, GDPR/CCPA rights, and HIPAA obligations are recorded as mutually inconsistent. Blocks: every `Regulatory` field, data residency, breach notification, consent wording, and retention periods. Threat TM-P-3 CONDITIONAL. **This is the single most far-reaching open question in the specification.**
-- **PQ-22 — Privileged account provisioning and first passkey enrolment.** `SECURITY.md` SQ-12; threats TM-S-4, TM-E-1. Blocks: admin and consultant account creation, role assignment and change, and the bootstrap path REQ-AUTH-030 assumes already happened.
+- **PQ-22 — Privileged account provisioning and first passkey enrolment. RESOLVED 2026-08-01.** Invitation from an existing `admin` carrying a single-use, short-lived, role-scoped enrolment token to a verified address; that token authorizes passkey registration only and never yields a session. The first `admin` comes from a one-time provisioning command that refuses to run once any `admin` exists. Role is fixed by the invitation and never settable from a request body. Recorded as `REQUIREMENTS.md` FR-2.10 and `SECURITY.md` SEC-AUTHN-9. This breaks the REQ-AUTH-020 / REQ-AUTH-030 circular dependency: enrolment no longer presupposes a passkey session. Threats TM-S-4 and the request-path half of TM-E-1 are closed; vetting and deprovisioning remain open (SQ-12).
 - **PQ-23 — Third-party API exposure and CORS.** `SECURITY.md` SQ-6, SEC-HTTP-3. Blocks: SEC-HTTP-3.
 - **PQ-24 — Exact CSP directive set.** `SECURITY.md` SEC-HTTP-2 (`TO BE DECIDED`). Partially blocking: the prohibitions on inline and eval script are normative and are delivered by REQ-PLATFORM-040; the full directive list is not.
 - **PQ-25 — UI presentation decisions.** `DESIGN.md` OQ-5 (citation and verification surfacing), OQ-6 (disclaimer presentation and acknowledgement form), OQ-7 (role-distinct treatment and how a subscriber sees consultant access). Partially blocking: REQ-PRIVACY-040 and REQ-CATALOG-010/020 deliver mechanism and enforcement; the presentation form is not settled.
@@ -65,14 +65,16 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `OUT OF SCOPE`.
 | FR-1.1 | REQ-PLATFORM-020, REQ-PLATFORM-040 | Browser Client; boundary 1 | SEC-HTTP-1, SEC-HTTP-2 | Layout and Spacing | COVERED |
 | FR-1.2 | REQ-PLATFORM-020 | Browser Client | — | Layout and Spacing; Accessibility | COVERED |
 | FR-2.1 | REQ-AUTHZ-010, REQ-SESSION-010 | Boundary 2 | SEC-AUTHN-1, SEC-AUTHZ-1 | — | COVERED |
-| FR-2.2 | — | Identity | SEC-AUTHN-5, SEC-AUTHN-8 | Components → Inputs | BLOCKED — PQ-5, PQ-7, PQ-8 |
-| FR-2.3 | REQ-AUTH-040 | Identity; boundary 2 | SEC-AUTHN-3 | Components → Form feedback | PARTIALLY COVERED — response contract covered; password verification blocked by PQ-8 |
-| FR-2.4 | — | Identity | SEC-SESSION-3 | — | BLOCKED — PQ-3 |
-| FR-2.5 | — | Identity | SEC-AUTHN-4, SEC-AUTHN-7 | — | BLOCKED — PQ-6 |
-| FR-2.6 | — | Identity | SEC-AUTHN-4 | — | BLOCKED — PQ-6 |
-| FR-2.7 | REQ-AUTH-010 | Identity; REST API | SEC-AUTHZ-1, SEC-INPUT-3 | — | PARTIALLY COVERED — invariant and resolution covered; assignment lifecycle blocked by PQ-22 |
+| FR-2.2 | — | Identity | SEC-AUTHN-5, SEC-AUTHN-8 | Components → Inputs | UNBLOCKED 2026-08-01 — no issue drafted yet |
+| FR-2.3 | REQ-AUTH-040 | Identity; boundary 2 | SEC-AUTHN-3, SEC-AUTHN-5 | Components → Form feedback | PARTIALLY COVERED — response contract covered; password verification unblocked but undrafted; recovery still blocked by OQ-8 |
+| FR-2.4 | — | Identity | SEC-SESSION-3, SEC-SESSION-5 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
+| FR-2.5 | — | Identity | SEC-AUTHN-4, SEC-AUTHN-7 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
+| FR-2.6 | — | Identity | SEC-AUTHN-4 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
+| FR-2.7 | REQ-AUTH-010 | Identity; REST API | SEC-AUTHZ-1, SEC-INPUT-3, SEC-AUTHN-9 | — | PARTIALLY COVERED — invariant and resolution covered; assignment lifecycle unblocked but undrafted |
 | FR-2.8 | REQ-AUTH-020 | Identity; boundary 2 | SEC-AUTHN-2 | Components | COVERED |
-| FR-2.9 | REQ-AUTH-030 | Identity | SEC-AUTHN-2, SEC-AUTHN-7 | Components → Buttons | PARTIALLY COVERED — registration and replacement covered; first enrolment blocked by PQ-22 |
+| FR-2.9 | REQ-AUTH-030 | Identity | SEC-AUTHN-2, SEC-AUTHN-7, SEC-AUTHN-9 | Components → Buttons | PARTIALLY COVERED — registration and replacement covered; first enrolment unblocked but undrafted |
+| FR-2.10 | — | Identity | SEC-AUTHN-9 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
+| FR-2.11 | — | Identity | SEC-AUTHN-8 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
 | FR-3.1 | — | REST API | SEC-AUTHZ-8 | — | BLOCKED — PQ-4 |
 | FR-3.2 | — | REST API | SEC-AUTHZ-8 | — | BLOCKED — PQ-4 |
 | FR-3.3 | — | REST API | SEC-AUTHZ-8 | — | BLOCKED — PQ-4 |
@@ -119,7 +121,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `OUT OF SCOPE`.
 | FR-11.3 | REQ-CONSULT-020 | REST API; Identity | SEC-AUTHZ-3, SEC-SESSION-4 | Components → Buttons | COVERED |
 | FR-11.4 | REQ-CONSULT-010, REQ-AUDIT-020 | REST API | SEC-LOG-1 | — | COVERED |
 
-**Totals** — 56 functional requirements: 33 `COVERED`, 9 `PARTIALLY COVERED`, 14 `BLOCKED`, 0 `OUT OF SCOPE`, 0 untracked. Every requirement traces to an issue or to a named blocking question.
+**Totals** — 58 functional requirements (FR-2.10 and FR-2.11 added 2026-08-01): 33 `COVERED`, 9 `PARTIALLY COVERED`, 6 `UNBLOCKED — no issue drafted yet`, 10 `BLOCKED`, 0 `OUT OF SCOPE`, 0 untracked. The authentication decisions of 2026-08-01 moved four requirements out of `BLOCKED` and created two new ones; none of the six has an issue body yet, which is the next drafting pass. Every requirement traces to an issue, to a named blocking question, or to that pass.
 
 ## 3. Coverage matrix — security rules
 
@@ -131,13 +133,15 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `OUT OF SCOPE`.
 | SEC-AUTHN-1 | REQ-AUTHZ-010 | COVERED |
 | SEC-AUTHN-2 | REQ-AUTH-020, REQ-AUTH-030 | COVERED |
 | SEC-AUTHN-3 | REQ-AUTH-040 | COVERED |
-| SEC-AUTHN-4 | — | BLOCKED — PQ-6 |
-| SEC-AUTHN-5 | — | BLOCKED — PQ-8 |
-| SEC-AUTHN-6 | — | BLOCKED — PQ-17 |
-| SEC-AUTHN-7 | REQ-AUTH-030, REQ-AUTH-050 | PARTIALLY COVERED — password and MFA changes blocked by PQ-5, PQ-6 |
-| SEC-AUTHN-8 | — | BLOCKED — PQ-7 |
+| SEC-AUTHN-4 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
+| SEC-AUTHN-5 | — | UNBLOCKED 2026-08-01 — no issue drafted yet (Argon2id) |
+| SEC-AUTHN-6 | — | UNBLOCKED 2026-08-01 — no issue drafted yet — policy and throttling decided; thresholds still PQ-17 |
+| SEC-AUTHN-7 | REQ-AUTH-030, REQ-AUTH-050 | PARTIALLY COVERED — password and MFA change paths unblocked but undrafted |
+| SEC-AUTHN-8 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
 | SEC-SESSION-1, -2 | REQ-SESSION-010 | COVERED |
-| SEC-SESSION-3, -4, -5, -7 | REQ-CONSULT-020 (SEC-SESSION-4 for engagements only) | BLOCKED — PQ-3, PQ-19 |
+| SEC-SESSION-3, -4, -5 | REQ-CONSULT-020 (SEC-SESSION-4 for engagements only) | UNBLOCKED 2026-08-01 — no issue drafted yet — model decided |
+| SEC-SESSION-7 | — | BLOCKED — PQ-19 (signing key store) |
+| SEC-AUTHN-9 | — | UNBLOCKED 2026-08-01 — no issue drafted yet — privileged provisioning |
 | SEC-SESSION-6 | REQ-SESSION-020 | COVERED |
 | SEC-AUTHZ-1, -2 | REQ-AUTHZ-010, REQ-AUTHZ-020 | COVERED |
 | SEC-AUTHZ-3 | REQ-CONSULT-010, REQ-CONSULT-020 | COVERED |
@@ -146,7 +150,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `OUT OF SCOPE`.
 | SEC-AUTHZ-8 | — | BLOCKED — PQ-4 |
 | SEC-HTTP-1, -2 | REQ-PLATFORM-040 | PARTIALLY COVERED — CSP directives open (PQ-24) |
 | SEC-HTTP-3 | — | BLOCKED — PQ-23 |
-| SEC-HTTP-4 | — | BLOCKED — PQ-3 (conditional on transport) |
+| SEC-HTTP-4 | — | UNBLOCKED 2026-08-01 — no issue drafted yet — now applies unconditionally under cookie transport |
 | SEC-HTTP-5 | — | BLOCKED — PQ-17 |
 | SEC-HTTP-6 | REQ-API-040 | COVERED |
 | SEC-INPUT-1, -3, -6 | REQ-API-010, REQ-API-020 | COVERED |
@@ -176,15 +180,16 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `OUT OF SCOPE`.
 
 | Scope | Requirements | Blocked by |
 |---|---|---|
-| Registration with email and password | FR-2.2 | PQ-5, PQ-7, PQ-8 |
-| Password credential storage and verification | FR-2.3 (verification half) | PQ-8 |
-| Email address verification | SEC-AUTHN-8 | PQ-7 |
-| Account and MFA recovery; lockout | FR-2.3, OQ-8 | PQ-5 |
-| MFA enable, disable, and challenge | FR-2.5, FR-2.6 | PQ-6 |
-| Logout and session revocation | FR-2.4 | PQ-3 |
-| Token transport, storage, CSRF, key management | SEC-SESSION-5, -7; SEC-HTTP-4 | PQ-3, PQ-19 |
+| Registration with email and password | FR-2.2 | *Unblocked 2026-08-01 — needs an issue* |
+| Password credential storage and verification | FR-2.3 (verification half) | *Unblocked 2026-08-01 — needs an issue* |
+| Email address verification | FR-2.11, SEC-AUTHN-8 | *Unblocked 2026-08-01 — needs an issue* |
+| Account and MFA recovery | FR-2.3, OQ-8 | **Still blocked — PQ-5.** Lockout is resolved: fixed lockout is prohibited in favour of backoff |
+| MFA enable, disable, and challenge | FR-2.5, FR-2.6 | *Unblocked 2026-08-01 — needs an issue* |
+| Logout and session revocation | FR-2.4 | *Unblocked 2026-08-01 — needs an issue* |
+| Token transport, storage, CSRF | SEC-SESSION-5; SEC-HTTP-4 | *Unblocked 2026-08-01 — needs an issue* |
+| Signing key storage and rotation | SEC-SESSION-7 | PQ-19 |
 | Anti-automation and rate limiting | SEC-AUTHN-6, SEC-HTTP-5 | PQ-17 |
-| Admin and consultant provisioning; role assignment; first passkey | FR-2.7 (lifecycle), FR-2.9 (bootstrap) | PQ-22 |
+| Admin and consultant provisioning; role assignment; first passkey | FR-2.10, FR-2.7 (lifecycle), FR-2.9 (bootstrap) | *Unblocked 2026-08-01 — needs an issue* |
 | Subscription activation, status, entitlement gate, retention across lapse | FR-3.1 – FR-3.4 | PQ-4 |
 | Plan selection to follow | FR-5.2, FR-6.3 | PQ-12 |
 | Plan verification operation | FR-4.5 (workflow) | PQ-13 |
