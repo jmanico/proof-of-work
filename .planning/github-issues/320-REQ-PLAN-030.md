@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM and Fastify (`CLAUDE.md`); client build tooling TO BE DECIDED. Whether an edit invalidates a prior verification is unresolved (`REQUIREMENTS.md` OQ-10) — this issue MUST NOT decide it; the edit operation leaves the verification record as it found it, and the question is recorded as open.
+- **Constraints**: PostgreSQL with Drizzle ORM and Fastify (`CLAUDE.md`); the client is a Vite-built single-page application with `vue-router`. Whether an edit invalidates a prior verification is unresolved (`REQUIREMENTS.md` OQ-10) — this issue MUST NOT decide it; the edit operation leaves the verification record as it found it, and the question is recorded as open.
 - **Prohibited Approaches**: A combined "save and publish" operation that bypasses the publication gate; binding the request body wholesale; treating the admin role as a reason to skip input validation; writing the audit entry outside the transaction.
 - **Implementation Guidance**: Keep create and edit as distinct operations with distinct audit action values so REQ-AUDIT-030's five-action enumeration stays exact.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

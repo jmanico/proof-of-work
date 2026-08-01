@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling TO BE DECIDED. FR-3.4 requires copies to survive a subscription lapse, but the lapse semantics are blocked by `REQUIREMENTS.md` OQ-1 — this issue therefore guarantees persistence across sessions, not across a lapse, and REQ-SUB retention work is blocked.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); the client is a Vite-built single-page application with `vue-router`. FR-3.4 requires copies to survive a subscription lapse, but the lapse semantics are blocked by `REQUIREMENTS.md` OQ-1 — this issue therefore guarantees persistence across sessions, not across a lapse, and REQ-SUB retention work is blocked.
 - **Prohibited Approaches**: Retrieve-then-filter; treating an unguessable identifier as the access control; unbounded listings; returning the source plan's current content in place of the copy's stored content.
 - **Implementation Guidance**: Reuse the scope resolver from REQ-AUTHZ-020 rather than writing a copy-specific ownership check, so a single review covers all owned-record types.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

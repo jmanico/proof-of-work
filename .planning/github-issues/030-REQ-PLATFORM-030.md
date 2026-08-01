@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Automated accessibility scan plus a manual keyboard-only walkthrough recorded as WCAG 2.2 AA evidence.
 - **Acceptance-Criteria Traceability**: AC-01 — keyboard traversal suite; AC-02 — focus-management suite; AC-03 — focus-indicator lint plus announcement-content assertion; AC-04 — reduced-motion suite; AC-05 — skip-link test.
 - **Coverage Target**: Every shell control and every focus transition type exercised.
-- **Required Test Environment**: Vitest for component tests; the accessibility scanner and browser automation target remain TO BE DECIDED.
+- **Required Test Environment**: Vitest for component tests; Playwright with axe-core for the zoom, reflow, keyboard, focus, and reduced-motion assertions that require a real browser.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Vue.js client written in TypeScript. Client build tooling TO BE DECIDED.
+- **Constraints**: Vue.js client written in TypeScript, built by Vite as a single-page application with `vue-router` (`CLAUDE.md`). Styling is plain CSS custom properties with scoped single-file-component styles.
 - **Prohibited Approaches**: Removing the default focus ring without replacement; positive tab indices to fake an order; motion as the only signal of a state change; announcing raw server diagnostics.
 - **Implementation Guidance**: Correct heading hierarchy, landmark regions, and labelled controls are part of this baseline (`DESIGN.md`, Accessibility — Structure). The logo is decorative wherever adjacent text already names the product.
 - **AI Development Guidance**: `REF-PROMPT-VUE`; `CLAUDE.md`.

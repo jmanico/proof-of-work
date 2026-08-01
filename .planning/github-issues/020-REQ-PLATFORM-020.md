@@ -82,7 +82,7 @@
 - **Compliance Tests / Evidence**: Reflow evidence at 320px and at 200% zoom, and a touch-target audit, retained for the WCAG 2.2 AA target.
 - **Acceptance-Criteria Traceability**: AC-01 and AC-04 — breakpoint layout suite; AC-02 — reflow and zoom suite; AC-03 — target-size audit plus an overflow assertion.
 - **Coverage Target**: All five breakpoints and both reflow conditions exercised.
-- **Required Test Environment**: Vitest for component tests; the browser automation target remains TO BE DECIDED.
+- **Required Test Environment**: Vitest for component tests; Playwright across viewports for the reflow assertions.
 
 ## Dependencies
 
@@ -94,7 +94,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Vue.js client written in TypeScript; responsive web only, no native application. Client build tooling and routing strategy remain TO BE DECIDED.
+- **Constraints**: Vue.js client written in TypeScript; responsive web only, no native application, built by Vite as a single-page application with `vue-router` (`CLAUDE.md`).
 - **Prohibited Approaches**: Serving a reduced mobile feature set; hiding content behind a viewport query; fixed pixel widths that defeat 200% zoom; suppressing reflow with horizontal scroll containers at the page level.
 - **Implementation Guidance**: Relative units throughout so user font-size preferences are respected (`DESIGN.md`, Accessibility — Text sizing). Wide tabular data may scroll inside its own container so long as the page body does not.
 - **AI Development Guidance**: `REF-PROMPT-VUE`; `CLAUDE.md`.

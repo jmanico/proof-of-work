@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling TO BE DECIDED. Whether a subscriber may hold copies of more than one plan at a time is `REQUIREMENTS.md` OQ-6 and is not decided here; this issue permits creating a copy without asserting how many may be *active*.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); the client is a Vite-built single-page application with `vue-router`. Whether a subscriber may hold copies of more than one plan at a time is `REQUIREMENTS.md` OQ-6 and is not decided here; this issue permits creating a copy without asserting how many may be *active*.
 - **Prohibited Approaches**: Storing the copy as a reference or a diff against the published plan, which makes FR-7.5 unachievable; a shared update handler for published plans and copies; deriving the owner from the request; adding a share or publish action to copies.
 - **Implementation Guidance**: Write the copy as a complete, independent record at creation time — that is what makes REQ-CUSTOM-030's stability guarantee structural rather than a runtime check.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

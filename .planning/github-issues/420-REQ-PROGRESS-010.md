@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling TO BE DECIDED. The unit system for weight is open (`REQUIREMENTS.md` OQ-4, `DESIGN.md` OQ-8) — store the unit explicitly with each entry rather than assuming one, so resolving OQ-4 does not require reinterpreting stored data.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); the client is a Vite-built single-page application with `vue-router`. The unit system for weight is open (`REQUIREMENTS.md` OQ-4, `DESIGN.md` OQ-8) — store the unit explicitly with each entry rather than assuming one, so resolving OQ-4 does not require reinterpreting stored data.
 - **Prohibited Approaches**: Deriving the owner from the request; a shared "log entry" endpoint that switches on a client-supplied type discriminator without per-type validation; logging the value for debugging; allowing a future date without a documented decision, since no source document addresses it — reject future dates and record the choice as provisional.
 - **Implementation Guidance**: Route the write through the health-data accessor established by REQ-AUDIT-020 so consent and audit obligations are carried structurally rather than by convention.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

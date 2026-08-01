@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling TO BE DECIDED. Subscription entitlement is blocked by `REQUIREMENTS.md` OQ-1, so this surface is gated by authentication only; that gap must be stated when the issue is closed.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); the client is a Vite-built single-page application with `vue-router`. Subscription entitlement is blocked by `REQUIREMENTS.md` OQ-1, so this surface is gated by authentication only; that gap must be stated when the issue is closed.
 - **Prohibited Approaches**: Client-side filtering of unpublished plans; deriving displayed targets by recomputation rather than showing the authored values; rendering meal content through a raw HTML binding (SEC-RENDER-1); rounding or reformatting target values in a way that changes their meaning.
 - **Implementation Guidance**: Share the published-only query predicate with REQ-CATALOG-010 and REQ-PLAN-050. Present targets as authored, with units, so that the later FR-8.5 comparison has an unambiguous reference once OQ-5 resolves.
 - **AI Development Guidance**: `REF-PROMPT-VUE`, `REF-PROMPT-API`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
