@@ -18,7 +18,7 @@
 - **Statement**: The public browser-facing surface MUST serve all traffic over TLS, MUST reject or redirect plaintext HTTP, MUST send HSTS, and MUST set on every response a Content Security Policy that forbids inline and eval-based script execution, `X-Content-Type-Options: nosniff`, a restrictive referrer policy, and `Cache-Control: no-store` on any response containing health or personal data.
 - **Rationale**: SEC-HTTP-1 and SEC-HTTP-2 require these headers; the threat model records stored XSS through admin-authored plan content (TM-T-4) and health-data residue in browser cache and history on shared devices (TM-I-9) as the threats they answer.
 - **Assumptions**: A first-party browser client is the only consumer (SEC-HTTP-3 note; `SECURITY.md` SQ-6 leaves third-party exposure open).
-- **Out of Scope**: The exact CSP directive set, which `SECURITY.md` SEC-HTTP-2 marks `TO BE DECIDED`; CORS posture (SEC-HTTP-3, blocked by SQ-6); token transport and cookie attributes (SEC-SESSION-5, blocked by SQ-2); rate limiting (SEC-HTTP-5, blocked by SQ-3).
+- **Out of Scope**: The exact CSP directive set, which `SECURITY.md` SEC-HTTP-2 marks `TO BE DECIDED`; CORS posture (SEC-HTTP-3, blocked by SQ-6); token transport and cookie attributes (SEC-SESSION-5, delivered by REQ-SESSION-050; the `SameSite` value and cookie lifetime remain open under SQ-3); rate limiting (SEC-HTTP-5, blocked by SQ-3).
 - **Design Traceability**: N/A — `DESIGN.md` does not address transport or headers.
 - **Architecture Traceability**: `ARCHITECTURE.md` — trust boundary 1 (Browser Client → REST API Application); REST API Application outputs.
 - **Security Traceability**: SEC-HTTP-1, SEC-HTTP-2; supports SEC-RENDER-1 (defense in depth against TM-T-4) and SEC-RENDER-4 (TM-I-9).

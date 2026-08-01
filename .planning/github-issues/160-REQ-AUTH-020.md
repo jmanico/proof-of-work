@@ -18,7 +18,7 @@
 - **Statement**: Accounts with the `admin` or `consultant` role MUST authenticate with a passkey (WebAuthn), and MUST NOT be able to complete authentication with a password alone or through any password-only fallback path.
 - **Rationale**: FR-2.8 requires passkey authentication for privileged roles and forbids password-alone authentication for them; SEC-AUTHN-2 restates it and extends the prohibition to recovery paths. Both roles reach subscriber health data, and the threat model treats compromised admin and consultant accounts as primary adversaries.
 - **Assumptions**: Role is resolved from persisted state before the credential path is selected (REQ-AUTH-010).
-- **Out of Scope**: Passkey registration and replacement (REQ-AUTH-030); how the *first* passkey for a privileged account is enrolled, which `SECURITY.md` SQ-12 and threat TM-S-4 leave open; subscriber password authentication and MFA, blocked by `REQUIREMENTS.md` OQ-8 and OQ-9; account recovery flows, blocked by OQ-8.
+- **Out of Scope**: Passkey registration and replacement (REQ-AUTH-030); first-passkey enrolment for a privileged account, delivered by REQ-AUTH-140 (SEC-AUTHN-9, FR-2.10; threat TM-S-4 closed); subscriber password authentication (REQ-AUTH-100) and MFA (REQ-AUTH-110, REQ-AUTH-120); account recovery flows (REQ-AUTH-130, REQ-AUTH-150).
 - **Design Traceability**: `DESIGN.md` — Components (Buttons, Inputs, Focus states, Form feedback and errors) govern the authentication view's presentation; `DESIGN.md` OQ-7 (distinct treatment for privileged roles) is open and not required here.
 - **Architecture Traceability**: `ARCHITECTURE.md` — Identity and Session Handling ("passkey registration and verification for admin and consultant accounts"); trust boundary 2; data flow 1.
 - **Security Traceability**: SEC-AUTHN-2; supports SEC-AUTHN-3, SEC-AUTHN-4, SEC-LOG-4.
@@ -94,12 +94,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). Passkeys are mandatory only for `admin` and `consultant`; subscriber authentication is a separate, currently blocked path and MUST NOT be conflated with this one.
+- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). Passkeys are mandatory only for `admin` and `consultant`; subscriber authentication is a separate path (REQ-AUTH-100) and MUST NOT be conflated with this one.
 - **Prohibited Approaches**: A shared login endpoint that branches on a client-supplied flag; a "temporary" password path for privileged accounts; recovery that issues a session on email possession alone (SEC-AUTHN-2 covers recovery explicitly); logging assertions or challenges.
 - **Implementation Guidance**: Resolve the account's role before deciding which credential the endpoint will accept, so the rule cannot be bypassed by choosing a different form. Keep challenge generation on the cryptographically secure generator required by SEC-SECRET-4.
 - **AI Development Guidance**: `REF-PROMPT-JWT` (session issuance), `REF-PROMPT-NODE`, `REF-PROMPT-QUALITY`; `REF-WEBAUTHN`, `REF-PASSKEY`; `CLAUDE.md`.
 - **Required Human Review**: Security review of every session-issuing path, not only the passkey path.
-- **Open Decisions**: `SECURITY.md` SQ-12 and threat TM-S-4 — how the first passkey for a privileged account is enrolled — remain open and are handled as blocked scope. This issue assumes a registered passkey already exists and does not create one. Account recovery for privileged accounts is blocked by `REQUIREMENTS.md` OQ-8.
+- **Open Decisions**: First-passkey enrolment is settled by SEC-AUTHN-9 and delivered by REQ-AUTH-140; this issue assumes a registered passkey already exists and does not create one. Privileged account recovery is delivered by REQ-AUTH-150 (FR-2.15). Still open under `SECURITY.md` SQ-12: vetting and deprovisioning of privileged holders.
 
 **Estimated effort**: 1.5–2 engineer-days. **Estimated changed lines**: 400–900.
 **Recommended model**: Claude Opus (`claude-opus-5`) — cryptographic protocol integration and an absolute no-fallback rule that must hold across every path.

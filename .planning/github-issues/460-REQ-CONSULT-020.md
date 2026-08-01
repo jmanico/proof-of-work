@@ -18,7 +18,7 @@
 - **Statement**: A subscriber MUST be able to end a consultant engagement, and that consultant's access to the subscriber's data MUST be revoked immediately — including for a session or token issued before the engagement ended, without waiting for natural expiry.
 - **Rationale**: FR-11.3 grants the subscriber the right to end an engagement and requires revocation; SEC-AUTHZ-3 requires denial immediately once the subscriber ends it; SEC-SESSION-4 requires revocation of authorization state to take effect without waiting for token expiry. The threat model records a consultant retaining access via a still-valid JWT (TM-I-2) as high severity and conditional on the unresolved session design.
 - **Assumptions**: An engagement exists and access is evaluated per request from persisted state (REQ-CONSULT-010).
-- **Out of Scope**: Creating or purchasing an engagement (FR-11.1), blocked by `REQUIREMENTS.md` OQ-13 and OQ-1; whether a consultant may also end an engagement, which no source document states — FR-11.3 grants it to the subscriber; the JWT revocation mechanism for logout generally (SEC-SESSION-3), blocked by `SECURITY.md` SQ-2; consultant capabilities (OQ-12).
+- **Out of Scope**: Creating or purchasing an engagement (FR-11.1), blocked by `REQUIREMENTS.md` OQ-13 and OQ-1; whether a consultant may also end an engagement, which no source document states — FR-11.3 grants it to the subscriber; the JWT revocation mechanism for logout generally, resolved by `SECURITY.md` SQ-2 and delivered by REQ-SESSION-040 (SEC-SESSION-3); consultant capabilities (OQ-12).
 - **Design Traceability**: `DESIGN.md` — Components → Buttons ("Destructive actions use `error` as the filled color and require explicit confirmation"), Form feedback and errors, Focus states; `DESIGN.md` OQ-7 (how a subscriber sees consultant access) is open.
 - **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application ("consultant engagement scoping (FR-11.2, FR-11.3)"); data flow 7; Identity and Session Handling (revocation of authorization state).
 - **Security Traceability**: SEC-AUTHZ-3, SEC-SESSION-4, SEC-LOG-1, SEC-LOG-4.
@@ -95,12 +95,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`). `SECURITY.md` SQ-2 leaves the general JWT revocation mechanism undecided, and TM-I-2 is recorded as CONDITIONAL on it. This issue achieves FR-11.3 without depending on that decision, by never caching engagement state in the session — but note that SEC-SESSION-3's logout revocation remains unsatisfied and blocked, so the session model as a whole is still incomplete.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`). `SECURITY.md` SQ-2 is RESOLVED: sessions are server-side records revoked by invalidating the record (SEC-SESSION-3), and TM-I-2 is MITIGATED BY RULE (SEC-AUTHZ-3, SEC-SESSION-4). This issue additionally never caches engagement state in the session, so revocation of engagement scope never waits on token expiry; logout revocation itself is delivered by REQ-SESSION-040.
 - **Prohibited Approaches**: Placing engagement state in a JWT claim; caching it for the session's lifetime; deferring revocation to token expiry; letting a consultant terminate or reinstate an engagement; soft-hiding the subscriber's data in the client while the API still serves it.
 - **Implementation Guidance**: Because REQ-CONSULT-010 evaluates the engagement predicate per request, this issue's revocation is a state change plus a test that proves the predicate is genuinely per-request. Keep the ended state rather than deleting the engagement record, so the historical audit trail remains interpretable.
 - **AI Development Guidance**: `REF-PROMPT-JWT`, `REF-PROMPT-ABAC`, `REF-PROMPT-API`; `CLAUDE.md`.
 - **Required Human Review**: Security review of the revocation path and the captured-token test; privacy review of what the subscriber is told about past access.
-- **Open Decisions**: `SECURITY.md` SQ-2 (session transport, lifetime, and the revocation mechanism for logout) remains open and blocks SEC-SESSION-3 generally; `REQUIREMENTS.md` OQ-12 (capabilities) and OQ-13 (engagement lifecycle and payment) remain open, so engagement *creation* has no issue.
+- **Open Decisions**: Session lifetimes remain open (`SECURITY.md` SQ-3; SQ-2 is RESOLVED); `REQUIREMENTS.md` OQ-12 (capabilities) and OQ-13 (engagement lifecycle and payment) remain open, so engagement *creation* has no issue.
 
 **Estimated effort**: 0.5–1.5 engineer-days. **Estimated changed lines**: 150–400.
 **Recommended model**: Claude Opus (`claude-opus-5`) — small in code, but it is the mitigation for a high-severity threat the specification itself marks as conditional and unresolved.

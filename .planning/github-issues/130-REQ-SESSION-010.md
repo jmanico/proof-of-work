@@ -18,7 +18,7 @@
 - **Statement**: Identity and Session Handling MUST verify a token's signature before reading any claim, MUST accept only algorithms on a server-side allow-list and reject `alg: none` and any algorithm outside that list, and MUST validate `exp`, `iss`, and `aud` on every token, rejecting a token that is missing any required claim rather than applying a default.
 - **Rationale**: SEC-SESSION-1 and SEC-SESSION-2 state these rules. JWT is the selected session format (`SECURITY.md`, Session model), and the threat model rates algorithm and signature confusion (TM-T-3) and token replay (TM-S-5) as high severity.
 - **Assumptions**: Tokens are issued by this system; no federated issuer exists (no external integrations, FR-9.8).
-- **Out of Scope**: Token lifetime, refresh strategy, transport, storage, and the revocation mechanism, all `TO BE DECIDED` in `SECURITY.md` SQ-2 and SEC-SESSION-3; signing key storage and rotation (SEC-SESSION-7, blocked by SQ-7); claim content (REQ-SESSION-020).
+- **Out of Scope**: Token lifetime (`SECURITY.md` SQ-3); transport, storage, and revocation, which SQ-2 resolves as an `HttpOnly`/`Secure`/`SameSite` cookie resolved against a server-side session record (SEC-SESSION-3, SEC-SESSION-5) and which REQ-SESSION-030/040/050 deliver — no refresh strategy is needed because revocation is immediate; signing key storage and rotation (SEC-SESSION-7, blocked by SQ-7); claim content (REQ-SESSION-020).
 - **Design Traceability**: N/A — `DESIGN.md` does not address session mechanics.
 - **Architecture Traceability**: `ARCHITECTURE.md` — Identity and Session Handling ("role resolution supplied to the REST API Application for every request"); trust boundary 2; data flow 1.
 - **Security Traceability**: SEC-SESSION-1, SEC-SESSION-2; supports SEC-AUTHN-1, SEC-AUTHZ-1, SEC-TB-1.
@@ -94,12 +94,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: JWT is fixed as the token format (`SECURITY.md`, Session model). Lifetime, transport, and revocation remain open (SQ-2) and MUST NOT be decided here; this issue covers verification only, so any session it validates is still subject to the unresolved revocation gap in SEC-SESSION-3.
+- **Constraints**: JWT is fixed as the token format (`SECURITY.md`, Session model). Transport and revocation are resolved (SQ-2: server-side session records, SEC-SESSION-3) and lifetimes remain open (SQ-3); neither may be decided here — this issue covers verification only, and any session it validates is still subject to the session-record resolution delivered by REQ-SESSION-030.
 - **Prohibited Approaches**: Decoding claims before verifying the signature; accepting the token's `alg` header as the verification algorithm; catching verification errors and proceeding; logging tokens or key material; writing a bespoke JWT parser (DEP-1).
 - **Implementation Guidance**: Keep verification in one single-purpose function so the "signature before claims" ordering is reviewable at a glance (`SECURITY.md` code-quality resolution). A key identifier in the header may select among configured keys, but only from the server's configured set — this anticipates SEC-SESSION-7 without deciding it.
 - **AI Development Guidance**: `REF-PROMPT-JWT`, `REF-PROMPT-NODE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Security review of the verification path and the algorithm allow-list.
-- **Open Decisions**: `SECURITY.md` SQ-2 (lifetime, transport, revocation) and SEC-SESSION-7 (key store, rotation period) are unresolved. They do not change the verification rules delivered here, but the session model is incomplete until they are closed.
+- **Open Decisions**: Session lifetimes (`SECURITY.md` SQ-3) and SEC-SESSION-7 (key store, rotation period) are unresolved; SQ-2 itself is RESOLVED. Neither changes the verification rules delivered here, but the session model is incomplete until they are closed.
 
 **Estimated effort**: 0.5–1.5 engineer-days. **Estimated changed lines**: 150–400.
 **Recommended model**: Claude Opus (`claude-opus-5`) — cryptographic verification logic where the failure mode is total authentication bypass.
