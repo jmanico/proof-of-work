@@ -98,7 +98,7 @@
 - **Implementation Guidance**: Child issues are ordered topologically in `ISSUE_PLAN.md`. Cross-cutting enforcement issues (REQ-AUTHZ-*, REQ-API-*, REQ-AUDIT-*) precede the feature issues that depend on them.
 - **AI Development Guidance**: `CLAUDE.md`; `SECURITY.md` prompt imports `REF-PROMPT-NODE`, `REF-PROMPT-VUE`, `REF-PROMPT-JWT`, `REF-PROMPT-API`, `REF-PROMPT-ABAC`, `REF-PROMPT-QUALITY`, `REF-PROMPT-TF-AWS`.
 - **Required Human Review**: Security and privacy review before any production release; product review to close `REQUIREMENTS.md` OQ-*; legal/privacy review to close SQ-1 and OQ-3; architecture review to close SQ-4 and SQ-7 (SQ-2 is RESOLVED).
-- **Open Decisions**: PQ-1…PQ-14 in `ISSUE_PLAN.md`; all `OQ-*` in `REQUIREMENTS.md` and `DESIGN.md`; all `SQ-*` in `SECURITY.md`.
+- **Open Decisions**: every unresolved `PQ-*` in `ISSUE_PLAN.md`; every unresolved `OQ-*` in `REQUIREMENTS.md` and `DESIGN.md`; every unresolved `SQ-*` in `SECURITY.md`.
 
 ## Child Issues
 

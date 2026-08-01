@@ -87,7 +87,7 @@
 ## Dependencies
 
 - **Upstream Requirements**: REQ-API-040, REQ-AUTH-020
-- **Downstream Requirements**: REQ-AUTH-050; every credential path added once `REQUIREMENTS.md` OQ-8, OQ-9, and OQ-15 resolve
+- **Downstream Requirements**: REQ-AUTH-050; the credential paths that consume this contract (REQ-AUTH-080, REQ-AUTH-090, REQ-AUTH-100, REQ-AUTH-110, REQ-AUTH-120, REQ-AUTH-130; `REQUIREMENTS.md` OQ-8, OQ-9, and OQ-15 RESOLVED)
 - **External Dependencies**: None
 - **Dependency Assumptions**: Credential verification returns a classified failure to the shared formatter rather than shaping its own response.
 - **Failure Impact**: Enumeration turns a fitness application's user list into a health-related disclosure and makes credential stuffing far cheaper.

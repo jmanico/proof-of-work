@@ -19,7 +19,7 @@
 
 ### Initial Architecture (Provisional)
 
-Four boundaries: the browser client, the server-side REST application, relational persistence, and identity/session handling within the server. There is no external-integration boundary and no message broker, because the system is specified as self-contained and must not transmit health data externally (FR-9.8). No background-processing boundary is asserted; whether data export and account deletion run synchronously or asynchronously is an open decision below.
+Four components: the browser client, the server-side REST application, relational persistence, and identity/session handling within the server. There is no external-integration boundary and no message broker, because the system is specified as self-contained and must not transmit health data externally (FR-9.8). No background-processing boundary is asserted; whether data export and account deletion run synchronously or asynchronously is an open decision below.
 
 All business rules are enforced server-side. The client renders and validates for usability only; it is never the authority for authorization, entitlement, or data validity.
 
