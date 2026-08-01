@@ -151,5 +151,18 @@
 - [ ] https://github.com/jmanico/proof-of-work/issues/54 — Ending an engagement revokes consultant access
 - [ ] https://github.com/jmanico/proof-of-work/issues/55 — Dependency policy and reproducible resolution
 - [ ] https://github.com/jmanico/proof-of-work/issues/56 — Non-production environments contain no real health data
+- [ ] https://github.com/jmanico/proof-of-work/issues/66 — Server-side session records and per-request resolution
+- [ ] https://github.com/jmanico/proof-of-work/issues/67 — Logout and session revocation on credential or authorization change
+- [ ] https://github.com/jmanico/proof-of-work/issues/68 — Cookie session transport and cross-site request forgery protection
+- [ ] https://github.com/jmanico/proof-of-work/issues/69 — Anti-automation throttling on authentication and recovery paths
+- [ ] https://github.com/jmanico/proof-of-work/issues/70 — Password credential storage with Argon2id
+- [ ] https://github.com/jmanico/proof-of-work/issues/71 — Subscriber registration with email and password
+- [ ] https://github.com/jmanico/proof-of-work/issues/72 — Email verification and the health-data write gate
+- [ ] https://github.com/jmanico/proof-of-work/issues/73 — Subscriber password authentication
+- [ ] https://github.com/jmanico/proof-of-work/issues/74 — MFA enrolment, recovery codes, and disablement
+- [ ] https://github.com/jmanico/proof-of-work/issues/75 — MFA challenge and recovery-code redemption
+- [ ] https://github.com/jmanico/proof-of-work/issues/76 — Password reset
+- [ ] https://github.com/jmanico/proof-of-work/issues/77 — Privileged provisioning by invitation and first passkey enrolment
+- [ ] https://github.com/jmanico/proof-of-work/issues/78 — Privileged account minimums and passkey recovery
 
 Blocked scope is listed in `ISSUE_PLAN.md` under Open Questions and Blocked Scope; no child issue exists for it.
