@@ -11,7 +11,7 @@
 - **Last Updated**: 2026-08-01
 - **Priority**: Critical
 - **Requirement Type**: Operational
-- **Source / Parent**: REQ-EPIC-001; `CLAUDE.md` Repository state (toolchain recorded 2026-07-31, resolving `ISSUE_PLAN.md` PQ-1); `ARCHITECTURE.md` DR-1, DR-5, DR-6, DR-8
+- **Source / Parent**: REQ-EPIC-001; `CLAUDE.md` Repository state (resolves `ISSUE_PLAN.md` PQ-1); `ARCHITECTURE.md` DR-1, DR-5, DR-6, DR-8
 
 ## Requirement
 
