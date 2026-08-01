@@ -1,10 +1,10 @@
 # ISSUE_PLAN.md — Specification decomposition
 
 - **Scope**: ALL requirements in `REQUIREMENTS.md`
-- **Execution mode**: `DRAFT_ONLY` — no GitHub issue was created, and no mutating `gh` command was run
+- **Execution mode**: originally `DRAFT_ONLY`; the epic and its 48 leaves were subsequently filed as GitHub issues #8 through #56
 - **Sources**: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, `DESIGN.md`, `REQUIREMENT_TEMPLATE.md`; `CLAUDE.md` followed as agent instruction, not as product specification
-- **Produced**: 2026-07-31
-- **Result**: 1 epic + 48 leaf issues drafted; 22 areas of scope blocked with no issue body
+- **Produced**: 2026-07-31; REQ-BUILD-010 added 2026-08-01 once PQ-1 resolved and a scaffolding owner became necessary
+- **Result**: 1 epic + 49 leaf issues drafted; 22 areas of scope blocked with no issue body
 
 ---
 
@@ -152,15 +152,15 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `OUT OF SCOPE`.
 | SEC-INPUT-1, -3, -6 | REQ-API-010, REQ-API-020 | COVERED |
 | SEC-INPUT-2 | REQ-PROGRESS-030 | COVERED |
 | SEC-INPUT-4 | REQ-PLAN-050, REQ-CUSTOM-010, REQ-CUSTOM-030 | COVERED |
-| SEC-INPUT-5 | REQ-API-030 | COVERED |
-| SEC-RENDER-1, -3, -4 | REQ-CATALOG-030 | COVERED |
+| SEC-INPUT-5 | REQ-API-030; REQ-BUILD-010 (wires the dynamic-query-construction static analysis SEC-INPUT-5 names as its verification method) | COVERED |
+| SEC-RENDER-1, -3, -4 | REQ-CATALOG-030; REQ-BUILD-010 (wires the `vue/no-v-html` lint rule SEC-RENDER-1 names as its verification method) | COVERED |
 | SEC-RENDER-2 | REQ-CATALOG-030 (conditional) | TO BE DECIDED — rich-text requirement open |
 | SEC-DATA-1 | — | BLOCKED — PQ-19 |
 | SEC-DATA-2 | REQ-PRIVACY-010, REQ-PRIVACY-020 | COVERED |
 | SEC-DATA-3, -4, -6 | — | BLOCKED — PQ-16 |
 | SEC-DATA-5 | REQ-PRIVACY-060 | COVERED |
 | SEC-OPS-1 | — | BLOCKED — PQ-20 |
-| SEC-SECRET-1, -2, -3, -4 | REQ-AUDIT-040 (partial, for logs) | BLOCKED — PQ-19 |
+| SEC-SECRET-1, -2, -3, -4 | REQ-AUDIT-040 (partial, for logs); REQ-BUILD-010 (SEC-SECRET-1 only — no secret material in the committed tree, ignore configuration by default) | BLOCKED — PQ-19 for SEC-SECRET-2, -3, -4 and for runtime secret resolution |
 | SEC-LOG-1, -2 | REQ-AUDIT-010, REQ-AUDIT-020 | COVERED |
 | SEC-LOG-3 | REQ-AUDIT-040 | COVERED |
 | SEC-LOG-4 | REQ-AUTH-050, REQ-AUTHZ-040 | COVERED |
@@ -170,7 +170,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `OUT OF SCOPE`.
 | SEC-EXT-1, -2 | REQ-PRIVACY-050, REQ-PLAN-040 | COVERED |
 | SEC-CICD-1, -2, -3, -4 | — | BLOCKED — PQ-19 |
 | SEC-CICD-5 | REQ-PIPE-020 | PARTIALLY COVERED — infrastructure enforcement blocked by PQ-19 |
-| DEP-1 … DEP-8 | REQ-PIPE-010 | PARTIALLY COVERED — automated gate blocked by PQ-19 |
+| DEP-1 … DEP-8 | REQ-PIPE-010; REQ-BUILD-010 (DEP-7 only — establishes the committed lockfile and frozen `npm ci` install) | PARTIALLY COVERED — automated gate blocked by PQ-19 |
 
 ## 4. Blocked scope — no issue drafted
 
@@ -203,6 +203,8 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `OUT OF SCOPE`.
 
 ```
 REQ-EPIC-001  Implement the specified subscription fitness web application
+├─ Foundation
+│  └─ REQ-BUILD-010  Workspace scaffolding and toolchain baseline
 ├─ Platform and delivery
 │  ├─ REQ-PLATFORM-010  Design tokens
 │  ├─ REQ-PLATFORM-020  Responsive layout and reflow
@@ -274,22 +276,23 @@ Effort is engineer-days; LOC is human-authored changed lines, excluding generate
 
 | # | ID | File | Effort | LOC | Depends on | Model |
 |---|---|---|---|---|---|---|
-| 1 | REQ-PLATFORM-010 | `010-REQ-PLATFORM-010.md` | 0.5–1 | 150–350 | — | Opus |
+| 0 | REQ-BUILD-010 | `005-REQ-BUILD-010.md` | 1–2 | 300–600 | 0 | Opus |
+| 1 | REQ-PLATFORM-010 | `010-REQ-PLATFORM-010.md` | 0.5–1 | 150–350 | 0 | Opus |
 | 2 | REQ-PLATFORM-020 | `020-REQ-PLATFORM-020.md` | 1–2 | 300–700 | 1 | Opus |
 | 3 | REQ-PLATFORM-030 | `030-REQ-PLATFORM-030.md` | 1–2 | 300–650 | 1, 2 | Opus |
-| 4 | REQ-PLATFORM-040 | `040-REQ-PLATFORM-040.md` | 0.5–1.5 | 150–400 | — | Opus |
-| 5 | REQ-API-010 | `050-REQ-API-010.md` | 1–2 | 400–900 | — | Opus |
+| 4 | REQ-PLATFORM-040 | `040-REQ-PLATFORM-040.md` | 0.5–1.5 | 150–400 | 0 | Opus |
+| 5 | REQ-API-010 | `050-REQ-API-010.md` | 1–2 | 400–900 | 0 | Opus |
 | 6 | REQ-API-020 | `060-REQ-API-020.md` | 1–1.5 | 250–600 | 5 | Opus |
 | 7 | REQ-API-030 | `070-REQ-API-030.md` | 1–2 | 250–600 | 5 | Opus |
 | 8 | REQ-API-040 | `080-REQ-API-040.md` | 0.5–1.5 | 200–450 | 5 | Opus |
-| 9 | REQ-SESSION-010 | `130-REQ-SESSION-010.md` | 0.5–1.5 | 150–400 | — | Opus |
+| 9 | REQ-SESSION-010 | `130-REQ-SESSION-010.md` | 0.5–1.5 | 150–400 | 0 | Opus |
 | 10 | REQ-SESSION-020 | `140-REQ-SESSION-020.md` | 0.5–1 | 100–250 | 9 | Opus |
 | 11 | REQ-AUTHZ-010 | `090-REQ-AUTHZ-010.md` | 0.5–1.5 | 200–450 | 9 | Opus |
 | 12 | REQ-AUTHZ-020 | `100-REQ-AUTHZ-020.md` | 1–2 | 300–700 | 11, 7 | Opus |
 | 13 | REQ-AUTH-010 | `150-REQ-AUTH-010.md` | 0.5–1 | 100–300 | 6, 7 | Opus |
 | 14 | REQ-AUTHZ-030 | `110-REQ-AUTHZ-030.md` | 0.5–1 | 150–350 | 11, 13, 6 | Opus |
 | 15 | REQ-AUTHZ-040 | `120-REQ-AUTHZ-040.md` | 0.5–1 | 150–350 | 11, 8 | Opus |
-| 16 | REQ-AUDIT-040 | `230-REQ-AUDIT-040.md` | 1–1.5 | 200–450 | — | Opus |
+| 16 | REQ-AUDIT-040 | `230-REQ-AUDIT-040.md` | 1–1.5 | 200–450 | 0 | Opus |
 | 17 | REQ-AUDIT-010 | `200-REQ-AUDIT-010.md` | 1–1.5 | 250–500 | 7 | Opus |
 | 18 | REQ-AUDIT-020 | `210-REQ-AUDIT-020.md` | 1–2 | 300–650 | 17, 12, 7 | Opus |
 | 19 | REQ-AUDIT-030 | `220-REQ-AUDIT-030.md` | 0.5–1 | 150–350 | 17, 14, 13 | Opus |
@@ -320,10 +323,10 @@ Effort is engineer-days; LOC is human-authored changed lines, excluding generate
 | 44 | REQ-PROGRESS-020 | `430-REQ-PROGRESS-020.md` | 1.5–2 | 400–900 | 43, 42, 12, 18, 26, 27, 41, 38, 35, 2, 3 | Opus |
 | 45 | REQ-CONSULT-010 | `450-REQ-CONSULT-010.md` | 1–2 | 300–650 | 13, 20, 11, 12, 18, 24 | Opus |
 | 46 | REQ-CONSULT-020 | `460-REQ-CONSULT-020.md` | 0.5–1.5 | 150–400 | 45, 12, 15, 18, 10, 3 | Opus |
-| 47 | REQ-PIPE-010 | `470-REQ-PIPE-010.md` | 0.5–1 | 50–200 | — | Opus |
+| 47 | REQ-PIPE-010 | `470-REQ-PIPE-010.md` | 0.5–1 | 50–200 | 0 | Opus |
 | 48 | REQ-PIPE-020 | `480-REQ-PIPE-020.md` | 0.5–1.5 | 150–400 | 29, 30, 43, 44 | Opus |
 
-**Totals**: 41–68 engineer-days; roughly 11,000–24,000 human-authored lines. Every leaf is within the 0.5–2 day and 1,500-line bounds.
+**Totals**: 42–70 engineer-days; roughly 11,300–24,600 human-authored lines. Every leaf is within the 0.5–2 day and 1,500-line bounds.
 
 ### Model assignment rationale
 
@@ -333,17 +336,20 @@ Effort is engineer-days; LOC is human-authored changed lines, excluding generate
 
 ## 7. Topological creation order
 
-The manifest's `#` column is the creation order; it is a valid topological sort of the dependency graph (verified: every `Depends on` entry precedes its dependent, and the graph is acyclic). Create the epic first, then leaves 1 through 48 in order, each with `--parent` set to the epic's number.
+The manifest's `#` column is the creation order; it is a valid topological sort of the dependency graph (verified: every `Depends on` entry precedes its dependent, and the graph is acyclic). Create the epic first, then leaves 0 through 48 in order, each with `--parent` set to the epic's number.
 
-## 8. Proposed commands — NOT EXECUTED
+REQ-BUILD-010 is numbered 0 rather than renumbering the original 48, whose numbers are already referenced across the manifest's `Depends on` column. It is the root: every leaf depends on it transitively, and the six leaves that previously had no in-plan predecessor — 1, 4, 5, 9, 16, and 47 — now depend on it directly.
 
-Run from the repository root. These are recorded for review; `DRAFT_ONLY` mode means none was run.
+## 8. Creation commands
+
+Run from the repository root. The epic and leaves 1–48 have been executed and are live as issues #8–#56; the REQ-BUILD-010 command was executed on 2026-08-01.
 
 ```sh
 # Epic
 gh issue create --title "[REQ-EPIC-001] Implement the specified subscription fitness web application" --body-file ".planning/github-issues/000-REQ-EPIC-001.md"
 
 # Leaves, in topological order (add --parent <epic-number> to each)
+gh issue create --title "[REQ-BUILD-010] Workspace scaffolding and toolchain baseline" --body-file ".planning/github-issues/005-REQ-BUILD-010.md"
 gh issue create --title "[REQ-PLATFORM-010] Design tokens for color, typography, and spacing" --body-file ".planning/github-issues/010-REQ-PLATFORM-010.md"
 gh issue create --title "[REQ-PLATFORM-020] Responsive layout and reflow without loss of function" --body-file ".planning/github-issues/020-REQ-PLATFORM-020.md"
 gh issue create --title "[REQ-PLATFORM-030] Keyboard operability, focus management, and reduced motion baseline" --body-file ".planning/github-issues/030-REQ-PLATFORM-030.md"
