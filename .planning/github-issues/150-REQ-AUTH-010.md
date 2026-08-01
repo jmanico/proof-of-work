@@ -18,7 +18,7 @@
 - **Statement**: The system MUST assign every account exactly one of the roles `subscriber`, `consultant`, or `admin`, MUST reject any account state carrying zero roles or more than one role, and MUST resolve that role from persisted state on every request.
 - **Rationale**: FR-2.7 states the rule; `SECURITY.md` restates it as an invariant of the authorization model. Every role-dependent control — passkey requirement (FR-2.8), admin-only plan lifecycle (FR-10.1), consultant engagement scoping (FR-11.2) — assumes a single unambiguous role.
 - **Assumptions**: Role values are exactly the three named; no additional role exists in any source document.
-- **Out of Scope**: How accounts are provisioned and how roles are assigned or changed, which `SECURITY.md` SQ-12 leaves open; the authorization decisions that consume the role (REQ-AUTHZ-030, REQ-CONSULT-010).
+- **Out of Scope**: Privileged provisioning and role assignment by invitation (REQ-AUTH-140, SEC-AUTHN-9, FR-2.10); privileged-holder vetting and deprovisioning, which `SECURITY.md` SQ-12 leaves open; the authorization decisions that consume the role (REQ-AUTHZ-030, REQ-CONSULT-010).
 - **Design Traceability**: `DESIGN.md` OQ-7 asks whether roles get distinct visual treatment; that is open and does not affect this invariant.
 - **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application ("enforces role rules (FR-2.7, FR-10.1)"); Identity and Session Handling ("Reads user account identity and role"); Relational Persistence ("Enforces referential integrity and ownership relationships in schema"); DR-3.
 - **Security Traceability**: SEC-AUTHZ-1, SEC-AUTHZ-4, SEC-INPUT-3 (role is never client-assignable), SEC-AUTHZ-6 (declared attribute source and trust level).
@@ -72,7 +72,7 @@
 - **On External Dependency Failure**: If persistence is unavailable, deny; MUST NOT proceed on a cached or assumed role.
 - **On System Error**: Roll back; generic error with a correlation identifier.
 - **Logging / Audit**: A role change is a security-relevant account change and MUST be logged (SEC-LOG-4) and, once role-change flows are defined, audited. Log the account identifier and the role values, which are not sensitive personal data on their own.
-- **Alerting**: TO BE DECIDED — role-change alerting depends on the provisioning model (`SECURITY.md` SQ-12).
+- **Alerting**: TO BE DECIDED — alerting thresholds are undefined system-wide (`SECURITY.md` SQ-3); provisioning itself is settled by SEC-AUTHN-9.
 
 ## Test Strategy
 
@@ -99,7 +99,7 @@
 - **Implementation Guidance**: Represent role as an immutable value in the session context so that a time-of-check-to-time-of-use gap cannot open mid-request (`SECURITY.md` code-quality resolution).
 - **AI Development Guidance**: `REF-PROMPT-ABAC`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Security review of the schema constraint and the resolver.
-- **Open Decisions**: `SECURITY.md` SQ-12 — how accounts are provisioned and how a role is assigned, changed, or removed. This issue guarantees the invariant and the resolution path; the lifecycle that sets the value is blocked and has no issue.
+- **Open Decisions**: Privileged provisioning and role fixing by invitation are decided (SEC-AUTHN-9, FR-2.10) and delivered by REQ-AUTH-140; still open under `SECURITY.md` SQ-12 are how privileged holders are vetted before invitation and how they are deprovisioned. This issue guarantees the invariant and the resolution path.
 
 **Estimated effort**: 0.5–1 engineer-day. **Estimated changed lines**: 100–300.
 **Recommended model**: Claude Opus (`claude-opus-5`) — a small invariant that every authorization control depends on; fail-closed resolution is the subtle part.

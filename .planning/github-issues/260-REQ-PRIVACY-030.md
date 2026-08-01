@@ -18,7 +18,7 @@
 - **Statement**: The system MUST allow a user to view the personal data held about them and to correct it, scoped strictly to their own account.
 - **Rationale**: FR-9.5 states the right. `REQUIREMENTS.md` asserts GDPR and CCPA data-subject rights, and correction is one of the behaviors it mandates regardless of how the jurisdiction question resolves (`SECURITY.md`, Applicable privacy or regulatory obligations).
 - **Assumptions**: "Personal data held about them" means the account profile fields the system stores. Health log entries are corrected through their own edit operations (FR-8.7, REQ-PROGRESS-010, REQ-PROGRESS-020), not through this surface.
-- **Out of Scope**: Data export (FR-9.3) and deletion (FR-9.4), both blocked; correction of health log entries, owned by the progress issues; changing the email address, which interacts with the blocked email-verification flow (`REQUIREMENTS.md` OQ-15, SEC-AUTHN-8) and is excluded here; role, subscription state, and any server-controlled field, which are not user-correctable (SEC-INPUT-3).
+- **Out of Scope**: Data export (FR-9.3) and deletion (FR-9.4), both blocked; correction of health log entries, owned by the progress issues; changing the email address, which interacts with the email-verification flow delivered by REQ-AUTH-090 (SEC-AUTHN-8; `REQUIREMENTS.md` OQ-15 RESOLVED) and is excluded here; role, subscription state, and any server-controlled field, which are not user-correctable (SEC-INPUT-3).
 - **Design Traceability**: `DESIGN.md` — Components → Inputs (persistent visible labels, required fields marked in the label), Form feedback and errors (inline, field-adjacent, icon plus text, focus moves to the first invalid field), Focus states, Empty states; Layout and Spacing (72ch for long-form).
 - **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application (FR-9.5 traceability row); Browser Client; data flow 8 (owner scoping and sensitive-operation authorization).
 - **Security Traceability**: SEC-AUTHZ-1, SEC-AUTHZ-2 (owner scoping), SEC-INPUT-1, SEC-INPUT-3 (server-controlled fields not settable), SEC-DATA-5 (least-privilege response), SEC-LOG-1 (access to health-adjacent data is audited).
@@ -95,12 +95,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); the client is a Vite-built single-page application with `vue-router`. Email address changes are excluded because control of a registered address must be verified before it is relied upon (SEC-AUTHN-8) and that flow is blocked by `REQUIREMENTS.md` OQ-15.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); the client is a Vite-built single-page application with `vue-router`. Email address changes are excluded because control of a registered address must be verified before it is relied upon (SEC-AUTHN-8), and that flow is delivered by REQ-AUTH-090 (`REQUIREMENTS.md` OQ-15 RESOLVED).
 - **Prohibited Approaches**: A generic profile-update endpoint that binds the whole body; returning the full account record including credential, role, and audit fields; treating correction as sufficient to satisfy export (FR-9.3) or deletion (FR-9.4), which are separate and blocked.
 - **Implementation Guidance**: Derive the correctable-field allow-list from the same declaration used by REQ-API-020 so a new account field cannot become silently correctable.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Privacy review of which fields are exposed and correctable; security review of the binding allow-list.
-- **Open Decisions**: Which fields constitute "the personal data held about them" is not enumerated by any source document beyond the account entity; the set delivered here must be reviewed against the governing regime once `SECURITY.md` SQ-1 resolves. Email change is deferred to the blocked verification flow (OQ-15).
+- **Open Decisions**: Which fields constitute "the personal data held about them" is not enumerated by any source document beyond the account entity; the set delivered here must be reviewed against the governing regime once `SECURITY.md` SQ-1 resolves. Email change is deferred to the verification flow (REQ-AUTH-090; OQ-15 RESOLVED).
 
 **Estimated effort**: 1–1.5 engineer-days. **Estimated changed lines**: 250–550.
 **Recommended model**: Claude Opus (`claude-opus-5`) — a user-facing surface that is simultaneously a mass-assignment and BOLA target.

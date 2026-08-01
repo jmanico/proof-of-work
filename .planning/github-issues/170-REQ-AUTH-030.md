@@ -18,7 +18,7 @@
 - **Statement**: An authenticated `admin` or `consultant` account MUST be able to register a passkey and to register a replacement passkey, and every such registration MUST require fresh re-authentication and MUST produce an audit entry.
 - **Rationale**: FR-2.9 grants the capability; SEC-AUTHN-7 requires re-authentication and an audit entry for passkey registration or replacement, because a silently added passkey is a persistent account takeover.
 - **Assumptions**: The account already holds at least one usable passkey, so it can authenticate per REQ-AUTH-020 before registering another.
-- **Out of Scope**: First-passkey enrolment for a newly provisioned privileged account, which `SECURITY.md` SQ-12 and threat TM-S-4 leave open and which is blocked; recovery when all passkeys are lost, blocked by `REQUIREMENTS.md` OQ-8; subscriber MFA enrolment, blocked by OQ-9; the definition of "fresh" as a time window, which no source document sets.
+- **Out of Scope**: First-passkey enrolment for a newly provisioned privileged account, delivered by REQ-AUTH-140 (SEC-AUTHN-9; threat TM-S-4 closed); recovery when all passkeys are lost, delivered by REQ-AUTH-150 (FR-2.15: fresh invitation, two-passkey and two-admin minimums); subscriber MFA enrolment (REQ-AUTH-110); the definition of "fresh" as a time window, which no source document sets.
 - **Design Traceability**: `DESIGN.md` — Components → Buttons (destructive actions use `error` and require explicit confirmation, applicable to removing a superseded passkey), Form feedback and errors, Focus states.
 - **Architecture Traceability**: `ARCHITECTURE.md` — Identity and Session Handling ("passkey registration and verification"; "Owns credential material, MFA enrolment state, passkey registrations, and session state").
 - **Security Traceability**: SEC-AUTHN-7, SEC-AUTHN-2, SEC-SECRET-4 (challenge randomness), SEC-LOG-4.
@@ -100,7 +100,7 @@
 - **Implementation Guidance**: Perform the audit write inside the same transaction as the registration so AC-03 cannot fail silently.
 - **AI Development Guidance**: `REF-WEBAUTHN`, `REF-PASSKEY`, `REF-PROMPT-NODE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Security review of the re-authentication gate and the replacement continuity logic.
-- **Open Decisions**: The re-authentication freshness window is undefined in all source documents. First-passkey enrolment (`SECURITY.md` SQ-12, TM-S-4) and lost-passkey recovery (`REQUIREMENTS.md` OQ-8) are blocked and excluded; without them, a privileged account that loses all passkeys has no defined path back.
+- **Open Decisions**: The re-authentication freshness window is undefined in all source documents. First-passkey enrolment (REQ-AUTH-140) and lost-passkey recovery (REQ-AUTH-150) are excluded here; a privileged account that loses all passkeys recovers by fresh invitation under FR-2.15.
 
 **Estimated effort**: 1–2 engineer-days. **Estimated changed lines**: 300–650.
 **Recommended model**: Claude Opus (`claude-opus-5`) — credential-lifecycle code with an atomicity requirement and an absolute audit obligation.

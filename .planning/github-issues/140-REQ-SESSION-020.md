@@ -18,7 +18,7 @@
 - **Statement**: Issued token payloads MUST contain only claims on an approved allow-list, and MUST NOT contain health data, credentials, or sensitive personal data.
 - **Rationale**: SEC-SESSION-6 states the rule, on the ground that a signed JWT is not confidential — anyone who obtains the token can read its payload. The threat model records token theft and replay (TM-S-5) and health-data residue on shared devices (TM-I-9); a token carrying health data turns either into a direct disclosure.
 - **Assumptions**: Tokens are issued by Identity and Session Handling and verified per REQ-SESSION-010.
-- **Out of Scope**: Token lifetime, transport, and revocation (`SECURITY.md` SQ-2); which authorization attributes the policy engine consumes (SQ-4) — this issue constrains only what may be carried in the token.
+- **Out of Scope**: Token lifetime (`SECURITY.md` SQ-3); transport and revocation, resolved by SQ-2 and delivered by REQ-SESSION-030/040/050; which authorization attributes the policy engine consumes (SQ-4) — this issue constrains only what may be carried in the token.
 - **Design Traceability**: N/A
 - **Architecture Traceability**: `ARCHITECTURE.md` — Identity and Session Handling ("Outputs: Authenticated session context including account identity and role"); Browser Client ("Holds transient view state and session credentials as issued by Identity and Session Handling").
 - **Security Traceability**: SEC-SESSION-6; supports SEC-TB-3, SEC-DATA-5, SEC-RENDER-4, SEC-AUTHZ-6 (attributes must have a declared source and trust level).
@@ -94,12 +94,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: JWT format is fixed (`SECURITY.md`). Whether authorization consumes role from the token or re-reads it from persisted state depends on the unresolved revocation design (SEC-SESSION-4, SQ-2) and MUST NOT be settled here.
+- **Constraints**: JWT format is fixed (`SECURITY.md`). SQ-2 is RESOLVED: the token carries a session identifier and no authorization state, and role is re-read from persisted state on every request (SEC-SESSION-3, DR-3); that design MUST NOT be revisited here.
 - **Prohibited Approaches**: Embedding entitlement, engagement, or health attributes in the token as a performance optimization; treating the payload as confidential because it is signed; adding claims at call sites rather than through the issuance function.
-- **Implementation Guidance**: Because SEC-SESSION-4 requires role, subscription, and engagement changes to take effect without waiting for token expiry, keeping volatile authorization state out of the token is also the design that survives the SQ-2 decision.
+- **Implementation Guidance**: Because SEC-SESSION-4 requires role, subscription, and engagement changes to take effect without waiting for token expiry, keeping volatile authorization state out of the token is also the design the resolved SQ-2 session model requires.
 - **AI Development Guidance**: `REF-PROMPT-JWT`, `REF-PROMPT-ABAC`; `CLAUDE.md`.
 - **Required Human Review**: Security and privacy review of the claim allow-list.
-- **Open Decisions**: `SECURITY.md` SQ-2 and SQ-4 remain open; this issue's allow-list may gain claims once the authorization attribute schema is settled, and any addition must re-pass AC-03.
+- **Open Decisions**: `SECURITY.md` SQ-4 remains open (SQ-2 is RESOLVED); this issue's allow-list may gain claims once the authorization attribute schema is settled, and any addition must re-pass AC-03.
 
 **Estimated effort**: 0.5–1 engineer-day. **Estimated changed lines**: 100–250.
 **Recommended model**: Claude Opus (`claude-opus-5`) — small and security-sensitive; the failure mode is a silent privacy leak rather than a broken test.

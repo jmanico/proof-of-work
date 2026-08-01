@@ -17,8 +17,8 @@
 
 - **Statement**: Authentication failures MUST NOT reveal which factor was incorrect, and MUST NOT allow account existence to be inferred from response content, status, or timing, across login, registration, and recovery surfaces.
 - **Rationale**: FR-2.3 requires rejecting invalid credentials without revealing which factor was wrong; SEC-AUTHN-3 extends that to account enumeration by content, status, or timing. The threat model records enumeration (TM-I-4) as a privacy concern because an account's existence in a health application is itself disclosure.
-- **Assumptions**: The credential paths that produce these failures exist. Subscriber password login and registration are blocked by `REQUIREMENTS.md` OQ-8 and OQ-15; privileged passkey authentication exists (REQ-AUTH-020). This issue defines the response contract that every such path must satisfy, including those added later.
-- **Out of Scope**: The credential verification itself; anti-automation thresholds and lockout (SEC-AUTHN-6, blocked by `SECURITY.md` SQ-3); the registration and recovery flows themselves, which are blocked.
+- **Assumptions**: The credential paths that produce these failures exist. Subscriber registration (REQ-AUTH-080), email verification (REQ-AUTH-090), and password login (REQ-AUTH-100) exist alongside privileged passkey authentication (REQ-AUTH-020); `REQUIREMENTS.md` OQ-8 and OQ-15 are RESOLVED. This issue defines the response contract that every such path must satisfy, including those added later.
+- **Out of Scope**: The credential verification itself; anti-automation thresholds (SEC-AUTHN-6 mechanism delivered by REQ-AUTH-060; concrete thresholds blocked by `SECURITY.md` SQ-3); the registration and recovery flows themselves (REQ-AUTH-080, REQ-AUTH-090, REQ-AUTH-130, REQ-AUTH-150).
 - **Design Traceability**: `DESIGN.md` — Components → Form feedback and errors. Note the deliberate exception: `DESIGN.md` requires messages that name the specific problem, but for authentication the security rule takes precedence and a generic message is required; specificity remains for field-format validation of the submitted form.
 - **Architecture Traceability**: `ARCHITECTURE.md` — Identity and Session Handling ("Rejects invalid credentials without revealing which factor failed (FR-2.3)"); trust boundary 2.
 - **Security Traceability**: SEC-AUTHN-3; supports SEC-ERR-1, SEC-LOG-4, SEC-AUTHN-6.
@@ -94,12 +94,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). Registration and recovery flows are blocked, so this issue delivers the contract and applies it to the paths that exist today; it MUST be re-applied to each new credential path.
+- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). This issue delivers the contract and applies it to the drafted credential paths (REQ-AUTH-020, -080, -090, -100, -130); it MUST be re-applied to each new credential path.
 - **Prohibited Approaches**: "User not found" versus "incorrect password"; different status codes by account state; short-circuiting credential verification when the account does not exist, which creates the timing signal AC-02 forbids; revealing a collision during registration.
 - **Implementation Guidance**: Perform equivalent work on the unregistered path — including a dummy verification of comparable cost — so timing does not separate the cases. The same uniformity helper serves REQ-AUTHZ-040's denial responses.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-NODE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Security review of every authentication-related response path; privacy review of what the client displays.
-- **Open Decisions**: `REQUIREMENTS.md` OQ-8 (recovery flows, lockout) and OQ-15 (email verification) are blocked; both add response paths that must satisfy this contract. `SECURITY.md` TM-D-2 warns that lockout design must not permit third-party-triggered permanent lockout, which interacts with this contract and remains undecided.
+- **Open Decisions**: `REQUIREMENTS.md` OQ-8 and OQ-15 are RESOLVED — their flows (REQ-AUTH-090, REQ-AUTH-100, REQ-AUTH-130) add response paths that must satisfy this contract. `SECURITY.md` TM-D-2 is closed by SEC-AUTHN-6: fixed lockout is prohibited in favour of exponential backoff (REQ-AUTH-060); concrete thresholds remain open under SQ-3.
 
 **Estimated effort**: 0.5–1.5 engineer-days. **Estimated changed lines**: 150–350.
 **Recommended model**: Claude Opus (`claude-opus-5`) — subtle disclosure and timing behavior where a naive implementation passes functional tests and still leaks.
