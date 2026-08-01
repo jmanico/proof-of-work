@@ -102,6 +102,7 @@
 
 ## Child Issues
 
+- [ ] https://github.com/jmanico/proof-of-work/issues/60 — Workspace scaffolding and toolchain baseline
 - [ ] https://github.com/jmanico/proof-of-work/issues/9 — Design tokens for color, typography, and spacing
 - [ ] https://github.com/jmanico/proof-of-work/issues/10 — Responsive layout and reflow without loss of function
 - [ ] https://github.com/jmanico/proof-of-work/issues/11 — Keyboard operability, focus management, and reduced motion baseline
