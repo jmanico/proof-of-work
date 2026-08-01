@@ -1,10 +1,10 @@
 # ISSUE_PLAN.md — Specification decomposition
 
 - **Scope**: ALL requirements in `REQUIREMENTS.md`
-- **Execution mode**: originally `DRAFT_ONLY`; the epic and its 48 leaves were subsequently filed as GitHub issues #8 through #56
+- **Execution mode**: originally `DRAFT_ONLY`; the epic was subsequently filed as GitHub issue #8 and all 62 leaves as issues #9–#56, #60, and #66–#78, each linked as a sub-issue of the epic
 - **Sources**: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, `DESIGN.md`, `REQUIREMENT_TEMPLATE.md`; `CLAUDE.md` followed as agent instruction, not as product specification
 - **Produced**: 2026-07-31
-- **Result**: 1 epic + 62 leaf issues drafted; 13 areas of scope still blocked
+- **Result**: 1 epic + 62 leaf issues drafted, all filed as live GitHub issues; 15 areas of scope still blocked (section 4)
 
 ---
 
@@ -370,7 +370,7 @@ REQ-BUILD-010 is numbered 0 rather than renumbering the original 48, whose numbe
 
 ## 8. Creation commands
 
-Run from the repository root. The epic and leaves 1–48 have been executed and are live as issues #8–#56.
+Run from the repository root. All commands below have been executed: the epic is live as issue #8, and all 62 leaves (manifest rows 0–61) are live as issues #9–#56 (rows 1–48), #60 (row 0, REQ-BUILD-010), and #66–#78 (rows 49–61), each linked as a sub-issue of #8.
 
 ```sh
 # Epic
@@ -441,7 +441,7 @@ gh issue create --title "[REQ-AUTH-140] Privileged provisioning by invitation an
 gh issue create --title "[REQ-AUTH-150] Privileged account minimums and passkey recovery" --body-file ".planning/github-issues/199-REQ-AUTH-150.md"
 ```
 
-After creation, replace every `{{ISSUE_URL:<ID>}}` placeholder in `000-REQ-EPIC-001.md` with the created issue URL and update the epic body.
+After creation, every `{{ISSUE_URL:<ID>}}` placeholder in `000-REQ-EPIC-001.md` was replaced with the created issue URL and the epic body was updated; the file now contains no placeholders.
 
 ## 9. Notes on drafting decisions
 
