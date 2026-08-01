@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling TO BE DECIDED. The weight unit is open (`REQUIREMENTS.md` OQ-4, `DESIGN.md` OQ-8) — store it explicitly per record. Plan selection is blocked (OQ-6), so an entry references a plan or copy the subscriber can access rather than a system-designated active plan; that choice is provisional and must be revisited when OQ-6 resolves.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); the client is a Vite-built single-page application with `vue-router`. The weight unit is open (`REQUIREMENTS.md` OQ-4, `DESIGN.md` OQ-8) — store it explicitly per record. Plan selection is blocked (OQ-6), so an entry references a plan or copy the subscriber can access rather than a system-designated active plan; that choice is provisional and must be revisited when OQ-6 resolves.
 - **Prohibited Approaches**: Accepting exercise references without re-checking accessibility server-side; storing per-exercise performance as an opaque blob, which would defeat the FR-8.6 history requirement when it unblocks; partial writes when one exercise fails validation; logging performance values.
 - **Implementation Guidance**: Validate the whole entry before writing anything, so AC-02 and AC-05's atomicity hold together. Route the write through the health-data accessor from REQ-AUDIT-020.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling and routing strategy TO BE DECIDED. Subscription entitlement (FR-3.1, FR-3.2) is blocked by `REQUIREMENTS.md` OQ-1, so this issue delivers authenticated access only; the entitlement check must be added at this boundary when unblocked, and that gap should be stated when the issue is closed.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); the client is a Vite-built single-page application with `vue-router`. Subscription entitlement (FR-3.1, FR-3.2) is blocked by `REQUIREMENTS.md` OQ-1, so this issue delivers authenticated access only; the entitlement check must be added at this boundary when unblocked, and that gap should be stated when the issue is closed.
 - **Prohibited Approaches**: Returning all plans and filtering in the client; a publication filter applied after retrieval; exposing the verification record's internal fields beyond what the view needs; using `v-html` or any raw HTML binding for plan content (SEC-RENDER-1, enforced in REQ-CATALOG-030).
 - **Implementation Guidance**: Reuse the published-only query predicate established in REQ-PLAN-050 rather than writing a second one, so unpublication takes effect everywhere at once.
 - **AI Development Guidance**: `REF-PROMPT-VUE`, `REF-PROMPT-API`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.

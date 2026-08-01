@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); client build tooling TO BE DECIDED. `DESIGN.md` OQ-6 leaves the presentation form open, so this issue delivers the mechanism and a presentation that satisfies the documented layout and accessibility rules; the chosen form must be confirmed when OQ-6 resolves. The disclaimer wording is content to be supplied by legal review, not invented here.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); the client is a Vite-built single-page application with `vue-router`. `DESIGN.md` OQ-6 leaves the presentation form open, so this issue delivers the mechanism and a presentation that satisfies the documented layout and accessibility rules; the chosen form must be confirmed when OQ-6 resolves. The disclaimer wording is content to be supplied by legal review, not invented here.
 - **Prohibited Approaches**: Storing the acknowledgement only in the client; a pre-checked acknowledgement control; treating a page view as acknowledgement; bundling the disclaimer acknowledgement with health-data consent (FR-9.2), which is a separate right with separate withdrawal semantics.
 - **Implementation Guidance**: Because plan *selection* is blocked by `REQUIREMENTS.md` OQ-6, apply the precondition to the plan-use operations that do exist — customization (REQ-CUSTOM-010) and workout logging against a plan (REQ-PROGRESS-020) — and extend it to selection when OQ-6 resolves.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`; `CLAUDE.md`.

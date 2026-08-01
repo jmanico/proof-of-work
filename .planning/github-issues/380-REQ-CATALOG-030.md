@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: Retained stored-XSS suite results as evidence against TM-T-4.
 - **Acceptance-Criteria Traceability**: AC-01 — escaping suite; AC-02 — hostile-scheme suite; AC-03 — lint rule and storage inspection; AC-04 — link behavior and appearance tests; AC-05 — sanitizer path test, applicable only if rich text is adopted.
 - **Coverage Target**: Every rendering surface for server- or user-originated content covered by the XSS suite.
-- **Required Test Environment**: Seeded plans containing XSS vectors in every content field and citation URL; browser automation for runtime storage inspection. Vitest as the runner; client build tooling remains TO BE DECIDED.
+- **Required Test Environment**: Seeded plans containing XSS vectors in every content field and citation URL; browser automation for runtime storage inspection. Vitest as the runner, with Playwright and axe-core where a real browser is required.
 
 ## Dependencies
 
@@ -95,7 +95,7 @@
 
 ## Implementation Notes
 
-- **Constraints**: Vue.js client written in TypeScript (`ARCHITECTURE.md`); ESLint with eslint-plugin-vue supplies the `vue/no-v-html` rule this issue's verification depends on (`CLAUDE.md`), and client build tooling remains TO BE DECIDED. Whether rich text is needed at all is `TO BE DECIDED` in SEC-RENDER-2, so plain-text rendering is the delivered behavior and AC-05 is conditional.
+- **Constraints**: Vue.js client written in TypeScript (`ARCHITECTURE.md`); ESLint with eslint-plugin-vue supplies the `vue/no-v-html` rule this issue's verification depends on (`CLAUDE.md`), and Vite builds the client as a single-page application. Whether rich text is needed at all is `TO BE DECIDED` in SEC-RENDER-2, so plain-text rendering is the delivered behavior and AC-05 is conditional.
 - **Prohibited Approaches**: `v-html` or any equivalent raw HTML binding on server- or user-originated content; hand-written escaping or sanitization; substring checks on URLs instead of parsing; trusting the server-side scheme check as sufficient; storing tokens or health data in browser-local storage as a convenience.
 - **Implementation Guidance**: Apply the same scheme allow-list used in REQ-PLAN-040 so storage and render agree. `DESIGN.md` requires citation links to remain visibly links; an inert rejected URL should be displayed as text with an indication that it could not be rendered as a link, rather than silently dropped, so the evidence trail is not lost.
 - **AI Development Guidance**: `REF-XSS`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
