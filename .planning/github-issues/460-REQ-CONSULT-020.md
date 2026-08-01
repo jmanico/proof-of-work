@@ -16,7 +16,7 @@
 ## Requirement
 
 - **Statement**: A subscriber MUST be able to end a consultant engagement, and that consultant's access to the subscriber's data MUST be revoked immediately — including for a session or token issued before the engagement ended, without waiting for natural expiry.
-- **Rationale**: FR-11.3 grants the subscriber the right to end an engagement and requires revocation; SEC-AUTHZ-3 requires denial immediately once the subscriber ends it; SEC-SESSION-4 requires revocation of authorization state to take effect without waiting for token expiry. The threat model records a consultant retaining access via a still-valid JWT (TM-I-2) as high severity and conditional on the unresolved session design.
+- **Rationale**: FR-11.3 grants the subscriber the right to end an engagement and requires revocation; SEC-AUTHZ-3 requires denial immediately once the subscriber ends it; SEC-SESSION-4 requires revocation of authorization state to take effect without waiting for token expiry. The threat model records a consultant retaining access via a still-valid JWT (TM-I-2) as high severity, mitigated by the resolved server-side session design (SQ-2; SEC-AUTHZ-3, SEC-SESSION-4).
 - **Assumptions**: An engagement exists and access is evaluated per request from persisted state (REQ-CONSULT-010).
 - **Out of Scope**: Creating or purchasing an engagement (FR-11.1), blocked by `REQUIREMENTS.md` OQ-13 and OQ-1; whether a consultant may also end an engagement, which no source document states — FR-11.3 grants it to the subscriber; the JWT revocation mechanism for logout generally, resolved by `SECURITY.md` SQ-2 and delivered by REQ-SESSION-040 (SEC-SESSION-3); consultant capabilities (OQ-12).
 - **Design Traceability**: `DESIGN.md` — Components → Buttons ("Destructive actions use `error` as the filled color and require explicit confirmation"), Form feedback and errors, Focus states; `DESIGN.md` OQ-7 (how a subscriber sees consultant access) is open.
@@ -103,4 +103,4 @@
 - **Open Decisions**: Session lifetimes remain open (`SECURITY.md` SQ-3; SQ-2 is RESOLVED); `REQUIREMENTS.md` OQ-12 (capabilities) and OQ-13 (engagement lifecycle and payment) remain open, so engagement *creation* has no issue.
 
 **Estimated effort**: 0.5–1.5 engineer-days. **Estimated changed lines**: 150–400.
-**Recommended model**: Claude Opus (`claude-opus-5`) — small in code, but it is the mitigation for a high-severity threat the specification itself marks as conditional and unresolved.
+**Recommended model**: Claude Opus (`claude-opus-5`) — small in code, but it is the mitigation for a threat the specification rates as high severity (TM-I-2).
