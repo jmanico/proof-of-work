@@ -11,9 +11,9 @@
 - **Public interfaces and trust boundaries:** One public interface — the browser-facing HTTPS surface of the REST API Application, consumed by the Vue.js Browser Client. Trust boundaries per ARCHITECTURE.md: (1) Browser Client → REST API Application; (2) unauthenticated → authenticated at Identity and Session Handling; (3) REST API Application → Relational Persistence. No separately consumable third-party public API is defined; whether the REST surface is ever published for external consumers is TO BE DECIDED.
 - **Sensitive or regulated data:** Health data — body weight, body measurements, workout performance, food intake, and the plans a subscriber follows — plus account credentials, passkey registrations, MFA enrolment state, consent records, subscription and consultant-engagement state, and audit entries (REQUIREMENTS.md, Business objects; security notes: "This is health care data"). All of it is treated as sensitive.
 - **External integrations:** None currently. The system is self-contained and MUST NOT transmit health data externally (REQUIREMENTS.md FR-9.8). Security notes say "none YET", so future integrations are anticipated but unspecified — TO BE DECIDED.
-- **Authentication model:** Email + password with optional user-enabled MFA for subscribers; passkeys REQUIRED for `admin` and `consultant` accounts (REQUIREMENTS.md FR-2.2, FR-2.3, FR-2.5, FR-2.6, FR-2.8, FR-2.9). Password policy, MFA factors, and account/MFA recovery flows are UNKNOWN (REQUIREMENTS.md OQ-8, OQ-9).
+- **Authentication model:** Email + password with optional user-enabled MFA for subscribers; passkeys REQUIRED for `admin` and `consultant` accounts (REQUIREMENTS.md FR-2.2, FR-2.3, FR-2.5, FR-2.6, FR-2.8, FR-2.9). Password policy and MFA factors were decided 2026-08-01: `REF-63B`-aligned policy with throttling rather than lockout (SEC-AUTHN-6), and TOTP with passkey as an optional second factor for subscribers, SMS excluded. Privileged accounts are provisioned by invitation (SEC-AUTHN-9). Account-recovery and MFA-recovery flows remain UNKNOWN (REQUIREMENTS.md OQ-8).
 - **Authorization model:** ABAC with capability-based access control (security notes). This refines, and does not replace, the role and ownership rules in REQUIREMENTS.md (FR-2.7, FR-7.4, FR-9.1, FR-10.1, FR-11.2, FR-11.3). Attribute schema, policy language, and policy combination algorithm are TO BE DECIDED.
-- **Session model:** JWT (security notes). ARCHITECTURE.md left session transport, lifetime, and revocation TO BE DECIDED; the notes fix the token format only. Token lifetimes, refresh strategy, storage location, and revocation mechanism are TO BE DECIDED — see SQ-2, since FR-2.4 (logout) requires effective session termination.
+- **Session model:** JWT (security notes), carrying a session identifier and no authorization state, transported in an `HttpOnly`, `Secure`, `SameSite` cookie and resolved against a server-side session record on every request (decided 2026-08-01; SQ-2 RESOLVED). Revocation invalidates the record, so logout (FR-2.4) and engagement termination (FR-11.3) take effect immediately. Session lifetimes, the `SameSite` value, and signing key storage remain TO BE DECIDED (SQ-3, SQ-7).
 - **Deployment and CI/CD model:** Terraform-managed infrastructure on AWS (ARCHITECTURE.md; security notes). The CI/CD platform is GitHub Actions, using OIDC federation to AWS IAM roles rather than long-lived static keys (CLAUDE.md, Repository state; selected 2026-07-31). Pipeline design, environment topology, secret-management service, and AWS services remain UNKNOWN — see SQ-7.
 - **Applicable privacy or regulatory obligations:** Security notes state US federal and US state law. REQUIREMENTS.md additionally asserts GDPR and CCPA data-subject rights and HIPAA obligations, and sets scale expectations to "global". These are not consistent — see SQ-1. Confirmed and in scope regardless of resolution, because REQUIREMENTS.md mandates them as behavior: explicit consent before health-data collection (FR-9.2), data export (FR-9.3), deletion (FR-9.4), correction (FR-9.5), medical disclaimer (FR-9.6), and health-data audit logging (FR-9.7). Specific statutory obligations beyond those behaviors: TO BE DECIDED.
 - **Security assurance target:** OWASP ASVS 5.0.0 Level 3 (security notes). This is a stated target, not a conformance claim; no verification has been performed.
@@ -83,12 +83,12 @@ Public references selected as authoritative defaults for the identified stack. T
 
 | ID | Threat | Class | Target / boundary | Sev | Coverage | Status |
 |---|---|---|---|---|---|---|
-| TM-S-1 | Credential stuffing / password spraying against subscriber login | S | Identity, boundary 2 | H | SEC-AUTHN-3, SEC-AUTHN-6 | CONDITIONAL — thresholds undecided (SQ-3) |
+| TM-S-1 | Credential stuffing / password spraying against subscriber login | S | Identity, boundary 2 | H | SEC-AUTHN-3, SEC-AUTHN-6 | MITIGATED BY RULE — throttling and breached-password refusal decided; thresholds still SQ-3 |
 | TM-S-2 | Account/MFA recovery flow used to bypass MFA or passkey | S | Identity, boundary 2 | H | SEC-AUTHN-2 (recovery paths), SEC-AUTHN-6 | CONDITIONAL — recovery flows UNKNOWN (REQUIREMENTS OQ-8) |
-| TM-S-3 | Registration with an email the registrant does not control — health data bound to a third party's identity, recovery hijack | S/L | Identity, boundary 2 | M | None previously | GAP → SEC-AUTHN-8; REQUIREMENTS OQ-15 |
-| TM-S-4 | Privileged-account bootstrap: first passkey enrolment path for `admin`/`consultant` unspecified and attackable | S | Identity | H | SEC-AUTHN-2, SEC-AUTHN-7 | CONDITIONAL — provisioning UNKNOWN (SQ-12) |
-| TM-S-5 | Theft and replay of a JWT (XSS, transport, shared device) | S | Boundary 1 | H | SEC-SESSION-1, SEC-SESSION-2, SEC-SESSION-5 | CONDITIONAL — transport, lifetime, revocation undecided (SQ-2) |
-| TM-S-6 | CSRF against state-changing operations if tokens ride in cookies | S/T | Boundary 1 | M | SEC-HTTP-4 | CONDITIONAL — on SEC-SESSION-5 outcome (SQ-2) |
+| TM-S-3 | Registration with an email the registrant does not control — health data bound to a third party's identity, recovery hijack | S/L | Identity, boundary 2 | M | SEC-AUTHN-8 | MITIGATED BY RULE — verification gates health-data writes and recovery; flow decided 2026-08-01 |
+| TM-S-4 | Privileged-account bootstrap: first passkey enrolment path for `admin`/`consultant` unspecified and attackable | S | Identity | H | SEC-AUTHN-2, SEC-AUTHN-7, SEC-AUTHN-9 | MITIGATED BY RULE — invitation-based enrolment and one-time bootstrap decided |
+| TM-S-5 | Theft and replay of a JWT (XSS, transport, shared device) | S | Boundary 1 | H | SEC-SESSION-1, SEC-SESSION-2, SEC-SESSION-5, SEC-SESSION-3 | MITIGATED BY RULE — `HttpOnly` cookie blocks script access and server-side records make a stolen token revocable; lifetimes still SQ-3 |
+| TM-S-6 | CSRF against state-changing operations if tokens ride in cookies | S/T | Boundary 1 | M | SEC-HTTP-4 | MITIGATED BY RULE — cookie transport chosen, so CSRF defence is now unconditional |
 | TM-T-1 | Tampered client payloads: forged roles, foreign owner IDs, mass assignment of server-controlled fields | T/E | Boundary 1 | H | SEC-TB-1, SEC-INPUT-1, SEC-INPUT-3 | MITIGATED BY RULE |
 | TM-T-2 | SQL injection through any input-bearing endpoint | T | Boundary 3 | H | SEC-INPUT-5 | MITIGATED BY RULE |
 | TM-T-3 | JWT signature/algorithm confusion (`alg: none`, key confusion, claim omission) | T/S | Boundary 2 | H | SEC-SESSION-1, SEC-SESSION-2 | MITIGATED BY RULE |
@@ -100,7 +100,7 @@ Public references selected as authoritative defaults for the identified stack. T
 | TM-R-1 | Admin plan lifecycle actions (create, edit, publish, unpublish) unaudited — only verification was recorded, so a hostile admin action is repudiable | R | Plan library | M | FR-4.5 only | GAP → REQUIREMENTS FR-10.2; SEC-LOG-6 |
 | TM-R-2 | Audit entries alterable below the application (DB credential holder, operator); SEC-LOG-2 binds the application only | R/T | Boundary 5 | M | SEC-LOG-2 (app layer) | GAP → SEC-LOG-7; SQ-8, SQ-13 |
 | TM-I-1 | BOLA/IDOR: subscriber A reads or mutates subscriber B's plan copies, logs, or export | I/T | REST API | H | SEC-AUTHZ-1, SEC-AUTHZ-2, SEC-DATA-3 | MITIGATED BY RULE |
-| TM-I-2 | Consultant retains access after engagement ends via still-valid JWT | I | REST API | H | SEC-AUTHZ-3, SEC-SESSION-4 | CONDITIONAL — revocation mechanism undecided (SQ-2) |
+| TM-I-2 | Consultant retains access after engagement ends via still-valid JWT | I | REST API | H | SEC-AUTHZ-3, SEC-SESSION-4 | MITIGATED BY RULE — server-side session records revoke on engagement termination without waiting for expiry |
 | TM-I-3 | Excessive data exposure / bulk retrieval of subscriber records through any role | I | REST API | H | SEC-DATA-5 | MITIGATED BY RULE |
 | TM-I-4 | Account-existence enumeration via response content or timing | I/L | Identity | L | SEC-AUTHN-3 | MITIGATED BY RULE |
 | TM-I-5 | Health data leaks into logs, error responses, or external analytics/monitoring | I | All outbound paths | H | SEC-TB-3, SEC-LOG-3, SEC-ERR-1 | MITIGATED BY RULE |
@@ -109,8 +109,8 @@ Public references selected as authoritative defaults for the identified stack. T
 | TM-I-8 | Operator or support staff reads production health data directly; no rule constrained human access below the application | I | Boundary 5 | H | None previously | GAP → SEC-OPS-1; SQ-13 |
 | TM-I-9 | Health data residue in browser storage, cache, or history on shared devices | I | Browser Client | M | SEC-SESSION-5, SEC-RENDER-4, SEC-HTTP-2 | MITIGATED BY RULE |
 | TM-D-1 | Resource exhaustion on the public surface, amplified by expensive endpoints (export, history aggregation) | D | Boundary 1 | M | SEC-HTTP-5 | CONDITIONAL — limits undecided (SQ-3) |
-| TM-D-2 | Targeted victim lockout: attacker triggers failed-auth lockout against a chosen account | D | Identity | M | None — lockout behavior itself creates the risk | CONDITIONAL — lockout design undecided (OQ-8, SQ-3); design MUST NOT allow third-party-triggered permanent lockout |
-| TM-E-1 | Privilege escalation via role change or account-provisioning flows | E | Identity; REST API | H | SEC-INPUT-3 (request path) | CONDITIONAL — provisioning and role lifecycle UNKNOWN (SQ-12) |
+| TM-D-2 | Targeted victim lockout: attacker triggers failed-auth lockout against a chosen account | D | Identity | M | SEC-AUTHN-6 | MITIGATED BY RULE — fixed lockout is prohibited outright in favour of exponential backoff, so no third party can permanently lock an account |
+| TM-E-1 | Privilege escalation via role change or account-provisioning flows | E | Identity; REST API | H | SEC-INPUT-3, SEC-AUTHN-9 | MITIGATED BY RULE — role is fixed by invitation and never settable from a request body |
 | TM-E-2 | Authorization policy gap or fail-open evaluation grants unintended access | E | REST API | H | SEC-AUTHZ-5, SEC-AUTHZ-6, SEC-AUTHZ-7 | MITIGATED BY RULE — policy design still open (SQ-4) |
 | TM-E-3 | Consultant capability creep: capabilities undefined, so scope of consultant write access cannot be bounded | E | REST API | M | SEC-AUTHZ-3 bounds *who*, not *what* | CONDITIONAL — REQUIREMENTS OQ-12 |
 | TM-E-4 | Subscription entitlement bypass: whatever mechanism flips a subscription "active" is an unguarded target while undefined | E | REST API | M | SEC-AUTHZ-8 | CONDITIONAL — REQUIREMENTS OQ-1 |
@@ -158,11 +158,11 @@ Rules marked **Confirmed** trace to an explicit statement in REQUIREMENTS.md, AR
   - **Applies to:** Identity and Session Handling (FR-2.5, FR-2.6)
   - **Verification:** Test asserting that a first-factor-only context cannot call any protected endpoint
   - **References:** `REF-AUTH`, `REF-63B`, `REF-ASVS-5`
-- **SEC-AUTHN-5** (Provisional) Passwords MUST be stored using a memory-hard password hashing function with per-credential salt; fast general-purpose hashes MUST NOT be used. Specific algorithm and parameters: TO BE DECIDED.
+- **SEC-AUTHN-5** (Confirmed, decided 2026-08-01) Passwords MUST be stored using Argon2id with a per-credential salt from a cryptographically secure generator (SEC-SECRET-4); fast general-purpose hashes and non-memory-hard functions, including bcrypt, MUST NOT be used. Argon2id parameters MUST be named constants with a documented tuning basis, and MUST be re-evaluated when hardware assumptions change. Concrete parameter values: TO BE DECIDED — they depend on production instance sizing, which SQ-7 leaves open.
   - **Applies to:** Identity and Session Handling; credential storage
   - **Verification:** Code review of the credential storage path; test asserting stored values are not reversible digests of the input
   - **References:** `REF-PROMPT-NODE`, `REF-63B`, `REF-ASVS-5`
-- **SEC-AUTHN-6** (Provisional) Authentication, MFA, passkey registration, and recovery endpoints MUST enforce anti-automation controls proportionate to credential-attack risk. Thresholds, lockout behavior, and recovery flows: TO BE DECIDED (REQUIREMENTS.md OQ-8, OQ-9; SQ-3).
+- **SEC-AUTHN-6** (Confirmed, decided 2026-08-01) Authentication, MFA, passkey registration, and recovery endpoints MUST enforce anti-automation controls proportionate to credential-attack risk, implemented as exponential backoff throttling keyed on both the target account and the request source. Fixed account lockout MUST NOT be used: it lets an attacker deny a chosen victim access at will (threat TM-D-2), so no third party may render an account permanently unusable through failed attempts alone. Password policy follows `REF-63B`: an 8-character minimum with 15 or more encouraged, no composition rules, no forced periodic rotation, and refusal of known-breached passwords checked against a locally hosted list. A breach check against an external service would be an external integration and MUST NOT be introduced without an explicit SEC-EXT-1 change. Concrete backoff thresholds and delays: TO BE DECIDED (SQ-3).
   - **Applies to:** Identity and Session Handling
   - **Verification:** Burst-request test asserting throttled responses on each named endpoint
   - **References:** `REF-AUTH`, `REF-PROMPT-API`, `REF-ASVS-5`
@@ -171,10 +171,15 @@ Rules marked **Confirmed** trace to an explicit statement in REQUIREMENTS.md, AR
   - **Verification:** Test asserting each change is refused without fresh authentication and produces an audit record
   - **References:** `REF-AUTH`, `REF-63B`, `REF-ASVS-5`
 
-- **SEC-AUTHN-8** (Provisional) Control of a registered email address MUST be verified before the account can record health data or be relied upon in any account-recovery flow. Verification flow specifics (timing, token expiry, resend): TO BE DECIDED (REQUIREMENTS.md OQ-15).
+- **SEC-AUTHN-8** (Confirmed, decided 2026-08-01) Control of a registered email address MUST be verified before the account can record health data or be relied upon in any account-recovery flow. An account MAY be created and MAY authenticate before verification, but every health-data write MUST be refused until it completes. The verification token MUST be single-use, generated by a cryptographically secure generator (SEC-SECRET-4), short-lived, and invalidated on use or on issue of a replacement. Resend MUST be rate-limited under SEC-AUTHN-6, and neither the request nor the response may reveal whether an address is registered (SEC-AUTHN-3). Concrete token lifetime and resend interval: TO BE DECIDED (SQ-3).
   - **Applies to:** Identity and Session Handling; registration (threat TM-S-3)
   - **Verification:** Test attempting a health-data write on an account with an unverified email, asserting rejection
   - **References:** `REF-AUTH`, `REF-63B`, `REF-ASVS-5`
+
+- **SEC-AUTHN-9** (Confirmed, decided 2026-08-01) `admin` and `consultant` accounts MUST be provisioned by invitation from an existing `admin`. The invitation MUST carry a single-use, short-lived, role-scoped enrolment token from a cryptographically secure generator, delivered to a verified email address, and it is the only path by which a first passkey may be enrolled. Role MUST be fixed by the invitation and MUST NOT be settable from any request body (SEC-INPUT-3, threat TM-E-1). The first `admin` MUST be created by a one-time out-of-band provisioning command that refuses to execute once any `admin` exists. No path may issue a session to a privileged account without a verified passkey assertion (SEC-AUTHN-2), including this one: the enrolment token authorizes passkey registration only, never access. Issuing, accepting, and expiring an invitation, and every role assignment or change, MUST produce an audit entry (SEC-LOG-4).
+  - **Applies to:** Identity and Session Handling; privileged account lifecycle (threats TM-S-4, TM-E-1)
+  - **Verification:** Test asserting the bootstrap command refuses to run when an `admin` exists; test asserting an enrolment token cannot be replayed, cannot be used for a different account or role, and does not itself yield a session; test asserting a role value in a request body is ignored
+  - **References:** `REF-PASSKEY`, `REF-WEBAUTHN`, `REF-AUTH`, `REF-ASVS-5`
 
 #### Session Management (JWT)
 
@@ -188,7 +193,7 @@ Applies because JWTs are explicitly selected in the security notes.
   - **Applies to:** Identity and Session Handling
   - **Verification:** Tests per claim: absent, expired, and mismatched values all rejected
   - **References:** `REF-PROMPT-JWT`, `REF-SESSION`, `REF-ASVS-5`
-- **SEC-SESSION-3** (Confirmed) Logout MUST render the session unusable for subsequent requests. Because a signed JWT is self-contained, a revocation mechanism MUST exist. Mechanism and token lifetimes: TO BE DECIDED (SQ-2).
+- **SEC-SESSION-3** (Confirmed, mechanism decided 2026-08-01) Logout MUST render the session unusable for subsequent requests. Revocation is achieved by server-side session records: the token carries a session identifier and no authorization state, and every authenticated request MUST resolve that identifier against a stored session before the request proceeds. Logout MUST delete or invalidate the record, and a token whose session record is absent, expired, or invalidated MUST be refused. This is not a performance regression over stateless verification, because DR-3 already requires role and ownership to be re-read from persisted state on every request. Absolute and idle session lifetimes: TO BE DECIDED (SQ-3).
   - **Applies to:** Identity and Session Handling (FR-2.4)
   - **Verification:** Test capturing a token, logging out, and asserting the captured token is refused
   - **References:** `REF-PROMPT-JWT`, `REF-SESSION`, `REF-ASVS-5`
@@ -196,7 +201,7 @@ Applies because JWTs are explicitly selected in the security notes.
   - **Applies to:** REST API Application; Identity and Session Handling (FR-3.1, FR-11.3)
   - **Verification:** Test ending a consultant engagement and asserting the consultant's existing token no longer grants access to that subscriber's data
   - **References:** `REF-PROMPT-JWT`, `REF-PROMPT-ABAC`, `REF-ASVS-5`
-- **SEC-SESSION-5** (Provisional) Tokens MUST NOT be stored in `localStorage` or `sessionStorage`, MUST NOT appear in URLs, query strings, or browser history, and MUST be transmitted only over TLS. Preferred storage is an `HttpOnly`, `Secure`, `SameSite` cookie; final transport decision is TO BE DECIDED and determines whether SEC-HTTP-4 applies.
+- **SEC-SESSION-5** (Confirmed, decided 2026-08-01) Session tokens MUST be carried in an `HttpOnly`, `Secure`, `SameSite` cookie. They MUST NOT be stored in `localStorage` or `sessionStorage`, MUST NOT be readable from JavaScript, MUST NOT appear in URLs, query strings, or browser history, and MUST be transmitted only over TLS. Because this is ambient authority, SEC-HTTP-4 now applies unconditionally. `SameSite` value and cookie lifetime: TO BE DECIDED alongside session lifetimes (SQ-3).
   - **Applies to:** Browser Client; Browser Client → REST API Application boundary
   - **Verification:** Client code review plus runtime inspection of storage and request URLs
   - **References:** `REF-PROMPT-JWT`, `REF-PROMPT-VUE`, `REF-SESSION`
@@ -258,7 +263,7 @@ Applies because JWTs are explicitly selected in the security notes.
   - **Applies to:** Public browser-facing boundary
   - **Verification:** Test asserting disallowed origins receive no permissive CORS headers
   - **References:** `REF-REST`, `REF-API-2023`
-- **SEC-HTTP-4** (Conditional, Provisional) If session tokens are carried in cookies (ambient authority), state-changing requests MUST be protected against cross-site request forgery. If tokens are carried in an explicit `Authorization` header with no ambient credential, this rule does not apply. Applicability depends on SEC-SESSION-5.
+- **SEC-HTTP-4** (Confirmed, applicability decided 2026-08-01) Session tokens are carried in cookies (SEC-SESSION-5), so this rule applies unconditionally: every state-changing request MUST be protected against cross-site request forgery, by an anti-CSRF token or an equivalent origin-verification control, in addition to the cookie's `SameSite` attribute. `SameSite` alone MUST NOT be treated as sufficient. Threat TM-S-6 is no longer conditional.
   - **Applies to:** State-changing operations at the public boundary
   - **Verification:** Cross-origin state-change test asserting rejection without a valid anti-CSRF signal
   - **References:** `REF-SESSION`, `REF-ASVS-5`
@@ -451,13 +456,13 @@ Applies because JWTs are explicitly selected in the security notes.
 | SEC-AUTHN-2 | FR-2.8, FR-2.9 | Identity and Session Handling | CONFIRMED |
 | SEC-AUTHN-3 | FR-2.3 | Identity and Session Handling | CONFIRMED |
 | SEC-AUTHN-4 | FR-2.5, FR-2.6 | Identity and Session Handling | CONFIRMED |
-| SEC-AUTHN-5 | FR-2.2, FR-2.3 | Identity and Session Handling | PROVISIONAL — algorithm and parameters undecided |
-| SEC-AUTHN-6 | FR-2.3 | Identity and Session Handling | PARTIALLY DEFINED — thresholds and recovery flows undecided (OQ-8, OQ-9) |
+| SEC-AUTHN-5 | FR-2.2, FR-2.3 | Identity and Session Handling | CONFIRMED — Argon2id; concrete parameters pending instance sizing (SQ-7) |
+| SEC-AUTHN-6 | FR-2.3 | Identity and Session Handling | CONFIRMED — policy and throttling decided; thresholds pending (SQ-3), recovery flows still open (OQ-8) |
 | SEC-AUTHN-7 | FR-2.5, FR-2.9 | Identity and Session Handling | PROVISIONAL |
 | SEC-SESSION-1, SEC-SESSION-2, SEC-SESSION-6 | FR-2.1, FR-2.3 | Identity and Session Handling | CONFIRMED |
-| SEC-SESSION-3 | FR-2.4 | Identity and Session Handling | PARTIALLY DEFINED — revocation mechanism undecided (SQ-2) |
+| SEC-SESSION-3 | FR-2.4 | Identity and Session Handling | CONFIRMED — server-side session records; lifetimes pending (SQ-3) |
 | SEC-SESSION-4 | FR-3.1, FR-11.3 | Identity and Session Handling; REST API Application | CONFIRMED |
-| SEC-SESSION-5 | FR-2.4 | Browser Client | PROVISIONAL — token transport undecided |
+| SEC-SESSION-5 | FR-2.4 | Browser Client | CONFIRMED — `HttpOnly`, `Secure`, `SameSite` cookie |
 | SEC-SESSION-7 | FR-2.1 | Identity and Session Handling; deployment | PROVISIONAL — key store undecided |
 | SEC-AUTHZ-1, SEC-AUTHZ-2 | FR-7.4, FR-9.1 | REST API Application | CONFIRMED |
 | SEC-AUTHZ-3 | FR-11.2, FR-11.3, FR-11.4 | REST API Application | CONFIRMED |
@@ -468,7 +473,7 @@ Applies because JWTs are explicitly selected in the security notes.
 | SEC-HTTP-1 | FR-1.1, FR-9.8 | Public browser-facing boundary | CONFIRMED |
 | SEC-HTTP-2 | FR-1.1, FR-1.2 | Browser Client; REST API Application | PROVISIONAL — CSP directives undecided |
 | SEC-HTTP-3 | — | Public browser-facing boundary | TO BE DECIDED — no cross-origin consumer documented |
-| SEC-HTTP-4 | FR-2.1 | Public browser-facing boundary | TO BE DECIDED — conditional on token transport (SEC-SESSION-5) |
+| SEC-HTTP-4 | FR-2.1 | Public browser-facing boundary | CONFIRMED — applies unconditionally under cookie transport |
 | SEC-HTTP-5 | FR-2.3, FR-8.x | REST API Application | PROVISIONAL — limits undecided (SQ-3) |
 | SEC-HTTP-6 | — | REST API Application | PROVISIONAL |
 | SEC-INPUT-1 | FR-8.9 and all write paths | Browser Client → REST API Application | CONFIRMED |
@@ -501,7 +506,8 @@ Applies because JWTs are explicitly selected in the security notes.
 | SEC-CICD-3 | FR-9.1, FR-9.8 | AWS infrastructure | PROVISIONAL |
 | SEC-CICD-4 | — | CI pipeline | PROVISIONAL |
 | SEC-CICD-5 | FR-9.1, FR-9.8 | Environment management | PROVISIONAL |
-| SEC-AUTHN-8 | FR-2.2, FR-9.1 | Identity and Session Handling | PROVISIONAL — verification flow undecided (REQUIREMENTS.md OQ-15) |
+| SEC-AUTHN-8 | FR-2.2, FR-9.1 | Identity and Session Handling | CONFIRMED — verification gates health-data writes and recovery |
+| SEC-AUTHN-9 | FR-2.7, FR-2.8, FR-2.9 | Identity and Session Handling | CONFIRMED — invitation-based provisioning and one-time bootstrap |
 | SEC-DATA-6 | FR-9.3, FR-9.4 | REST API Application; artifact storage | TO BE DECIDED — conditional on sync/async export decision (ARCHITECTURE.md) |
 | SEC-LOG-6 | FR-10.2 | REST API Application | CONFIRMED |
 | SEC-LOG-7 | FR-9.7 | Relational Persistence; audit storage | PROVISIONAL — mechanism undecided (SQ-8, SQ-13) |
@@ -535,7 +541,7 @@ Applicable sources: `REF-SUPPLY`, `REF-DEPS`, `REF-SSDF`, `REF-PROMPT-NODE`, `RE
 ### Open Security Questions
 
 - **SQ-1** Which privacy regimes actually govern this system? The security notes say US federal and state law; REQUIREMENTS.md asserts GDPR and CCPA rights plus HIPAA obligations and sets scale to "global". These are materially different control sets (HIPAA presupposes a covered-entity relationship that a direct-to-consumer fitness app usually lacks; GDPR presupposes EU data subjects). Until resolved, jurisdiction-specific obligations beyond the behaviors in FR-9.x remain TO BE DECIDED, and data-residency requirements cannot be set.
-- **SQ-2** What is the full JWT session model — access token lifetime, refresh strategy, transport (cookie vs. header), and the revocation mechanism that makes logout (FR-2.4) and engagement termination (FR-11.3) effective? This determines whether CSRF defenses apply (SEC-HTTP-4) and whether SEC-SESSION-3 and SEC-SESSION-4 are satisfiable. The security notes fix the token format but not the model; ARCHITECTURE.md left it undecided.
+- **SQ-2** RESOLVED 2026-08-01. The session model is: a signed token carrying a session identifier and no authorization state, transported in an `HttpOnly`, `Secure`, `SameSite` cookie, resolved against a server-side session record on every request, and revoked by invalidating that record. No refresh-token rotation is required, because revocation is immediate rather than bounded by token lifetime. CSRF defenses therefore apply unconditionally (SEC-HTTP-4), and SEC-SESSION-3 and SEC-SESSION-4 are both satisfiable — engagement termination (FR-11.3) cuts access at once rather than at expiry. Still open and tracked under SQ-3: absolute and idle session lifetimes, the cookie's `SameSite` value, and backoff thresholds. Signing key storage and rotation remain with SQ-7 (SEC-SESSION-7).
 - **SQ-3** What abuse-prevention thresholds apply — rate limits, lockout behavior, and anti-automation on authentication, export, and logging endpoints? No limits may be invented, and ASVS Level 3 will require them to be defined.
 - **SQ-4** What is the concrete ABAC attribute schema, policy language, and enforcement architecture, and how do capabilities relate to the three fixed roles? The notes select ABAC plus capability-based access control, but REQUIREMENTS.md describes role- and ownership-based rules; the mapping between them is undefined, and consultant capabilities themselves are unspecified (REQUIREMENTS.md OQ-12).
 - **SQ-5** What are the deletion mechanics for FR-9.4 — hard delete vs. de-identification, treatment of backups and replicas, what survives in audit entries, and the completion deadline?
@@ -545,5 +551,5 @@ Applicable sources: `REF-SUPPLY`, `REF-DEPS`, `REF-SSDF`, `REF-PROMPT-NODE`, `RE
 - **SQ-9** The initial document-based threat model was produced 2026-07-31 (see Threat Model section) — single-perspective and pre-implementation. Who owns it, its refresh cadence, and its cross-functional validation (product, legal/privacy, operations) are TO BE DECIDED. It MUST be revisited when SQ-1, SQ-2, SQ-4, and SQ-7 resolve, and re-run against the repository once implementation exists, before any ASVS Level 3 conformance claim.
 - **SQ-10** Is ASVS Level 3 the right target, and who verifies it? Level 3 is intended for the highest-risk applications and carries substantial verification cost. No conformance claim is made here, and no gap assessment against ASVS 5.0.0 has been performed.
 - **SQ-11** What is the incident response and breach-notification process, including who is notified and within what window if health data is exposed? This is unaddressed by all input documents and is likely required by whichever regime SQ-1 resolves to.
-- **SQ-12** How are `admin` and `consultant` accounts provisioned, vetted, and deprovisioned? Both hold elevated access to subscriber health data, and REQUIREMENTS.md OQ-13 leaves consultant onboarding open. The threat model adds: how is the *first* passkey for a privileged account enrolled, and how are role changes authorized (TM-S-4, TM-E-1)?
+- **SQ-12** PARTIALLY RESOLVED 2026-08-01 — provisioning and first-passkey enrolment are settled by SEC-AUTHN-9 (invitation from an existing admin, plus a one-time bootstrap for the first admin), which closes threats TM-S-4 and the request-path half of TM-E-1. Still open: how privileged holders are *vetted* before invitation, and how they are deprovisioned. Original question: how are `admin` and `consultant` accounts provisioned, vetted, and deprovisioned? Both hold elevated access to subscriber health data, and REQUIREMENTS.md OQ-13 leaves consultant onboarding open. The threat model adds: how is the *first* passkey for a privileged account enrolled, and how are role changes authorized (TM-S-4, TM-E-1)?
 - **SQ-13** What is the operational human-access model for production health data — who can reach the database, backups, and logs below the application layer, under what break-glass process, and with what audit? No input document addressed access below the application (TM-I-8, TM-R-2; SEC-OPS-1, SEC-LOG-7).
