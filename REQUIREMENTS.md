@@ -30,7 +30,7 @@
 - **FR-2.11** The system MUST require a user to verify control of the email address they registered, and MUST refuse to record health data for an account whose address is not yet verified. An unverified account MAY otherwise exist and authenticate. *(SECURITY.md SEC-AUTHN-8; threat TM-S-3.)*
 - **FR-2.12** The system MUST allow a subscriber to reset a forgotten password using a single-use, time-limited token sent to their verified email address. Completing a reset MUST NOT satisfy, disable, or bypass an enabled second factor, and MUST terminate all of that account's existing sessions. *(SECURITY.md SEC-AUTHN-10, SEC-AUTHN-12; threat TM-S-2.)*
 - **FR-2.13** The system MUST issue single-use recovery codes when a subscriber enables MFA, MUST present them exactly once, and MUST accept one in place of the second factor. The system MUST NOT provide any other route to bypass an enabled second factor, and no `admin` may clear or reset a subscriber's MFA. *(SECURITY.md SEC-AUTHN-10, SEC-AUTHN-11; threat TM-S-2.)*
-- **FR-2.14** The system MUST state, before a subscriber enables MFA, that losing every factor and every recovery code makes the account permanently unrecoverable. *( This is a deliberate trade of recoverability for health-data protection; its tension with FR-9.3 and FR-9.5 is recorded in OQ-17.)*
+- **FR-2.14** The system MUST state, before a subscriber enables MFA, that losing every factor and every recovery code makes the account permanently unrecoverable. *(This is a deliberate trade of recoverability for health-data protection; its tension with FR-9.3 and FR-9.5 is recorded in OQ-17.)*
 - **FR-2.15** The system MUST require every `admin` and `consultant` account to have at least two registered passkeys, MUST maintain at least two `admin` accounts, and MUST recover a privileged account that has lost passkey access only by a fresh invitation from another `admin` under FR-2.10. No password or email-possession path may restore privileged access. *(SECURITY.md SEC-AUTHN-2, SEC-AUTHN-9, SEC-AUTHN-10; threats TM-S-2, TM-S-4.)*
 
 ### Subscription and Access Control
@@ -93,17 +93,17 @@
 - **FR-9.8** The system MUST NOT transmit user health data to any external service.
 - **FR-9.9** The system MUST allow a user to withdraw their previously given consent to health-data collection, and MUST NOT record new health data for that user while consent is withdrawn. Existing records remain subject to FR-9.3–FR-9.5. *(Threat-model-derived: SECURITY.md TM-P-2.)*
 
+### Administration
+
+- **FR-10.1** The system MUST restrict plan authoring, verification, publication, and unpublication to accounts with the `admin` role, and MUST deny those actions to subscribers.
+- **FR-10.2** The system MUST record an audit entry for every admin plan lifecycle action — create, edit, verify, publish, unpublish — capturing the acting admin, the action, the affected plan, and the time. *(Threat-model-derived: SECURITY.md TM-R-1, TM-T-5.)*
+
 ### Fitness Consultants
 
 - **FR-11.1** The system MUST offer subscribers access to a fitness consultant / helper as a paid option in addition to the base subscription.
 - **FR-11.2** The system MUST NOT grant a consultant access to a subscriber's plans or health data unless that subscriber has an active paid consultant engagement with them.
 - **FR-11.3** The system MUST allow a subscriber to end a consultant engagement, after which the system MUST revoke that consultant's access to the subscriber's data.
 - **FR-11.4** The system MUST record an audit entry for each consultant access to a subscriber's health data, per FR-9.7.
-
-### Administration
-
-- **FR-10.1** The system MUST restrict plan authoring, verification, publication, and unpublication to accounts with the `admin` role, and MUST deny those actions to subscribers.
-- **FR-10.2** The system MUST record an audit entry for every admin plan lifecycle action — create, edit, verify, publish, unpublish — capturing the acting admin, the action, the affected plan, and the time. *(Threat-model-derived: SECURITY.md TM-R-1, TM-T-5.)*
 
 # Open Questions
 
@@ -117,10 +117,10 @@
 - **OQ-8** RESOLVED. Password policy follows NIST SP 800-63B — 8-character minimum with 15 or more encouraged, no composition rules, no forced rotation, known-breached passwords refused — and anti-automation is exponential backoff throttling rather than account lockout, so no third party can permanently lock an account (SECURITY.md SEC-AUTHN-6, threat TM-D-2). Recovery: password reset by single-use token to the verified address, never bypassing an enabled second factor and always terminating existing sessions (FR-2.12); single-use recovery codes issued at MFA enrolment, with no admin-assisted MFA reset (FR-2.13); permanent unrecoverability on total factor loss, disclosed up front (FR-2.14); and privileged passkey recovery only by fresh invitation, with a two-passkey and two-admin minimum (FR-2.15).
 - **OQ-9** RESOLVED. Subscribers may enable TOTP (RFC 6238) or a passkey as an optional second factor. SMS and email codes are excluded — NIST SP 800-63B treats SMS as a restricted authenticator, and an email code reduces the second factor to the security of the email account.
 - **OQ-10** Is admin verification of a plan a one-time gate, or must a plan be re-verified after each edit?
-- **OQ-11** Are accessibility conformance targets (e.g. WCAG 2.1 AA) in scope? None were selected.
+- **OQ-11** RESOLVED. The accessibility conformance target is WCAG 2.2 AA (DESIGN.md, Accessibility; ARCHITECTURE.md, Note on DESIGN.md, which records that DESIGN.md resolves this question).
 - **OQ-12** What can a fitness consultant actually do — view a subscriber's plans and logs, edit their plans, message them, or something else? FR-11.x currently only bounds their access, not their capabilities.
 - **OQ-13** How are consultants onboarded and vetted, are they platform staff or third parties, and how is the paid consultant option purchased (the same payments gap as OQ-1)?
 - **OQ-14** Is offline use required for logging entries without a connection? Not selected, so assumed out of scope.
 - **OQ-15** RESOLVED *(threat-model-derived: SECURITY.md TM-S-3)*. An account may be created and may authenticate before verification, but every health-data write is refused until control of the address is proven, and the address cannot be used in recovery until then (FR-2.11, SEC-AUTHN-8). The token is single-use, short-lived, and invalidated on use or replacement; resend is rate-limited and neither request nor response reveals whether an address is registered. Concrete token lifetime and resend interval remain with SECURITY.md SQ-3.
 - **OQ-16** *(Threat-model-derived: SECURITY.md TM-T-5.)* Should plan verification (FR-4.5) require an admin other than the plan's author (dual control)? A single compromised admin account can currently author, verify, and publish harmful exercise or diet content alone. Note that FR-2.15 now guarantees at least two `admin` accounts exist, so dual control is operationally possible if chosen.
-- **OQ-17** *()* FR-2.14 accepts that a subscriber who loses every authentication factor and every recovery code is permanently locked out of their own health data. That protects the data against account takeover, but it also puts the export right (FR-9.3) and the correction right (FR-9.5) permanently out of that user's reach, and FR-9.4 deletion cannot be requested either. Whether an identity-proofing escalation is legally required — and what proofing standard would apply in a self-contained system with no proofing capability — depends on the unresolved jurisdiction question (SECURITY.md SQ-1) and the incident process (SQ-11). Recorded rather than resolved.
+- **OQ-17** FR-2.14 accepts that a subscriber who loses every authentication factor and every recovery code is permanently locked out of their own health data. That protects the data against account takeover, but it also puts the export right (FR-9.3) and the correction right (FR-9.5) permanently out of that user's reach, and FR-9.4 deletion cannot be requested either. Whether an identity-proofing escalation is legally required — and what proofing standard would apply in a self-contained system with no proofing capability — depends on the unresolved jurisdiction question (SECURITY.md SQ-1) and the incident process (SQ-11). Recorded rather than resolved.
