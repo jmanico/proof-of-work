@@ -3,8 +3,8 @@
 - **Scope**: ALL requirements in `REQUIREMENTS.md`
 - **Execution mode**: originally `DRAFT_ONLY`; the epic and its 48 leaves were subsequently filed as GitHub issues #8 through #56
 - **Sources**: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, `DESIGN.md`, `REQUIREMENT_TEMPLATE.md`; `CLAUDE.md` followed as agent instruction, not as product specification
-- **Produced**: 2026-07-31; REQ-BUILD-010 added 2026-08-01 once PQ-1 resolved and a scaffolding owner became necessary
-- **Result**: 1 epic + 49 leaf issues drafted; 13 areas of scope still blocked, and 8 areas unblocked on 2026-08-01 but not yet drafted
+- **Produced**: 2026-07-31
+- **Result**: 1 epic + 62 leaf issues drafted; 13 areas of scope still blocked
 
 ---
 
@@ -17,17 +17,17 @@ Each `PQ-*` names the source identifiers it derives from and the scope it blocks
 
 ### Non-blocking for drafting
 
-- **PQ-1 — Technology stack. RESOLVED 2026-07-31.** Recorded in `CLAUDE.md`, Repository state: TypeScript with npm workspaces; Fastify; PostgreSQL with Drizzle ORM and drizzle-kit; Vitest; ESLint flat config with Prettier; GitHub Actions; and the `apps/api`, `apps/web`, `packages/shared`, `db/migrations`, `infra` layout. As predicted, no acceptance criterion changed — every issue's criteria were written at the HTTP, data, and interface level and stand unaltered. The client half was completed on 2026-08-01: Vite, a single-page application with `vue-router`, plain CSS custom properties with scoped single-file-component styles, and Playwright with axe-core for end-to-end and WCAG 2.2 AA testing. Still open within the original scope of this question: the concrete runner commands and local run instructions (no scaffolding exists yet) and the code-coverage threshold.
+- **PQ-1 — Technology stack. RESOLVED.** Recorded in `CLAUDE.md`, Repository state: TypeScript with npm workspaces; Fastify; PostgreSQL with Drizzle ORM and drizzle-kit; Vitest; ESLint flat config with Prettier; GitHub Actions; and the `apps/api`, `apps/web`, `packages/shared`, `db/migrations`, `infra` layout. As predicted, no acceptance criterion changed — every issue's criteria were written at the HTTP, data, and interface level and stand unaltered. The client half: Vite, a single-page application with `vue-router`, plain CSS custom properties with scoped single-file-component styles, and Playwright with axe-core for end-to-end and WCAG 2.2 AA testing. Still open within the original scope of this question: the concrete runner commands and local run instructions (no scaffolding exists yet) and the code-coverage threshold.
 - **PQ-2 — Brand and presentation identity.** `DESIGN.md` OQ-1 (product name), OQ-2 (brand personality), OQ-3 (dark mode), OQ-9 (imagery policy); `DESIGN.md` Typography (brand typography UNKNOWN). Affects REQ-PLATFORM-010 and the logo's treatment; the documented interim palette and system font stack are sufficient to proceed.
 
 ### Blocking
 
-- **PQ-3 — Session model. RESOLVED 2026-08-01.** A signed token carrying a session identifier and no authorization state, in an `HttpOnly`, `Secure`, `SameSite` cookie, resolved against a server-side session record on every request and revoked by invalidating that record. No refresh rotation is needed because revocation is immediate. SEC-HTTP-4 now applies unconditionally, and TM-S-5 and TM-S-6 are no longer CONDITIONAL. Still open: session lifetimes and the `SameSite` value (SQ-3), and signing key storage (SQ-7, SEC-SESSION-7).
+- **PQ-3 — Session model. RESOLVED.** A signed token carrying a session identifier and no authorization state, in an `HttpOnly`, `Secure`, `SameSite` cookie, resolved against a server-side session record on every request and revoked by invalidating that record. No refresh rotation is needed because revocation is immediate. SEC-HTTP-4 now applies unconditionally, and TM-S-5 and TM-S-6 are no longer CONDITIONAL. Still open: session lifetimes and the `SameSite` value (SQ-3), and signing key storage (SQ-7, SEC-SESSION-7).
 - **PQ-4 — Subscription activation and payments.** `REQUIREMENTS.md` OQ-1, OQ-2; `ARCHITECTURE.md` (subscription state, UNKNOWN); `SECURITY.md` SEC-AUTHZ-8. What makes a subscription "active", how it is purchased, renewed, cancelled, and whether a trial or free tier exists. Blocks: FR-3.1, FR-3.2, FR-3.3, FR-3.4, FR-11.1. Threat TM-E-4 CONDITIONAL.
-- **PQ-5 — Password policy, lockout, and recovery. RESOLVED 2026-08-01.** `REF-63B`-aligned policy — 8-character minimum with 15 or more encouraged, no composition rules, no forced rotation, known-breached passwords refused from a locally hosted list — and exponential backoff throttling instead of account lockout, which closes TM-D-2 by making third-party-triggered lockout impossible by construction. FR-2.2 registration is unblocked. Recovery was settled the same day: password reset by single-use token to the verified address, which never bypasses an enabled second factor and terminates all sessions (FR-2.12); single-use recovery codes at MFA enrolment, with no admin-assisted MFA reset (FR-2.13); permanent unrecoverability on total factor loss, disclosed before enrolment (FR-2.14); and privileged passkey recovery only by fresh invitation, with a two-passkey and two-admin minimum (FR-2.15). Threat TM-S-2 is closed. The cost is recorded as `REQUIREMENTS.md` OQ-17: an unrecoverable subscriber cannot exercise FR-9.3, FR-9.4, or FR-9.5 over their own data, and whether that is lawful depends on SQ-1.
-- **PQ-6 — MFA factors. RESOLVED 2026-08-01.** TOTP (RFC 6238) or a passkey, user-enabled and optional per FR-2.5. SMS and email codes excluded — `REF-63B` treats SMS as a restricted authenticator, and an email code reduces the second factor to email-account security. FR-2.5 and FR-2.6 are unblocked; the lost-device path depends on the recovery flows still open in PQ-5.
-- **PQ-7 — Email verification flow. RESOLVED 2026-08-01.** An account may be created and may authenticate before verification, but every health-data write is refused until control is proven, and the address cannot be relied on for recovery until then. Single-use short-lived token, invalidated on use or replacement, rate-limited resend, no enumeration in the response. Recorded as `REQUIREMENTS.md` FR-2.11 and `SECURITY.md` SEC-AUTHN-8; threat TM-S-3 is closed. Concrete lifetime and resend interval sit with SQ-3.
-- **PQ-8 — Password hashing. RESOLVED 2026-08-01.** Argon2id with a per-credential salt from a cryptographically secure generator; bcrypt and non-memory-hard functions are prohibited outright. Parameters must be named constants with a documented tuning basis; concrete values await production instance sizing (SQ-7). Credential storage is unblocked.
+- **PQ-5 — Password policy, lockout, and recovery. RESOLVED.** `REF-63B`-aligned policy — 8-character minimum with 15 or more encouraged, no composition rules, no forced rotation, known-breached passwords refused from a locally hosted list — and exponential backoff throttling instead of account lockout, which closes TM-D-2 by making third-party-triggered lockout impossible by construction. FR-2.2 registration is unblocked. Recovery: password reset by single-use token to the verified address, which never bypasses an enabled second factor and terminates all sessions (FR-2.12); single-use recovery codes at MFA enrolment, with no admin-assisted MFA reset (FR-2.13); permanent unrecoverability on total factor loss, disclosed before enrolment (FR-2.14); and privileged passkey recovery only by fresh invitation, with a two-passkey and two-admin minimum (FR-2.15). Threat TM-S-2 is closed. The cost is recorded as `REQUIREMENTS.md` OQ-17: an unrecoverable subscriber cannot exercise FR-9.3, FR-9.4, or FR-9.5 over their own data, and whether that is lawful depends on SQ-1.
+- **PQ-6 — MFA factors. RESOLVED.** TOTP (RFC 6238) or a passkey, user-enabled and optional per FR-2.5. SMS and email codes excluded — `REF-63B` treats SMS as a restricted authenticator, and an email code reduces the second factor to email-account security. FR-2.5 and FR-2.6 are unblocked; the lost-device path depends on the recovery flows still open in PQ-5.
+- **PQ-7 — Email verification flow. RESOLVED.** An account may be created and may authenticate before verification, but every health-data write is refused until control is proven, and the address cannot be relied on for recovery until then. Single-use short-lived token, invalidated on use or replacement, rate-limited resend, no enumeration in the response. Recorded as `REQUIREMENTS.md` FR-2.11 and `SECURITY.md` SEC-AUTHN-8; threat TM-S-3 is closed. Concrete lifetime and resend interval sit with SQ-3.
+- **PQ-8 — Password hashing. RESOLVED.** Argon2id with a per-credential salt from a cryptographically secure generator; bcrypt and non-memory-hard functions are prohibited outright. Parameters must be named constants with a documented tuning basis; concrete values await production instance sizing (SQ-7). Credential storage is unblocked.
 - **PQ-9 — Body measurement fields and unit system.** `REQUIREMENTS.md` OQ-4; `DESIGN.md` OQ-8. Blocks: FR-8.2. Also leaves the unit for body weight and workout load open, which REQ-PROGRESS-010 and REQ-PROGRESS-020 handle by storing units explicitly.
 - **PQ-10 — Nutrition data source.** `REQUIREMENTS.md` OQ-5. No external nutrition database is in scope and no first-party catalog is specified. Blocks: FR-8.4, FR-8.5.
 - **PQ-11 — Progress history period, granularity, and visualization.** `REQUIREMENTS.md` OQ-7; `DESIGN.md` OQ-4; `ARCHITECTURE.md` Browser Client open decision. Blocks: FR-8.6.
@@ -38,10 +38,10 @@ Each `PQ-*` names the source identifiers it derives from and the scope it blocks
 - **PQ-16 — Export and deletion mechanics.** `REQUIREMENTS.md` FR-9.4 (deadline `TO BE DECIDED`); `SECURITY.md` SQ-5, SEC-DATA-4, SEC-DATA-6; `ARCHITECTURE.md` (synchronous versus deferred, TO BE DECIDED). Hard delete versus de-identification, backup and replica treatment, export format and artifact handling. Blocks: FR-9.3, FR-9.4. Threats TM-I-6, TM-I-7, TM-P-1 CONDITIONAL.
 - **PQ-17 — Abuse-prevention thresholds.** `SECURITY.md` SQ-3, SEC-AUTHN-6, SEC-HTTP-5. Rate limits, lockout behavior, anti-automation. Blocks: SEC-AUTHN-6, SEC-HTTP-5, and all alerting fields across every issue. Threats TM-S-1, TM-D-1, TM-D-2 CONDITIONAL.
 - **PQ-18 — ABAC attribute schema, policy language, and PDP/PEP architecture.** `SECURITY.md` SQ-4, SEC-AUTHZ-5, SEC-AUTHZ-6, SEC-AUTHZ-7. How capabilities map onto the three fixed roles is undefined. Blocks: the central policy engine. The concrete authorization rules (REQ-AUTHZ-010 … 040, REQ-CONSULT-010) are determined independently and are covered.
-- **PQ-19 — CI/CD platform, secret store, AWS topology. PARTIALLY RESOLVED 2026-07-31.** The platform is GitHub Actions with OIDC federation to AWS IAM roles, which settles SEC-CICD-1's credential model. `SECURITY.md` SQ-7, SEC-CICD-3, SEC-CICD-4, SEC-SECRET-2, SEC-SESSION-7 remain open. Still blocks: the pipeline security gate set, IaC baseline, secret management, encryption-at-rest configuration, network tiering, and egress restriction. Threat TM-T-6 remains CONDITIONAL.
+- **PQ-19 — CI/CD platform, secret store, AWS topology. PARTIALLY RESOLVED.** The platform is GitHub Actions with OIDC federation to AWS IAM roles, which settles SEC-CICD-1's credential model. `SECURITY.md` SQ-7, SEC-CICD-3, SEC-CICD-4, SEC-SECRET-2, SEC-SESSION-7 remain open. Still blocks: the pipeline security gate set, IaC baseline, secret management, encryption-at-rest configuration, network tiering, and egress restriction. Threat TM-T-6 remains CONDITIONAL.
 - **PQ-20 — Audit and log retention, access control, and tamper-evidence.** `SECURITY.md` SQ-8, SQ-13, SEC-LOG-5, SEC-LOG-7, SEC-OPS-1. Blocks: retention policy, tamper-evident audit storage, the operational break-glass model. Threats TM-R-2, TM-I-8, TM-P-4 open.
 - **PQ-21 — Governing privacy regime.** `SECURITY.md` SQ-1, SQ-11; `REQUIREMENTS.md` OQ-3. The US-federal/state framing, GDPR/CCPA rights, and HIPAA obligations are recorded as mutually inconsistent. Blocks: every `Regulatory` field, data residency, breach notification, consent wording, and retention periods. Threat TM-P-3 CONDITIONAL. **This is the single most far-reaching open question in the specification.**
-- **PQ-22 — Privileged account provisioning and first passkey enrolment. RESOLVED 2026-08-01.** Invitation from an existing `admin` carrying a single-use, short-lived, role-scoped enrolment token to a verified address; that token authorizes passkey registration only and never yields a session. The first `admin` comes from a one-time provisioning command that refuses to run once any `admin` exists. Role is fixed by the invitation and never settable from a request body. Recorded as `REQUIREMENTS.md` FR-2.10 and `SECURITY.md` SEC-AUTHN-9. This breaks the REQ-AUTH-020 / REQ-AUTH-030 circular dependency: enrolment no longer presupposes a passkey session. Threats TM-S-4 and the request-path half of TM-E-1 are closed; vetting and deprovisioning remain open (SQ-12).
+- **PQ-22 — Privileged account provisioning and first passkey enrolment. RESOLVED.** Invitation from an existing `admin` carrying a single-use, short-lived, role-scoped enrolment token to a verified address; that token authorizes passkey registration only and never yields a session. The first `admin` comes from a one-time provisioning command that refuses to run once any `admin` exists. Role is fixed by the invitation and never settable from a request body. Recorded as `REQUIREMENTS.md` FR-2.10 and `SECURITY.md` SEC-AUTHN-9. This breaks the REQ-AUTH-020 / REQ-AUTH-030 circular dependency: enrolment no longer presupposes a passkey session. Threats TM-S-4 and the request-path half of TM-E-1 are closed; vetting and deprovisioning remain open (SQ-12).
 - **PQ-23 — Third-party API exposure and CORS.** `SECURITY.md` SQ-6, SEC-HTTP-3. Blocks: SEC-HTTP-3.
 - **PQ-24 — Exact CSP directive set.** `SECURITY.md` SEC-HTTP-2 (`TO BE DECIDED`). Partially blocking: the prohibitions on inline and eval script are normative and are delivered by REQ-PLATFORM-040; the full directive list is not.
 - **PQ-25 — UI presentation decisions.** `DESIGN.md` OQ-5 (citation and verification surfacing), OQ-6 (disclaimer presentation and acknowledgement form), OQ-7 (role-distinct treatment and how a subscriber sees consultant access). Partially blocking: REQ-PRIVACY-040 and REQ-CATALOG-010/020 deliver mechanism and enforcement; the presentation form is not settled.
@@ -65,20 +65,20 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `OUT OF SCOPE`.
 | FR-1.1 | REQ-PLATFORM-020, REQ-PLATFORM-040 | Browser Client; boundary 1 | SEC-HTTP-1, SEC-HTTP-2 | Layout and Spacing | COVERED |
 | FR-1.2 | REQ-PLATFORM-020 | Browser Client | — | Layout and Spacing; Accessibility | COVERED |
 | FR-2.1 | REQ-AUTHZ-010, REQ-SESSION-010 | Boundary 2 | SEC-AUTHN-1, SEC-AUTHZ-1 | — | COVERED |
-| FR-2.2 | — | Identity | SEC-AUTHN-5, SEC-AUTHN-8 | Components → Inputs | UNBLOCKED 2026-08-01 — no issue drafted yet |
-| FR-2.3 | REQ-AUTH-040 | Identity; boundary 2 | SEC-AUTHN-3, SEC-AUTHN-5 | Components → Form feedback | PARTIALLY COVERED — response contract covered; password verification unblocked but undrafted |
-| FR-2.4 | — | Identity | SEC-SESSION-3, SEC-SESSION-5 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
-| FR-2.5 | — | Identity | SEC-AUTHN-4, SEC-AUTHN-7 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
-| FR-2.6 | — | Identity | SEC-AUTHN-4 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
-| FR-2.7 | REQ-AUTH-010 | Identity; REST API | SEC-AUTHZ-1, SEC-INPUT-3, SEC-AUTHN-9 | — | PARTIALLY COVERED — invariant and resolution covered; assignment lifecycle unblocked but undrafted |
+| FR-2.2 | REQ-AUTH-080, REQ-AUTH-070 | Identity | SEC-AUTHN-5, SEC-AUTHN-6 | Components → Inputs | COVERED |
+| FR-2.3 | REQ-AUTH-040, REQ-AUTH-100, REQ-AUTH-070 | Identity; boundary 2 | SEC-AUTHN-3, SEC-AUTHN-5 | Components → Form feedback | COVERED |
+| FR-2.4 | REQ-SESSION-040, REQ-SESSION-030 | Identity | SEC-SESSION-3, SEC-SESSION-5 | — | COVERED |
+| FR-2.5 | REQ-AUTH-110 | Identity | SEC-AUTHN-4, SEC-AUTHN-7 | Components → Buttons | COVERED |
+| FR-2.6 | REQ-AUTH-120 | Identity | SEC-AUTHN-4 | — | COVERED |
+| FR-2.7 | REQ-AUTH-010, REQ-AUTH-140 | Identity; REST API | SEC-AUTHZ-1, SEC-INPUT-3, SEC-AUTHN-9 | — | COVERED |
 | FR-2.8 | REQ-AUTH-020 | Identity; boundary 2 | SEC-AUTHN-2 | Components | COVERED |
-| FR-2.9 | REQ-AUTH-030 | Identity | SEC-AUTHN-2, SEC-AUTHN-7, SEC-AUTHN-9 | Components → Buttons | PARTIALLY COVERED — registration and replacement covered; first enrolment unblocked but undrafted |
-| FR-2.10 | — | Identity | SEC-AUTHN-9 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
-| FR-2.11 | — | Identity | SEC-AUTHN-8 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
-| FR-2.12 | — | Identity | SEC-AUTHN-10, SEC-AUTHN-11, SEC-AUTHN-12 | Components → Inputs | UNBLOCKED 2026-08-01 — no issue drafted yet |
-| FR-2.13 | — | Identity | SEC-AUTHN-10, SEC-AUTHN-11 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
-| FR-2.14 | — | Browser Client | SEC-AUTHN-10 | Components → Form feedback | UNBLOCKED 2026-08-01 — no issue drafted yet |
-| FR-2.15 | — | Identity | SEC-AUTHN-2, SEC-AUTHN-9, SEC-AUTHN-10 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
+| FR-2.9 | REQ-AUTH-030, REQ-AUTH-140, REQ-AUTH-150 | Identity | SEC-AUTHN-2, SEC-AUTHN-7, SEC-AUTHN-9 | Components → Buttons | COVERED |
+| FR-2.10 | REQ-AUTH-140 | Identity | SEC-AUTHN-9 | — | COVERED |
+| FR-2.11 | REQ-AUTH-090 | Identity; REST API | SEC-AUTHN-8 | Components → Empty states | COVERED |
+| FR-2.12 | REQ-AUTH-130 | Identity | SEC-AUTHN-10, SEC-AUTHN-11, SEC-AUTHN-12 | Components → Inputs | COVERED |
+| FR-2.13 | REQ-AUTH-110, REQ-AUTH-120 | Identity | SEC-AUTHN-10, SEC-AUTHN-11 | — | COVERED |
+| FR-2.14 | REQ-AUTH-110 | Browser Client | SEC-AUTHN-10 | Components → Form feedback | COVERED |
+| FR-2.15 | REQ-AUTH-150 | Identity | SEC-AUTHN-2, SEC-AUTHN-9, SEC-AUTHN-10 | — | COVERED |
 | FR-3.1 | — | REST API | SEC-AUTHZ-8 | — | BLOCKED — PQ-4 |
 | FR-3.2 | — | REST API | SEC-AUTHZ-8 | — | BLOCKED — PQ-4 |
 | FR-3.3 | — | REST API | SEC-AUTHZ-8 | — | BLOCKED — PQ-4 |
@@ -125,7 +125,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `OUT OF SCOPE`.
 | FR-11.3 | REQ-CONSULT-020 | REST API; Identity | SEC-AUTHZ-3, SEC-SESSION-4 | Components → Buttons | COVERED |
 | FR-11.4 | REQ-CONSULT-010, REQ-AUDIT-020 | REST API | SEC-LOG-1 | — | COVERED |
 
-**Totals** — 62 functional requirements (FR-2.10 … FR-2.15 added 2026-08-01): 33 `COVERED`, 9 `PARTIALLY COVERED`, 10 `UNBLOCKED — no issue drafted yet`, 10 `BLOCKED`, 0 `OUT OF SCOPE`, 0 untracked. The authentication and recovery decisions of 2026-08-01 moved four requirements out of `BLOCKED` and created six new ones; none of the ten has an issue body yet, which is the next drafting pass. Every requirement traces to an issue, to a named blocking question, or to that pass.
+**Totals** — 62 functional requirements: 46 `COVERED`, 6 `PARTIALLY COVERED`, 10 `BLOCKED`, 0 `OUT OF SCOPE`, 0 untracked. The whole authentication surface is now drafted; the remaining blocked scope is subscription and payments, plan selection, body measurements, food logging, progress history, export and deletion, plan verification workflow, and consultant capabilities and onboarding. Every requirement traces to an issue or to a named blocking question.
 
 ## 3. Coverage matrix — security rules
 
@@ -137,16 +137,16 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `OUT OF SCOPE`.
 | SEC-AUTHN-1 | REQ-AUTHZ-010 | COVERED |
 | SEC-AUTHN-2 | REQ-AUTH-020, REQ-AUTH-030 | COVERED |
 | SEC-AUTHN-3 | REQ-AUTH-040 | COVERED |
-| SEC-AUTHN-4 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
-| SEC-AUTHN-5 | — | UNBLOCKED 2026-08-01 — no issue drafted yet (Argon2id) |
-| SEC-AUTHN-6 | — | UNBLOCKED 2026-08-01 — no issue drafted yet — policy and throttling decided; thresholds still PQ-17 |
-| SEC-AUTHN-7 | REQ-AUTH-030, REQ-AUTH-050 | PARTIALLY COVERED — password and MFA change paths unblocked but undrafted |
-| SEC-AUTHN-10, -11, -12 | — | UNBLOCKED 2026-08-01 — no issue drafted yet — account recovery |
-| SEC-AUTHN-8 | — | UNBLOCKED 2026-08-01 — no issue drafted yet |
+| SEC-AUTHN-4 | REQ-AUTH-120, REQ-AUTH-100 | COVERED |
+| SEC-AUTHN-5 | REQ-AUTH-070 | COVERED |
+| SEC-AUTHN-6 | REQ-AUTH-060, REQ-AUTH-080 | PARTIALLY COVERED — mechanism covered; thresholds still PQ-17 |
+| SEC-AUTHN-7 | REQ-AUTH-030, REQ-AUTH-050, REQ-AUTH-110, REQ-AUTH-150 | COVERED |
+| SEC-AUTHN-10, -11, -12 | REQ-AUTH-130, REQ-AUTH-110, REQ-AUTH-120, REQ-AUTH-150, REQ-SESSION-040 | COVERED |
+| SEC-AUTHN-8 | REQ-AUTH-090 | COVERED |
 | SEC-SESSION-1, -2 | REQ-SESSION-010 | COVERED |
-| SEC-SESSION-3, -4, -5 | REQ-CONSULT-020 (SEC-SESSION-4 for engagements only) | UNBLOCKED 2026-08-01 — no issue drafted yet — model decided |
+| SEC-SESSION-3, -4, -5 | REQ-SESSION-030, REQ-SESSION-040, REQ-SESSION-050, REQ-CONSULT-020 | COVERED |
 | SEC-SESSION-7 | — | BLOCKED — PQ-19 (signing key store) |
-| SEC-AUTHN-9 | — | UNBLOCKED 2026-08-01 — no issue drafted yet — privileged provisioning |
+| SEC-AUTHN-9 | REQ-AUTH-140, REQ-AUTH-150 | COVERED |
 | SEC-SESSION-6 | REQ-SESSION-020 | COVERED |
 | SEC-AUTHZ-1, -2 | REQ-AUTHZ-010, REQ-AUTHZ-020 | COVERED |
 | SEC-AUTHZ-3 | REQ-CONSULT-010, REQ-CONSULT-020 | COVERED |
@@ -155,7 +155,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `OUT OF SCOPE`.
 | SEC-AUTHZ-8 | — | BLOCKED — PQ-4 |
 | SEC-HTTP-1, -2 | REQ-PLATFORM-040 | PARTIALLY COVERED — CSP directives open (PQ-24) |
 | SEC-HTTP-3 | — | BLOCKED — PQ-23 |
-| SEC-HTTP-4 | — | UNBLOCKED 2026-08-01 — no issue drafted yet — now applies unconditionally under cookie transport |
+| SEC-HTTP-4 | REQ-SESSION-050 | COVERED |
 | SEC-HTTP-5 | — | BLOCKED — PQ-17 |
 | SEC-HTTP-6 | REQ-API-040 | COVERED |
 | SEC-INPUT-1, -3, -6 | REQ-API-010, REQ-API-020 | COVERED |
@@ -185,16 +185,8 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `OUT OF SCOPE`.
 
 | Scope | Requirements | Blocked by |
 |---|---|---|
-| Registration with email and password | FR-2.2 | *Unblocked 2026-08-01 — needs an issue* |
-| Password credential storage and verification | FR-2.3 (verification half) | *Unblocked 2026-08-01 — needs an issue* |
-| Email address verification | FR-2.11, SEC-AUTHN-8 | *Unblocked 2026-08-01 — needs an issue* |
-| Account and MFA recovery | FR-2.12, FR-2.13, FR-2.15 | *Unblocked 2026-08-01 — needs an issue* |
-| MFA enable, disable, and challenge | FR-2.5, FR-2.6 | *Unblocked 2026-08-01 — needs an issue* |
-| Logout and session revocation | FR-2.4 | *Unblocked 2026-08-01 — needs an issue* |
-| Token transport, storage, CSRF | SEC-SESSION-5; SEC-HTTP-4 | *Unblocked 2026-08-01 — needs an issue* |
 | Signing key storage and rotation | SEC-SESSION-7 | PQ-19 |
 | Anti-automation and rate limiting | SEC-AUTHN-6, SEC-HTTP-5 | PQ-17 |
-| Admin and consultant provisioning; role assignment; first passkey | FR-2.10, FR-2.7 (lifecycle), FR-2.9 (bootstrap) | *Unblocked 2026-08-01 — needs an issue* |
 | Subscription activation, status, entitlement gate, retention across lapse | FR-3.1 – FR-3.4 | PQ-4 |
 | Plan selection to follow | FR-5.2, FR-6.3 | PQ-12 |
 | Plan verification operation | FR-4.5 (workflow) | PQ-13 |
@@ -232,13 +224,26 @@ REQ-EPIC-001  Implement the specified subscription fitness web application
 │  └─ REQ-AUTHZ-040  Denial response and logging
 ├─ Session
 │  ├─ REQ-SESSION-010  JWT verification
-│  └─ REQ-SESSION-020  Token claim allow-list
+│  ├─ REQ-SESSION-020  Token claim allow-list
+│  ├─ REQ-SESSION-030  Server-side session records and resolution
+│  ├─ REQ-SESSION-040  Logout and revocation
+│  └─ REQ-SESSION-050  Cookie transport and CSRF
 ├─ Identity
 │  ├─ REQ-AUTH-010  One role per account
 │  ├─ REQ-AUTH-020  Passkey authentication for privileged roles
 │  ├─ REQ-AUTH-030  Passkey registration and replacement
 │  ├─ REQ-AUTH-040  Non-disclosing authentication failures
-│  └─ REQ-AUTH-050  Security event logging
+│  ├─ REQ-AUTH-050  Security event logging
+│  ├─ REQ-AUTH-060  Anti-automation throttling
+│  ├─ REQ-AUTH-070  Password credential storage
+│  ├─ REQ-AUTH-080  Subscriber registration
+│  ├─ REQ-AUTH-090  Email verification and health-data gate
+│  ├─ REQ-AUTH-100  Subscriber password authentication
+│  ├─ REQ-AUTH-110  MFA enrolment, recovery codes, disablement
+│  ├─ REQ-AUTH-120  MFA challenge and recovery-code redemption
+│  ├─ REQ-AUTH-130  Password reset
+│  ├─ REQ-AUTH-140  Privileged provisioning and first passkey
+│  └─ REQ-AUTH-150  Privileged minimums and passkey recovery
 ├─ Audit
 │  ├─ REQ-AUDIT-010  Audit entry model, append-only
 │  ├─ REQ-AUDIT-020  Mandatory audit on health-data paths
@@ -335,8 +340,21 @@ Effort is engineer-days; LOC is human-authored changed lines, excluding generate
 | 46 | REQ-CONSULT-020 | `460-REQ-CONSULT-020.md` | 0.5–1.5 | 150–400 | 45, 12, 15, 18, 10, 3 | Opus |
 | 47 | REQ-PIPE-010 | `470-REQ-PIPE-010.md` | 0.5–1 | 50–200 | 0 | Opus |
 | 48 | REQ-PIPE-020 | `480-REQ-PIPE-020.md` | 0.5–1.5 | 150–400 | 29, 30, 43, 44 | Opus |
+| 49 | REQ-SESSION-030 | `141-REQ-SESSION-030.md` | 1–1.5 | 250–500 | 0, 9, 7 | Opus |
+| 50 | REQ-SESSION-040 | `142-REQ-SESSION-040.md` | 1–1.5 | 250–500 | 49, 17, 8 | Opus |
+| 51 | REQ-SESSION-050 | `143-REQ-SESSION-050.md` | 1.5–2 | 350–700 | 49, 4, 8 | Opus |
+| 52 | REQ-AUTH-060 | `144-REQ-AUTH-060.md` | 1–2 | 300–650 | 0, 8, 22 | Opus |
+| 53 | REQ-AUTH-070 | `191-REQ-AUTH-070.md` | 1–1.5 | 200–450 | 0, 7, 16 | Opus |
+| 54 | REQ-AUTH-080 | `192-REQ-AUTH-080.md` | 1.5–2 | 400–850 | 53, 52, 5, 6, 13, 17 | Opus |
+| 55 | REQ-AUTH-090 | `193-REQ-AUTH-090.md` | 1.5–2 | 350–700 | 54, 52, 5, 11, 17 | Opus |
+| 56 | REQ-AUTH-100 | `194-REQ-AUTH-100.md` | 1.5–2 | 350–750 | 53, 13, 22, 52, 49, 51, 17 | Opus |
+| 57 | REQ-AUTH-110 | `195-REQ-AUTH-110.md` | 2 | 500–900 | 56, 53, 52, 50, 12, 17, 3 | Opus |
+| 58 | REQ-AUTH-120 | `196-REQ-AUTH-120.md` | 1.5–2 | 350–700 | 56, 57, 53, 52, 49, 17 | Opus |
+| 59 | REQ-AUTH-130 | `197-REQ-AUTH-130.md` | 1.5–2 | 350–700 | 53, 55, 52, 50, 58, 17, 8 | Opus |
+| 60 | REQ-AUTH-140 | `198-REQ-AUTH-140.md` | 2 | 500–950 | 13, 20, 21, 14, 52, 17, 19, 6 | Opus |
+| 61 | REQ-AUTH-150 | `199-REQ-AUTH-150.md` | 1.5–2 | 300–650 | 60, 21, 20, 13, 14, 17 | Opus |
 
-**Totals**: 42–70 engineer-days; roughly 11,300–24,600 human-authored lines. Every leaf is within the 0.5–2 day and 1,500-line bounds.
+**Totals**: 61–95 engineer-days; roughly 15,800–33,600 human-authored lines. Every leaf is within the 0.5–2 day and 1,500-line bounds.
 
 ### Model assignment rationale
 
@@ -346,13 +364,13 @@ Effort is engineer-days; LOC is human-authored changed lines, excluding generate
 
 ## 7. Topological creation order
 
-The manifest's `#` column is the creation order; it is a valid topological sort of the dependency graph (verified: every `Depends on` entry precedes its dependent, and the graph is acyclic). Create the epic first, then leaves 0 through 48 in order, each with `--parent` set to the epic's number.
+The manifest's `#` column is the creation order; it is a valid topological sort of the dependency graph (verified: every `Depends on` entry precedes its dependent, and the graph is acyclic). Create the epic first, then leaves 0 through 61 in order, each with `--parent` set to the epic's number. File-name prefixes reflect grouping rather than dependency order; the manifest's `#` column is the authority.
 
 REQ-BUILD-010 is numbered 0 rather than renumbering the original 48, whose numbers are already referenced across the manifest's `Depends on` column. It is the root: every leaf depends on it transitively, and the six leaves that previously had no in-plan predecessor — 1, 4, 5, 9, 16, and 47 — now depend on it directly.
 
 ## 8. Creation commands
 
-Run from the repository root. The epic and leaves 1–48 have been executed and are live as issues #8–#56; the REQ-BUILD-010 command was executed on 2026-08-01.
+Run from the repository root. The epic and leaves 1–48 have been executed and are live as issues #8–#56.
 
 ```sh
 # Epic
@@ -408,6 +426,19 @@ gh issue create --title "[REQ-CONSULT-010] Engagement-scoped consultant access" 
 gh issue create --title "[REQ-CONSULT-020] Ending an engagement revokes consultant access" --body-file ".planning/github-issues/460-REQ-CONSULT-020.md"
 gh issue create --title "[REQ-PIPE-010] Dependency policy and reproducible resolution" --body-file ".planning/github-issues/470-REQ-PIPE-010.md"
 gh issue create --title "[REQ-PIPE-020] Non-production environments contain no real health data" --body-file ".planning/github-issues/480-REQ-PIPE-020.md"
+gh issue create --title "[REQ-SESSION-030] Server-side session records and per-request resolution" --body-file ".planning/github-issues/141-REQ-SESSION-030.md"
+gh issue create --title "[REQ-SESSION-040] Logout and session revocation on credential or authorization change" --body-file ".planning/github-issues/142-REQ-SESSION-040.md"
+gh issue create --title "[REQ-SESSION-050] Cookie session transport and cross-site request forgery protection" --body-file ".planning/github-issues/143-REQ-SESSION-050.md"
+gh issue create --title "[REQ-AUTH-060] Anti-automation throttling on authentication and recovery paths" --body-file ".planning/github-issues/144-REQ-AUTH-060.md"
+gh issue create --title "[REQ-AUTH-070] Password credential storage with Argon2id" --body-file ".planning/github-issues/191-REQ-AUTH-070.md"
+gh issue create --title "[REQ-AUTH-080] Subscriber registration with email and password" --body-file ".planning/github-issues/192-REQ-AUTH-080.md"
+gh issue create --title "[REQ-AUTH-090] Email verification and the health-data write gate" --body-file ".planning/github-issues/193-REQ-AUTH-090.md"
+gh issue create --title "[REQ-AUTH-100] Subscriber password authentication" --body-file ".planning/github-issues/194-REQ-AUTH-100.md"
+gh issue create --title "[REQ-AUTH-110] MFA enrolment, recovery codes, and disablement" --body-file ".planning/github-issues/195-REQ-AUTH-110.md"
+gh issue create --title "[REQ-AUTH-120] MFA challenge and recovery-code redemption" --body-file ".planning/github-issues/196-REQ-AUTH-120.md"
+gh issue create --title "[REQ-AUTH-130] Password reset" --body-file ".planning/github-issues/197-REQ-AUTH-130.md"
+gh issue create --title "[REQ-AUTH-140] Privileged provisioning by invitation and first passkey enrolment" --body-file ".planning/github-issues/198-REQ-AUTH-140.md"
+gh issue create --title "[REQ-AUTH-150] Privileged account minimums and passkey recovery" --body-file ".planning/github-issues/199-REQ-AUTH-150.md"
 ```
 
 After creation, replace every `{{ISSUE_URL:<ID>}}` placeholder in `000-REQ-EPIC-001.md` with the created issue URL and update the epic body.
