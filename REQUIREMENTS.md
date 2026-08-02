@@ -56,12 +56,14 @@
 
 - **FR-5.1** The system MUST allow a subscriber to browse published exercise plans and view a plan's full contents, including its exercises and prescribed sets and repetitions.
 - **FR-5.2** The system MUST allow a subscriber to select an exercise plan to follow.
+- **FR-5.3** The system MUST maintain at most one active exercise plan selection per subscriber, where the selection names either a published exercise plan or one of the subscriber's own customized exercise plan copies; selecting another MUST replace the current selection, and neither selection nor replacement may alter any logged history. *(Resolves OQ-6.)*
 
 ### Diet Plans
 
 - **FR-6.1** The system MUST allow a subscriber to browse published diet plans and view a plan's full contents.
 - **FR-6.2** Each diet plan MUST specify its meals and its daily calorie and macronutrient targets.
 - **FR-6.3** The system MUST allow a subscriber to select a diet plan to follow.
+- **FR-6.4** The system MUST maintain at most one active diet plan selection per subscriber, where the selection names either a published diet plan or one of the subscriber's own customized diet plan copies; selecting another MUST replace the current selection, and neither selection nor replacement may alter any logged history. The FR-8.5 target comparison uses the currently selected diet plan. *(Resolves OQ-6.)*
 
 ### Plan Customization
 
@@ -115,7 +117,7 @@
 - **OQ-3** RESOLVED (SECURITY.md SQ-1, 2026-08-01). HIPAA is not applicable: the system has no covered-entity or business-associate relationship — it is direct-to-consumer, bills no insurance, and integrates with no provider — so no BAA is required and FR-9.7's audit obligation stands on its own. In scope for US users: the FTC Health Breach Notification Rule, state consumer-health laws (e.g. Washington My Health My Data), and CCPA/CPRA. GDPR/UK GDPR govern EU/UK data subjects, with GDPR-grade rights granted to all users. The breach-notification workflow is specified under SECURITY.md SQ-11; counsel review before launch is required.
 - **OQ-4** Which body measurement fields must be supported (waist, chest, arms, hips, body-fat %), and are units configurable (metric vs. imperial)?
 - **OQ-5** Food logging requires nutrition data, but no external nutrition database is in scope. Do subscribers enter calories and macros manually, or does the system ship its own food catalog, and who maintains it?
-- **OQ-6** Can a subscriber follow more than one exercise plan and one diet plan at a time, or is it one active plan of each type?
+- **OQ-6** RESOLVED (2026-08-01). One active plan of each type: at most one active exercise plan selection and one active diet plan selection per subscriber (FR-5.3, FR-6.4). A selection names a published plan or the subscriber's own customized copy; selecting another replaces it, logged history is never altered, and FR-8.5's daily comparison reads the currently selected diet plan exactly as written. The FR-9.6 disclaimer gates the first plan use, including first selection.
 - **OQ-7** What time period and granularity must progress history cover (per day, per week, all-time), and are charts required or is a list sufficient?
 - **OQ-8** RESOLVED. Password policy follows NIST SP 800-63B — 8-character minimum with 15 or more encouraged, no composition rules, no forced rotation, known-breached passwords refused — and anti-automation is exponential backoff throttling rather than account lockout, so no third party can permanently lock an account (SECURITY.md SEC-AUTHN-6, threat TM-D-2). Recovery: password reset by single-use token to the verified address, never bypassing an enabled second factor and always terminating existing sessions (FR-2.12); single-use recovery codes issued at MFA enrolment, with no admin-assisted MFA reset (FR-2.13); permanent unrecoverability on total factor loss, disclosed up front (FR-2.14); and privileged passkey recovery only by fresh invitation, with a two-passkey and two-admin minimum (FR-2.15).
 - **OQ-9** RESOLVED. Subscribers may enable TOTP (RFC 6238) or a passkey as an optional second factor. SMS and email codes are excluded — NIST SP 800-63B treats SMS as a restricted authenticator, and an email code reduces the second factor to the security of the email account.
