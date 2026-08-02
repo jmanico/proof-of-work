@@ -4,7 +4,7 @@
 - **Execution mode**: originally `DRAFT_ONLY`; the epic was subsequently filed as GitHub issue #8 and all 62 leaves as issues #9–#56, #60, and #66–#78, each linked as a sub-issue of the epic
 - **Sources**: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, `DESIGN.md`, `REQUIREMENT_TEMPLATE.md`; `CLAUDE.md` followed as agent instruction, not as product specification
 - **Produced**: 2026-07-31
-- **Result**: 1 epic + 62 leaf issues drafted, all filed as live GitHub issues; 7 areas of scope still blocked (section 4)
+- **Result**: 1 epic + 62 leaf issues drafted, all filed as live GitHub issues; 6 areas of scope still blocked (section 4)
 
 ---
 
@@ -36,7 +36,7 @@ Each `PQ-*` names the source identifiers it derives from and the scope it blocks
 - **PQ-14 — Consultant capabilities. RESOLVED** (`REQUIREMENTS.md` OQ-12, 2026-08-01). Views of the engaged subscriber's plans, copies, and logs, plus edits of that subscriber's plan copies — nothing else, all audited (FR-11.6). No log writes, no messaging. Threat TM-E-3 is MITIGATED BY RULE. REQ-CONSULT-010 keeps delivering *who*; FR-11.6 awaits its own draft for *what*.
 - **PQ-15 — Consultant onboarding, vetting, and the paid option. RESOLVED** (`REQUIREMENTS.md` OQ-13, `SECURITY.md` SQ-12, 2026-08-01). Consultants are vetted out of band by the operator with the vetting record required on every invitation (FR-2.16); privileged accounts are deprovisioned by an audited admin action with the two-admin floor (FR-2.17, SEC-AUTHN-13); the paid option and engagement creation were already settled (PQ-4, FR-11.5). FR-11.1, FR-2.16, and FR-2.17 await issue drafts.
 - **PQ-16 — Export and deletion mechanics.** `REQUIREMENTS.md` FR-9.4 (deadline `TO BE DECIDED`); `SECURITY.md` SQ-5, SEC-DATA-4, SEC-DATA-6; `ARCHITECTURE.md` (synchronous versus deferred, TO BE DECIDED). Hard delete versus de-identification, backup and replica treatment, export format and artifact handling. Blocks: FR-9.3, FR-9.4. Threats TM-I-6, TM-I-7, TM-P-1 CONDITIONAL.
-- **PQ-17 — Abuse-prevention thresholds.** `SECURITY.md` SQ-3, SEC-AUTHN-6, SEC-HTTP-5. Rate limits, exponential-backoff thresholds and delays (fixed lockout is ruled out by SEC-AUTHN-6), anti-automation. Blocks: SEC-AUTHN-6 thresholds (the mechanism is delivered by REQ-AUTH-060), SEC-HTTP-5, and all alerting fields across every issue. Threat TM-D-1 CONDITIONAL; TM-S-1 and TM-D-2 are MITIGATED BY RULE, thresholds still SQ-3.
+- **PQ-17 — Abuse-prevention thresholds. RESOLVED** (`SECURITY.md` SQ-3, 2026-08-01). The standard parameter set is recorded as named constants in SEC-AUTHN-6/-8/-11, SEC-SESSION-3/-5, SEC-HTTP-1/-5, and SEC-AI-2: sessions 24 h/2 h (subscriber) and 12 h/30 min (privileged) with `SameSite=Lax`; reset tokens 30 min, invitations 72 h, 10 recovery codes; backoff 3-failures/1 s-doubling/15-min cap; auth 10/min, API 120/min, AI 50/day, export 1/day, bodies 1 MB/10 MB. Threats TM-S-1, TM-S-5, TM-D-1 all MITIGATED BY RULE. Alerting destinations and process remain with SQ-11.
 - **PQ-18 — ABAC attribute schema, policy language, and PDP/PEP architecture.** `SECURITY.md` SQ-4, SEC-AUTHZ-5, SEC-AUTHZ-6, SEC-AUTHZ-7. How capabilities map onto the three fixed roles is undefined. Blocks: the central policy engine. The concrete authorization rules (REQ-AUTHZ-010 … 040, REQ-CONSULT-010) are determined independently and are covered.
 - **PQ-19 — CI/CD platform, secret store, AWS topology. PARTIALLY RESOLVED.** The platform is GitHub Actions with OIDC federation to AWS IAM roles, which settles SEC-CICD-1's credential model. `SECURITY.md` SQ-7, SEC-CICD-3, SEC-CICD-4, SEC-SECRET-2, SEC-SESSION-7 remain open. Still blocks: the pipeline security gate set, IaC baseline, secret management, encryption-at-rest configuration, network tiering, and egress restriction. Threat TM-T-6 remains CONDITIONAL.
 - **PQ-20 — Audit and log retention, access control, and tamper-evidence.** `SECURITY.md` SQ-8, SQ-13, SEC-LOG-5, SEC-LOG-7, SEC-OPS-1. Blocks: retention policy, tamper-evident audit storage, the operational break-glass model. Threats TM-R-2, TM-I-8, TM-P-4 open.
@@ -153,7 +153,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | SEC-AUTHN-3 | REQ-AUTH-040 | COVERED |
 | SEC-AUTHN-4 | REQ-AUTH-120, REQ-AUTH-100 | COVERED |
 | SEC-AUTHN-5 | REQ-AUTH-070 | COVERED |
-| SEC-AUTHN-6 | REQ-AUTH-060, REQ-AUTH-080 | PARTIALLY COVERED — mechanism covered; thresholds still PQ-17 |
+| SEC-AUTHN-6 | REQ-AUTH-060, REQ-AUTH-080 | COVERED — mechanism drafted; thresholds fixed (PQ-17 RESOLVED) |
 | SEC-AUTHN-7 | REQ-AUTH-030, REQ-AUTH-050, REQ-AUTH-110, REQ-AUTH-150 | COVERED |
 | SEC-AUTHN-10, -11, -12 | REQ-AUTH-130, REQ-AUTH-110, REQ-AUTH-120, REQ-AUTH-150, REQ-SESSION-040 | COVERED |
 | SEC-AUTHN-8 | REQ-AUTH-090 | COVERED |
@@ -170,7 +170,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | SEC-HTTP-1, -2 | REQ-PLATFORM-040 | PARTIALLY COVERED — CSP directives open (PQ-24) |
 | SEC-HTTP-3 | — | BLOCKED — PQ-23 |
 | SEC-HTTP-4 | REQ-SESSION-050 | COVERED |
-| SEC-HTTP-5 | — | BLOCKED — PQ-17 |
+| SEC-HTTP-5 | — | UNBLOCKED — AWAITING DRAFT (PQ-17 RESOLVED) |
 | SEC-HTTP-6 | REQ-API-040 | COVERED |
 | SEC-INPUT-1, -3, -6 | REQ-API-010, REQ-API-020 | COVERED |
 | SEC-INPUT-2 | REQ-PROGRESS-030 | COVERED |
@@ -201,7 +201,6 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | Scope | Requirements | Blocked by |
 |---|---|---|
 | Signing key storage and rotation | SEC-SESSION-7 | PQ-19 |
-| Anti-automation thresholds and rate limiting (mechanism delivered by REQ-AUTH-060) | SEC-AUTHN-6 (thresholds), SEC-HTTP-5 | PQ-17 |
 | Data export | FR-9.3 | PQ-16 |
 | Account deletion | FR-9.4 | PQ-16 |
 | Encryption at rest and backup handling | SEC-DATA-1 | PQ-19 |
@@ -454,6 +453,6 @@ After creation, every `{{ISSUE_URL:<ID>}}` placeholder in `000-REQ-EPIC-001.md` 
 
 - **`OWASP ASVS 5.0.0` and `NIST SP 800-53 Rev. 5` mappings are `TO BE DECIDED` in every issue.** `REQUIREMENT_TEMPLATE.md` states that only mappings verified against the cited version may be included and that control identifiers must not be guessed. Neither catalog was retrieved in this session, and `SECURITY.md` SQ-10 leaves both the ASVS target and its verifier open. CWE identifiers and the `SECURITY.md` threat-model identifiers are cited where confident.
 - **`Regulatory` fields are `TO BE DECIDED` wherever health data is involved**, because PQ-21 records the jurisdiction question as unresolved by the specification itself.
-- **`Alerting` fields are `TO BE DECIDED` throughout.** No source document defines an alerting model, and PQ-17 blocks the thresholds any alert would need.
+- **`Alerting` fields are `TO BE DECIDED` throughout.** No source document defines an alerting model; the thresholds themselves are now fixed (PQ-17 RESOLVED), but destinations and process sit with `SECURITY.md` SQ-11.
 - **No issue resolves an open question.** Where an issue had to proceed alongside one — REQ-PROGRESS-020 logging against an accessible plan while PQ-12 is open, REQ-PLAN-030 leaving verification untouched on edit while PQ-13 is open — the position is labelled provisional in that issue's Open Decisions and named here.
 - **No specification file was modified.**
