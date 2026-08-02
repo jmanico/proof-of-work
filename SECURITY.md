@@ -113,7 +113,7 @@ Public references selected as authoritative defaults for the identified stack. T
 | TM-E-1 | Privilege escalation via role change or account-provisioning flows | E | Identity; REST API | H | SEC-INPUT-3, SEC-AUTHN-9 | MITIGATED BY RULE — role is fixed by invitation and never settable from a request body |
 | TM-E-2 | Authorization policy gap or fail-open evaluation grants unintended access | E | REST API | H | SEC-AUTHZ-5, SEC-AUTHZ-6, SEC-AUTHZ-7 | MITIGATED BY RULE — policy design still open (SQ-4) |
 | TM-E-3 | Consultant capability creep: capabilities undefined, so scope of consultant write access cannot be bounded | E | REST API | M | SEC-AUTHZ-3 bounds *who*, not *what* | CONDITIONAL — REQUIREMENTS OQ-12 |
-| TM-E-4 | Subscription entitlement bypass: whatever mechanism flips a subscription "active" is an unguarded target while undefined | E | REST API | M | SEC-AUTHZ-8 | CONDITIONAL — REQUIREMENTS OQ-1 |
+| TM-E-4 | Subscription entitlement bypass via the activation mechanism | E | REST API | M | SEC-AUTHZ-8, SEC-INPUT-3; FR-3.5, FR-3.6 | MITIGATED BY RULE — activation is admin-only, audited, and never client-assignable (OQ-1 RESOLVED) |
 | TM-P-1 | Identifiability: health data is linked to real identity by design; deletion may not de-identify backups and derived copies | L/I (LINDDUN) | Persistence | H | SEC-DATA-4 | CONDITIONAL — SQ-5 |
 | TM-P-2 | Unawareness: consent is captured (FR-9.2) but no path existed to withdraw it short of account deletion | U (LINDDUN) | REST API | M | None previously | GAP → REQUIREMENTS FR-9.9 |
 | TM-P-3 | Non-compliance: no incident-response or breach-notification process defined (governing regimes resolved by SQ-1) | Nc (LINDDUN) | System-wide | H | — | CONDITIONAL — SQ-11 (regimes resolved, SQ-1) |
@@ -482,7 +482,7 @@ Applies because JWTs are explicitly selected in the security notes.
 | SEC-AUTHZ-4 | FR-4.2, FR-4.3, FR-10.1 | REST API Application | CONFIRMED |
 | SEC-AUTHZ-5 | FR-9.1, FR-10.1 | REST API Application | CONFIRMED — enforcement point is Fastify lifecycle hooks (CLAUDE.md, Repository state); policy design still open (SQ-4) |
 | SEC-AUTHZ-6, SEC-AUTHZ-7 | FR-9.1, FR-11.2 | REST API Application | PROVISIONAL — attribute schema and policy language undecided |
-| SEC-AUTHZ-8 | FR-3.1, FR-3.2, FR-3.4 | REST API Application | PARTIALLY DEFINED — subscription activation unspecified (REQUIREMENTS.md OQ-1) |
+| SEC-AUTHZ-8 | FR-3.1, FR-3.2, FR-3.4, FR-3.5, FR-3.6 | REST API Application | CONFIRMED — activation by admin-granted periods, audited (REQUIREMENTS.md OQ-1 RESOLVED) |
 | SEC-HTTP-1 | FR-1.1, FR-9.8 | Public browser-facing boundary | CONFIRMED |
 | SEC-HTTP-2 | FR-1.1, FR-1.2 | Browser Client; REST API Application | PROVISIONAL — CSP directives undecided |
 | SEC-HTTP-3 | — | Public browser-facing boundary | TO BE DECIDED — no cross-origin consumer documented |
