@@ -35,7 +35,7 @@ All business rules are enforced server-side. The client renders and validates fo
   - **Inputs:** Authenticated REST requests from the Browser Client; persisted state.
   - **Outputs:** REST responses; validation and authorization errors carrying the specific failing field or reason so the client can present them per DESIGN.md; persistence reads and writes; audit entries.
   - **Data owned or accessed:** Owns user account, subscription, consultant engagement, exercise plan, diet plan, plan citations and verification records, user plan copy, workout log entry, food log entry, body weight entry, body measurement entry, consent record, and audit entry. Accesses all of them through Relational Persistence.
-  - **Open decisions:** Internal module decomposition within the application (plan library, customization, progress logging, entitlement, privacy/data-rights, audit are distinct responsibilities but not necessarily separate deployables) — TO BE DECIDED. Whether data export (FR-9.3) and account deletion (FR-9.4) execute synchronously or as deferred work, which determines whether a background-processing boundary is needed at all — TO BE DECIDED. How subscription state becomes "active" given no payments integration is in scope (REQUIREMENTS.md OQ-1, OQ-13) — UNKNOWN. Source of nutrition data for food logging (REQUIREMENTS.md OQ-5) — UNKNOWN. Consultant capabilities beyond access scoping (REQUIREMENTS.md OQ-12) — UNKNOWN. Whether admin verification re-triggers on plan edit (REQUIREMENTS.md OQ-10) — TO BE DECIDED.
+  - **Open decisions:** Internal module decomposition within the application (plan library, customization, progress logging, entitlement, privacy/data-rights, audit are distinct responsibilities but not necessarily separate deployables) — TO BE DECIDED. Whether data export (FR-9.3) and account deletion (FR-9.4) execute synchronously or as deferred work, which determines whether a background-processing boundary is needed at all — TO BE DECIDED. Subscription activation is resolved: admin-granted periods, audited (REQUIREMENTS.md OQ-1 RESOLVED; FR-3.5, FR-3.6), with the paid consultant option recorded the same way (FR-11.5) and self-serve payments deferred (OQ-18). Source of nutrition data for food logging (REQUIREMENTS.md OQ-5) — UNKNOWN. Consultant capabilities beyond access scoping (REQUIREMENTS.md OQ-12) — UNKNOWN. Whether admin verification re-triggers on plan edit (REQUIREMENTS.md OQ-10) — TO BE DECIDED.
 
 - **Identity and Session Handling**
   - **Responsibility:** Server-side registration, credential verification, MFA challenge for subscribers who enable it, passkey registration and verification for admin and consultant accounts, session establishment and termination, and role resolution supplied to the REST API Application for every request. Rejects invalid credentials without revealing which factor failed (FR-2.3).
@@ -71,7 +71,7 @@ All business rules are enforced server-side. The client renders and validates fo
 |---|---|---|
 | FR-1.1, FR-1.2 (Delivery Channel) | Browser Client | SUPPORTED |
 | FR-2.1–FR-2.15 (Accounts and Authentication) | Identity and Session Handling; REST API Application (FR-2.1 enforcement, FR-2.7 role assignment) | SUPPORTED |
-| FR-3.1–FR-3.3 (Subscription entitlement) | REST API Application | PARTIALLY DEFINED — entitlement is enforced, but how a subscription becomes active is unspecified (REQUIREMENTS.md OQ-1) |
+| FR-3.1–FR-3.3, FR-3.5, FR-3.6 (Subscription entitlement and administration) | REST API Application | SUPPORTED — activation by admin-granted periods (REQUIREMENTS.md OQ-1 RESOLVED) |
 | FR-3.4 (Retention across lapse) | REST API Application; Relational Persistence | SUPPORTED |
 | FR-4.1–FR-4.7 (Plan Library and Content Verification) | REST API Application; Relational Persistence; Browser Client (FR-4.6 display) | SUPPORTED |
 | FR-5.1, FR-5.2 (Exercise Plans) | REST API Application; Browser Client | SUPPORTED |
@@ -87,7 +87,7 @@ All business rules are enforced server-side. The client renders and validates fo
 | FR-9.9 (Consent withdrawal) | REST API Application | SUPPORTED |
 | FR-10.1 (Administration) | REST API Application | SUPPORTED |
 | FR-10.2 (Admin plan-action audit) | REST API Application; Relational Persistence | SUPPORTED |
-| FR-11.1 (Paid consultant option) | REST API Application | PARTIALLY DEFINED — the paid-option mechanism shares the unresolved payments gap (REQUIREMENTS.md OQ-13) |
+| FR-11.1, FR-11.5 (Paid consultant option) | REST API Application | SUPPORTED — engagement recorded by admin action (FR-11.5); consultant onboarding and vetting remain open (REQUIREMENTS.md OQ-13) |
 | FR-11.2–FR-11.4 (Consultant scoping and audit) | REST API Application | SUPPORTED |
 
 No functional requirement is currently without an assigned responsibility.
