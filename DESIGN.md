@@ -109,7 +109,7 @@ Type scale (1.25 ratio, 16px base):
 - **OQ-1** What is the product name? Without it there is no wordmark, no lockup, and no favicon/app-icon strategy — the mark is abstract by necessity.
 - **OQ-2** What is the intended brand personality (clinical and precise vs. encouraging and motivational)? This drives tone, color warmth, imagery policy, and typographic direction, none of which the requirements determine.
 - **OQ-3** Is dark mode in scope? It affects palette structure, the logo's dark-background variant, and surface elevation conventions.
-- **OQ-4** How should progress data be visualized — charts, tables, or both? REQUIREMENTS.md OQ-7 leaves this open, and it is the largest unspecified area of the interface.
+- **OQ-4** RESOLVED (2026-08-01). Both: trend charts paired with accessible data tables (REQUIREMENTS.md FR-8.14, OQ-7 RESOLVED). Ranges: 4 weeks, 3 months, 1 year, all time. Charts follow this document's existing rules — color never sole carrier of meaning, the paired table is the text alternative, reduced motion honored, tabular figures for the numbers.
 - **OQ-5** How are plan citations and admin verification surfaced in the UI (inline links, a sources panel, a verification badge)? The requirement to display them is firm (FR-4.5, FR-4.6); the presentation is not.
 - **OQ-6** How is the medical disclaimer presented and acknowledged (interstitial, checkbox, persistent banner)? FR-9.6 requires acknowledgement before first plan use but does not specify the form.
 - **OQ-7** Do consultants and admins get a distinct visual treatment or a separate interface region, and how does a subscriber see that a consultant has access to their data?

@@ -4,7 +4,7 @@
 - **Execution mode**: originally `DRAFT_ONLY`; the epic was subsequently filed as GitHub issue #8 and all 62 leaves as issues #9–#56, #60, and #66–#78, each linked as a sub-issue of the epic
 - **Sources**: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, `DESIGN.md`, `REQUIREMENT_TEMPLATE.md`; `CLAUDE.md` followed as agent instruction, not as product specification
 - **Produced**: 2026-07-31
-- **Result**: 1 epic + 62 leaf issues drafted, all filed as live GitHub issues; 11 areas of scope still blocked (section 4)
+- **Result**: 1 epic + 62 leaf issues drafted, all filed as live GitHub issues; 10 areas of scope still blocked (section 4)
 
 ---
 
@@ -30,7 +30,7 @@ Each `PQ-*` names the source identifiers it derives from and the scope it blocks
 - **PQ-8 — Password hashing. RESOLVED.** Argon2id with a per-credential salt from a cryptographically secure generator; bcrypt and non-memory-hard functions are prohibited outright. Parameters must be named constants with a documented tuning basis; concrete values await production instance sizing (SQ-7). Credential storage is unblocked.
 - **PQ-9 — Body measurement fields and unit system. RESOLVED** (`REQUIREMENTS.md` OQ-4, 2026-08-01; `DESIGN.md` OQ-8 unit half). Fields: waist, chest, hips, upper arm, thigh, body-fat % (FR-8.2). Per-account metric/imperial preference covering measurements, weight, and workout load, with every record storing value plus unit and display-only conversion (FR-8.10) — REQ-PROGRESS-010/020's explicit-unit storage is confirmed as the permanent design, now anchored to the account preference. FR-8.2 and FR-8.10 await issue drafts; localization/RTL remain with `DESIGN.md` OQ-8.
 - **PQ-10 — Nutrition data source. RESOLVED** (`REQUIREMENTS.md` OQ-5, 2026-08-01). A bundled nutrition dataset imported at build time (initially USDA FoodData Central; FR-8.11) plus in-boundary AI estimation from a description or transient photo, confirmed by the subscriber before saving (FR-8.12, FR-8.13; SEC-AI-1–SEC-AI-3; ARCHITECTURE.md component 5 and trust boundary 6). FR-8.4, FR-8.5, and FR-8.11–FR-8.13 are unblocked and await issue drafts; model-service selection sits with PQ-19/SQ-7.
-- **PQ-11 — Progress history period, granularity, and visualization.** `REQUIREMENTS.md` OQ-7; `DESIGN.md` OQ-4; `ARCHITECTURE.md` Browser Client open decision. Blocks: FR-8.6.
+- **PQ-11 — Progress history period, granularity, and visualization. RESOLVED** (`REQUIREMENTS.md` OQ-7, `DESIGN.md` OQ-4, 2026-08-01). Entry-level history for the account's lifetime; trend charts over 4-week/3-month/1-year/all-time ranges for weight, each measurement field, and per-exercise load, each paired with an accessible data table (FR-8.14). FR-8.6 and FR-8.14 are unblocked and await issue drafts.
 - **PQ-12 — One or many active plans. RESOLVED** (`REQUIREMENTS.md` OQ-6, 2026-08-01). One active plan of each type (FR-5.3, FR-6.4): a selection names a published plan or the subscriber's own copy, replacement never alters logged history, and FR-8.5 reads the currently selected diet plan. FR-5.2, FR-6.3, FR-5.3, and FR-6.4 are unblocked and await issue drafts; the FR-9.6 trigger set is complete (first use includes first selection). REQ-PROGRESS-020's provisional position stands: log entries reference any plan or copy the subscriber can access, so backdated entries survive plan switches.
 - **PQ-13 — Plan verification workflow.** `REQUIREMENTS.md` OQ-10 (re-verification after edit), OQ-16 (dual control); `SECURITY.md` threat TM-T-5. Blocks: the FR-4.5 verification *operation*. The verification *record* and the publication gate that reads it are covered by REQ-PLAN-050.
 - **PQ-14 — Consultant capabilities.** `REQUIREMENTS.md` OQ-12; `SECURITY.md` threat TM-E-3, SQ-4. What a consultant may do within an engagement is undefined. Bounds REQ-CONSULT-010, which delivers *who* not *what*.
@@ -113,7 +113,8 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | FR-8.3 | REQ-PROGRESS-020 | REST API; Persistence | SEC-DATA-2, SEC-AUTHZ-2, SEC-LOG-1 | Components → Inputs; Typography | COVERED |
 | FR-8.4 | — | REST API; AI Inference | SEC-DATA-2, SEC-AUTHZ-2, SEC-LOG-1 | Components → Inputs | UNBLOCKED — AWAITING DRAFT (PQ-10 RESOLVED) |
 | FR-8.5 | — | REST API; Browser Client | SEC-DATA-5 | Typography | UNBLOCKED — AWAITING DRAFT (PQ-10 RESOLVED) |
-| FR-8.6 | — | REST API; Browser Client | SEC-DATA-5 | — | BLOCKED — PQ-11 |
+| FR-8.6 | — | REST API; Browser Client | SEC-DATA-5 | — | UNBLOCKED — AWAITING DRAFT (PQ-11 RESOLVED) |
+| FR-8.14 | — | REST API; Browser Client | SEC-DATA-5, SEC-AUTHZ-2 | Accessibility; Typography | UNBLOCKED — AWAITING DRAFT (PQ-11 RESOLVED) |
 | FR-8.7 | REQ-PROGRESS-010, REQ-PROGRESS-020 | REST API | SEC-AUTHZ-2, SEC-LOG-1 | Components → Buttons | PARTIALLY COVERED — covered for weight and workouts; measurement and food entries unblocked awaiting drafts (PQ-9, PQ-10 RESOLVED) |
 | FR-8.8 | REQ-PROGRESS-010, REQ-PROGRESS-020 | REST API | SEC-INPUT-1 | — | PARTIALLY COVERED — same limitation as FR-8.7 |
 | FR-8.9 | REQ-PROGRESS-030 | Boundary 1; REST API | SEC-INPUT-2, SEC-ERR-1 | Components → Form feedback | COVERED |
@@ -134,7 +135,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | FR-11.3 | REQ-CONSULT-020 | REST API; Identity | SEC-AUTHZ-3, SEC-SESSION-4 | Components → Buttons | COVERED |
 | FR-11.4 | REQ-CONSULT-010, REQ-AUDIT-020 | REST API | SEC-LOG-1 | — | COVERED |
 
-**Totals** — 71 functional requirements: 41 `COVERED`, 8 `PARTIALLY COVERED`, 18 `UNBLOCKED — AWAITING DRAFT` (FR-3.1–FR-3.6, FR-5.2, FR-5.3, FR-6.3, FR-6.4, FR-8.2, FR-8.4, FR-8.5, FR-8.10–FR-8.13, FR-11.5), 4 `BLOCKED` (FR-8.6, FR-9.3, FR-9.4, FR-11.1), 0 `OUT OF SCOPE`, 0 untracked. Counts re-tallied from the matrix rows on 2026-08-01 — the earlier 46/6 split did not match the rows. The whole authentication surface is drafted; subscription entitlement, plan selection, measurements, and food logging are unblocked (PQ-4, PQ-9, PQ-10, PQ-12 RESOLVED, awaiting drafts); the remaining blocked scope is progress history, export and deletion, and offering the consultant option. Every requirement traces to an issue or to a named blocking question.
+**Totals** — 72 functional requirements: 41 `COVERED`, 8 `PARTIALLY COVERED`, 20 `UNBLOCKED — AWAITING DRAFT` (FR-3.1–FR-3.6, FR-5.2, FR-5.3, FR-6.3, FR-6.4, FR-8.2, FR-8.4–FR-8.6, FR-8.10–FR-8.14, FR-11.5), 3 `BLOCKED` (FR-9.3, FR-9.4, FR-11.1), 0 `OUT OF SCOPE`, 0 untracked. Counts re-tallied from the matrix rows on 2026-08-01 — the earlier 46/6 split did not match the rows. The whole authentication surface is drafted; subscription entitlement, plan selection, measurements, food logging, and progress history are unblocked (PQ-4, PQ-9, PQ-10, PQ-11, PQ-12 RESOLVED, awaiting drafts); the remaining blocked scope is export and deletion and offering the consultant option. Every requirement traces to an issue or to a named blocking question.
 
 ## 3. Coverage matrix — security rules
 
@@ -198,7 +199,6 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | Signing key storage and rotation | SEC-SESSION-7 | PQ-19 |
 | Anti-automation thresholds and rate limiting (mechanism delivered by REQ-AUTH-060) | SEC-AUTHN-6 (thresholds), SEC-HTTP-5 | PQ-17 |
 | Plan verification operation | FR-4.5 (workflow) | PQ-13 |
-| Progress history retrieval and visualization | FR-8.6 | PQ-11 |
 | Data export | FR-9.3 | PQ-16 |
 | Account deletion | FR-9.4 | PQ-16 |
 | Encryption at rest and backup handling | SEC-DATA-1 | PQ-19 |
