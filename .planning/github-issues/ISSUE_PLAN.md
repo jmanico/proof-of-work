@@ -4,7 +4,7 @@
 - **Execution mode**: originally `DRAFT_ONLY`; the epic was subsequently filed as GitHub issue #8 and all 62 leaves as issues #9–#56, #60, and #66–#78, each linked as a sub-issue of the epic
 - **Sources**: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, `DESIGN.md`, `REQUIREMENT_TEMPLATE.md`; `CLAUDE.md` followed as agent instruction, not as product specification
 - **Produced**: 2026-07-31
-- **Result**: 1 epic + 62 leaf issues drafted, all filed as live GitHub issues; 9 areas of scope still blocked (section 4)
+- **Result**: 1 epic + 62 leaf issues drafted, all filed as live GitHub issues; 8 areas of scope still blocked (section 4)
 
 ---
 
@@ -33,7 +33,7 @@ Each `PQ-*` names the source identifiers it derives from and the scope it blocks
 - **PQ-11 — Progress history period, granularity, and visualization. RESOLVED** (`REQUIREMENTS.md` OQ-7, `DESIGN.md` OQ-4, 2026-08-01). Entry-level history for the account's lifetime; trend charts over 4-week/3-month/1-year/all-time ranges for weight, each measurement field, and per-exercise load, each paired with an accessible data table (FR-8.14). FR-8.6 and FR-8.14 are unblocked and await issue drafts.
 - **PQ-12 — One or many active plans. RESOLVED** (`REQUIREMENTS.md` OQ-6, 2026-08-01). One active plan of each type (FR-5.3, FR-6.4): a selection names a published plan or the subscriber's own copy, replacement never alters logged history, and FR-8.5 reads the currently selected diet plan. FR-5.2, FR-6.3, FR-5.3, and FR-6.4 are unblocked and await issue drafts; the FR-9.6 trigger set is complete (first use includes first selection). REQ-PROGRESS-020's provisional position stands: log entries reference any plan or copy the subscriber can access, so backdated entries survive plan switches.
 - **PQ-13 — Plan verification workflow. RESOLVED** (`REQUIREMENTS.md` OQ-10 and OQ-16, 2026-08-01). One-time single-admin verification before first publication; the author may verify; edits never re-trigger verification but may not leave a published plan citation-less (FR-4.8). Threat TM-T-5 is RISK ACCEPTED with named compensating controls. The verification *operation* is unblocked and awaits an issue draft; the record and publication gate remain covered by REQ-PLAN-050.
-- **PQ-14 — Consultant capabilities.** `REQUIREMENTS.md` OQ-12; `SECURITY.md` threat TM-E-3, SQ-4. What a consultant may do within an engagement is undefined. Bounds REQ-CONSULT-010, which delivers *who* not *what*.
+- **PQ-14 — Consultant capabilities. RESOLVED** (`REQUIREMENTS.md` OQ-12, 2026-08-01). Views of the engaged subscriber's plans, copies, and logs, plus edits of that subscriber's plan copies — nothing else, all audited (FR-11.6). No log writes, no messaging. Threat TM-E-3 is MITIGATED BY RULE. REQ-CONSULT-010 keeps delivering *who*; FR-11.6 awaits its own draft for *what*.
 - **PQ-15 — Consultant onboarding, vetting, and the paid option.** `REQUIREMENTS.md` OQ-13 (PARTIALLY RESOLVED); `SECURITY.md` SQ-12. Blocks: offering FR-11.1 operationally (onboarding and vetting). The engagement record and its admin-creation mechanism are resolved (PQ-4, FR-11.5).
 - **PQ-16 — Export and deletion mechanics.** `REQUIREMENTS.md` FR-9.4 (deadline `TO BE DECIDED`); `SECURITY.md` SQ-5, SEC-DATA-4, SEC-DATA-6; `ARCHITECTURE.md` (synchronous versus deferred, TO BE DECIDED). Hard delete versus de-identification, backup and replica treatment, export format and artifact handling. Blocks: FR-9.3, FR-9.4. Threats TM-I-6, TM-I-7, TM-P-1 CONDITIONAL.
 - **PQ-17 — Abuse-prevention thresholds.** `SECURITY.md` SQ-3, SEC-AUTHN-6, SEC-HTTP-5. Rate limits, exponential-backoff thresholds and delays (fixed lockout is ruled out by SEC-AUTHN-6), anti-automation. Blocks: SEC-AUTHN-6 thresholds (the mechanism is delivered by REQ-AUTH-060), SEC-HTTP-5, and all alerting fields across every issue. Threat TM-D-1 CONDITIONAL; TM-S-1 and TM-D-2 are MITIGATED BY RULE, thresholds still SQ-3.
@@ -132,11 +132,12 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | FR-10.2 | REQ-AUDIT-030 | REST API; Persistence | SEC-LOG-6, SEC-LOG-2 | — | COVERED |
 | FR-11.1 | — | REST API | — | — | BLOCKED — PQ-15 (purchase half resolved by PQ-4; FR-11.5) |
 | FR-11.5 | — | REST API; Persistence | SEC-AUTHZ-3, SEC-INPUT-3 | — | UNBLOCKED — AWAITING DRAFT (PQ-4 RESOLVED) |
-| FR-11.2 | REQ-CONSULT-010 | REST API | SEC-AUTHZ-3 | — | PARTIALLY COVERED — access bounded; capabilities open (PQ-14) |
+| FR-11.2 | REQ-CONSULT-010 | REST API | SEC-AUTHZ-3 | — | COVERED — access bounded; capabilities fixed by FR-11.6 (PQ-14 RESOLVED) |
+| FR-11.6 | — | REST API | SEC-AUTHZ-3, SEC-AUTHZ-2, SEC-LOG-1 | — | UNBLOCKED — AWAITING DRAFT (PQ-14 RESOLVED) |
 | FR-11.3 | REQ-CONSULT-020 | REST API; Identity | SEC-AUTHZ-3, SEC-SESSION-4 | Components → Buttons | COVERED |
 | FR-11.4 | REQ-CONSULT-010, REQ-AUDIT-020 | REST API | SEC-LOG-1 | — | COVERED |
 
-**Totals** — 73 functional requirements: 41 `COVERED`, 8 `PARTIALLY COVERED`, 21 `UNBLOCKED — AWAITING DRAFT` (FR-3.1–FR-3.6, FR-4.8, FR-5.2, FR-5.3, FR-6.3, FR-6.4, FR-8.2, FR-8.4–FR-8.6, FR-8.10–FR-8.14, FR-11.5), 3 `BLOCKED` (FR-9.3, FR-9.4, FR-11.1), 0 `OUT OF SCOPE`, 0 untracked. Counts re-tallied from the matrix rows on 2026-08-01 — the earlier 46/6 split did not match the rows. The whole authentication surface is drafted; subscription entitlement, plan selection, measurements, food logging, and progress history are unblocked (PQ-4, PQ-9, PQ-10, PQ-11, PQ-12 RESOLVED, awaiting drafts); the remaining blocked scope is export and deletion and offering the consultant option. Every requirement traces to an issue or to a named blocking question.
+**Totals** — 74 functional requirements: 42 `COVERED`, 7 `PARTIALLY COVERED`, 22 `UNBLOCKED — AWAITING DRAFT` (FR-3.1–FR-3.6, FR-4.8, FR-5.2, FR-5.3, FR-6.3, FR-6.4, FR-8.2, FR-8.4–FR-8.6, FR-8.10–FR-8.14, FR-11.5, FR-11.6), 3 `BLOCKED` (FR-9.3, FR-9.4, FR-11.1), 0 `OUT OF SCOPE`, 0 untracked. Counts re-tallied from the matrix rows on 2026-08-01 — the earlier 46/6 split did not match the rows. The whole authentication surface is drafted; subscription entitlement, plan selection, measurements, food logging, and progress history are unblocked (PQ-4, PQ-9, PQ-10, PQ-11, PQ-12 RESOLVED, awaiting drafts); the remaining blocked scope is export and deletion and offering the consultant option. Every requirement traces to an issue or to a named blocking question.
 
 ## 3. Coverage matrix — security rules
 
@@ -203,7 +204,6 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | Account deletion | FR-9.4 | PQ-16 |
 | Encryption at rest and backup handling | SEC-DATA-1 | PQ-19 |
 | Consultant onboarding, vetting, and offering the paid option | FR-11.1 | PQ-15 (purchase half resolved by PQ-4) |
-| Consultant capabilities beyond read scope | OQ-12 | PQ-14 |
 | CI security gates, Terraform baseline, secret management, network tiering | SEC-CICD-1, -3, -4; SEC-SECRET-2, -3; SEC-TB-2 | PQ-19 |
 | Audit retention, tamper-evidence, operational break-glass | SEC-LOG-5, -7; SEC-OPS-1 | PQ-20 |
 
