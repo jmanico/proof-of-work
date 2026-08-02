@@ -4,7 +4,7 @@
 - **Execution mode**: originally `DRAFT_ONLY`; the epic was subsequently filed as GitHub issue #8 and all 62 leaves as issues #9–#56, #60, and #66–#78, each linked as a sub-issue of the epic
 - **Sources**: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, `DESIGN.md`, `REQUIREMENT_TEMPLATE.md`; `CLAUDE.md` followed as agent instruction, not as product specification
 - **Produced**: 2026-07-31
-- **Result**: 1 epic + 62 leaf issues drafted, all filed as live GitHub issues; 4 areas of scope still blocked (section 4), all infrastructure-level (PQ-19, PQ-20)
+- **Result**: 1 epic + 62 leaf issues drafted, all filed as live GitHub issues; 1 area of scope still blocked (section 4): audit retention, tamper-evidence, and break-glass (PQ-20)
 
 ---
 
@@ -29,7 +29,7 @@ Each `PQ-*` names the source identifiers it derives from and the scope it blocks
 - **PQ-7 — Email verification flow. RESOLVED.** An account may be created and may authenticate before verification, but every health-data write is refused until control is proven, and the address cannot be relied on for recovery until then. Single-use short-lived token, invalidated on use or replacement, rate-limited resend, no enumeration in the response. Recorded as `REQUIREMENTS.md` FR-2.11 and `SECURITY.md` SEC-AUTHN-8; threat TM-S-3 is closed. Concrete lifetime and resend interval sit with SQ-3.
 - **PQ-8 — Password hashing. RESOLVED.** Argon2id with a per-credential salt from a cryptographically secure generator; bcrypt and non-memory-hard functions are prohibited outright. Parameters must be named constants with a documented tuning basis; concrete values await production instance sizing (SQ-7). Credential storage is unblocked.
 - **PQ-9 — Body measurement fields and unit system. RESOLVED** (`REQUIREMENTS.md` OQ-4, 2026-08-01; `DESIGN.md` OQ-8 unit half). Fields: waist, chest, hips, upper arm, thigh, body-fat % (FR-8.2). Per-account metric/imperial preference covering measurements, weight, and workout load, with every record storing value plus unit and display-only conversion (FR-8.10) — REQ-PROGRESS-010/020's explicit-unit storage is confirmed as the permanent design, now anchored to the account preference. FR-8.2 and FR-8.10 await issue drafts; localization/RTL remain with `DESIGN.md` OQ-8.
-- **PQ-10 — Nutrition data source. RESOLVED** (`REQUIREMENTS.md` OQ-5, 2026-08-01). A bundled nutrition dataset imported at build time (initially USDA FoodData Central; FR-8.11) plus in-boundary AI estimation from a description or transient photo, confirmed by the subscriber before saving (FR-8.12, FR-8.13; SEC-AI-1–SEC-AI-3; ARCHITECTURE.md component 5 and trust boundary 6). FR-8.4, FR-8.5, and FR-8.11–FR-8.13 are unblocked and await issue drafts; model-service selection sits with PQ-19/SQ-7.
+- **PQ-10 — Nutrition data source. RESOLVED** (`REQUIREMENTS.md` OQ-5, 2026-08-01). A bundled nutrition dataset imported at build time (initially USDA FoodData Central; FR-8.11) plus in-boundary AI estimation from a description or transient photo, confirmed by the subscriber before saving (FR-8.12, FR-8.13; SEC-AI-1–SEC-AI-3; ARCHITECTURE.md component 5 and trust boundary 6). FR-8.4, FR-8.5, and FR-8.11–FR-8.13 are unblocked and await issue drafts; the model service is Amazon Bedrock in-account (PQ-19 RESOLVED).
 - **PQ-11 — Progress history period, granularity, and visualization. RESOLVED** (`REQUIREMENTS.md` OQ-7, `DESIGN.md` OQ-4, 2026-08-01). Entry-level history for the account's lifetime; trend charts over 4-week/3-month/1-year/all-time ranges for weight, each measurement field, and per-exercise load, each paired with an accessible data table (FR-8.14). FR-8.6 and FR-8.14 are unblocked and await issue drafts.
 - **PQ-12 — One or many active plans. RESOLVED** (`REQUIREMENTS.md` OQ-6, 2026-08-01). One active plan of each type (FR-5.3, FR-6.4): a selection names a published plan or the subscriber's own copy, replacement never alters logged history, and FR-8.5 reads the currently selected diet plan. FR-5.2, FR-6.3, FR-5.3, and FR-6.4 are unblocked and await issue drafts; the FR-9.6 trigger set is complete (first use includes first selection). REQ-PROGRESS-020's provisional position stands: log entries reference any plan or copy the subscriber can access, so backdated entries survive plan switches.
 - **PQ-13 — Plan verification workflow. RESOLVED** (`REQUIREMENTS.md` OQ-10 and OQ-16, 2026-08-01). One-time single-admin verification before first publication; the author may verify; edits never re-trigger verification but may not leave a published plan citation-less (FR-4.8). Threat TM-T-5 is RISK ACCEPTED with named compensating controls. The verification *operation* is unblocked and awaits an issue draft; the record and publication gate remain covered by REQ-PLAN-050.
@@ -38,7 +38,7 @@ Each `PQ-*` names the source identifiers it derives from and the scope it blocks
 - **PQ-16 — Export and deletion mechanics. RESOLVED** (`SECURITY.md` SQ-5, 2026-08-01). Synchronous JSON export with no stored artifact (SEC-DATA-6 moot); synchronous hard delete with tombstoned audit identifiers (FR-9.10), a 35-day backup horizon with restore re-deletion, and full completion within 35 days (FR-9.4). No background-processing boundary. Threats TM-I-6, TM-I-7, TM-P-1 all MITIGATED BY RULE. FR-9.3, FR-9.4, and FR-9.10 await issue drafts.
 - **PQ-17 — Abuse-prevention thresholds. RESOLVED** (`SECURITY.md` SQ-3, 2026-08-01). The standard parameter set is recorded as named constants in SEC-AUTHN-6/-8/-11, SEC-SESSION-3/-5, SEC-HTTP-1/-5, and SEC-AI-2: sessions 24 h/2 h (subscriber) and 12 h/30 min (privileged) with `SameSite=Lax`; reset tokens 30 min, invitations 72 h, 10 recovery codes; backoff 3-failures/1 s-doubling/15-min cap; auth 10/min, API 120/min, AI 50/day, export 1/day, bodies 1 MB/10 MB. Threats TM-S-1, TM-S-5, TM-D-1 all MITIGATED BY RULE. Alerting destinations and process remain with SQ-11.
 - **PQ-18 — ABAC attribute schema, policy language, and PDP/PEP architecture. RESOLVED** (`SECURITY.md` SQ-4, 2026-08-01). A first-party typed policy module at the single Fastify preHandler enforcement point; deny-overrides with missing-attribute denial; typed attribute schema sourced from Identity and persisted state only; capabilities named per action and mapped from role plus relationship. No policy-language dependency. The central policy module is unblocked and awaits an issue draft; REQ-AUTHZ-010 … 040 and REQ-CONSULT-010 remain covered as drafted.
-- **PQ-19 — CI/CD platform, secret store, AWS topology. PARTIALLY RESOLVED.** The platform is GitHub Actions with OIDC federation to AWS IAM roles, which settles SEC-CICD-1's credential model. `SECURITY.md` SQ-7, SEC-CICD-3, SEC-CICD-4, SEC-SECRET-2, SEC-SESSION-7 remain open. Still blocks: the pipeline security gate set, IaC baseline, secret management, encryption-at-rest configuration, network tiering, and egress restriction. Threat TM-T-6 remains CONDITIONAL.
+- **PQ-19 — CI/CD platform, secret store, AWS topology. RESOLVED** (`SECURITY.md` SQ-7, 2026-08-01). Three AWS accounts (dev/staging/production); ECS Fargate API, S3 + CloudFront client, RDS PostgreSQL Multi-AZ, Bedrock in-account for AI, Secrets Manager for secrets and signing keys (`kid` rotation, 90 days); VPC tiering with restricted NAT egress; GitHub Actions with per-environment OIDC roles, staging auto / production manual; SEC-CICD-4 gate set fixed (lint+typecheck, Vitest, Playwright+axe, osv-scanner, gitleaks, checkov, authorization suite); Argon2id 64 MiB/3/1 on the 1 vCPU/2 GB basis. Threat TM-T-6 MITIGATED BY RULE. Infrastructure scope awaits issue drafts.
 - **PQ-20 — Audit and log retention, access control, and tamper-evidence.** `SECURITY.md` SQ-8, SQ-13, SEC-LOG-5, SEC-LOG-7, SEC-OPS-1. Blocks: retention policy, tamper-evident audit storage, the operational break-glass model. Threats TM-R-2, TM-I-8, TM-P-4 open.
 - **PQ-21 — Governing privacy regime. RESOLVED** (`SECURITY.md` SQ-1, `REQUIREMENTS.md` OQ-3, 2026-08-01). Global service with GDPR as the design ceiling: GDPR/UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws, and the FTC Health Breach Notification Rule for US users; HIPAA not applicable (no covered-entity or business-associate relationship). GDPR-grade rights for all users; data residency single US primary region with standard transfer mechanisms. Per-issue `Regulatory` fields become fillable as issues are taken up (statute sections still need per-issue verification); breach notification remains with SQ-11 (threat TM-P-3 now conditional on SQ-11 alone); retention periods remain with SQ-8; counsel review before launch required.
 - **PQ-22 — Privileged account provisioning and first passkey enrolment. RESOLVED.** Invitation from an existing `admin` carrying a single-use, short-lived, role-scoped enrolment token to a verified address; that token authorizes passkey registration only and never yields a session. The first `admin` comes from a one-time provisioning command that refuses to run once any `admin` exists. Role is fixed by the invitation and never settable from a request body. Recorded as `REQUIREMENTS.md` FR-2.10 and `SECURITY.md` SEC-AUTHN-9. This breaks the REQ-AUTH-020 / REQ-AUTH-030 circular dependency: enrolment no longer presupposes a passkey session. Threats TM-S-4 and the request-path half of TM-E-1 are closed; vetting and deprovisioning remain open (SQ-12).
@@ -127,7 +127,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | FR-9.5 | REQ-PRIVACY-030 | REST API; Browser Client | SEC-AUTHZ-2, SEC-INPUT-3 | Components → Inputs, Form feedback | PARTIALLY COVERED — email change deferred to PQ-7 |
 | FR-9.6 | REQ-PRIVACY-040 | REST API; Browser Client | SEC-TB-1, SEC-INPUT-4 | Layout (72ch); Components | PARTIALLY COVERED — mechanism and enforcement covered; presentation form open (PQ-25); trigger set complete (PQ-12 RESOLVED — first use includes first selection) |
 | FR-9.7 | REQ-AUDIT-010, REQ-AUDIT-020 | REST API; Persistence | SEC-LOG-1, SEC-LOG-2, SEC-LOG-3 | — | COVERED |
-| FR-9.8 | REQ-PRIVACY-050, REQ-AUDIT-040 | System egress; boundary 4 | SEC-TB-3, SEC-EXT-1, SEC-EXT-2 | — | PARTIALLY COVERED — application-level covered; network egress restriction blocked by PQ-19 |
+| FR-9.8 | REQ-PRIVACY-050, REQ-AUDIT-040 | System egress; boundary 4 | SEC-TB-3, SEC-EXT-1, SEC-EXT-2 | — | PARTIALLY COVERED — application-level covered; network egress restriction resolved (PQ-19), awaiting the infra draft |
 | FR-9.9 | REQ-PRIVACY-020 | REST API | SEC-DATA-2 | Components → Buttons | COVERED |
 | FR-10.1 | REQ-AUTHZ-030 | REST API | SEC-AUTHZ-4 | — | COVERED |
 | FR-10.2 | REQ-AUDIT-030 | REST API; Persistence | SEC-LOG-6, SEC-LOG-2 | — | COVERED |
@@ -140,15 +140,15 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | FR-11.3 | REQ-CONSULT-020 | REST API; Identity | SEC-AUTHZ-3, SEC-SESSION-4 | Components → Buttons | COVERED |
 | FR-11.4 | REQ-CONSULT-010, REQ-AUDIT-020 | REST API | SEC-LOG-1 | — | COVERED |
 
-**Totals** — 77 functional requirements: 42 `COVERED`, 7 `PARTIALLY COVERED`, 28 `UNBLOCKED — AWAITING DRAFT` (FR-2.16, FR-2.17, FR-3.1–FR-3.6, FR-4.8, FR-5.2, FR-5.3, FR-6.3, FR-6.4, FR-8.2, FR-8.4–FR-8.6, FR-8.10–FR-8.14, FR-9.3, FR-9.4, FR-9.10, FR-11.1, FR-11.5, FR-11.6), 0 `BLOCKED`, 0 `OUT OF SCOPE`, 0 untracked. **No functional requirement is blocked any longer** — every remaining gap is an issue draft to write or an infrastructure decision (PQ-19, PQ-20). Counts re-tallied from the matrix rows on 2026-08-01 — the earlier 46/6 split did not match the rows. The whole authentication surface is drafted; subscription entitlement, plan selection, measurements, food logging, and progress history are unblocked (PQ-4, PQ-9, PQ-10, PQ-11, PQ-12 RESOLVED, awaiting drafts); the remaining blocked scope is export and deletion and offering the consultant option. Every requirement traces to an issue or to a named blocking question.
+**Totals** — 77 functional requirements: 42 `COVERED`, 7 `PARTIALLY COVERED`, 28 `UNBLOCKED — AWAITING DRAFT` (FR-2.16, FR-2.17, FR-3.1–FR-3.6, FR-4.8, FR-5.2, FR-5.3, FR-6.3, FR-6.4, FR-8.2, FR-8.4–FR-8.6, FR-8.10–FR-8.14, FR-9.3, FR-9.4, FR-9.10, FR-11.1, FR-11.5, FR-11.6), 0 `BLOCKED`, 0 `OUT OF SCOPE`, 0 untracked. **No functional requirement is blocked any longer** — every remaining gap is an issue draft to write, with only the PQ-20 operational questions still open. Counts re-tallied from the matrix rows on 2026-08-01 — the earlier 46/6 split did not match the rows. Every requirement traces to an issue, an awaiting-draft marker, or a named open question.
 
 ## 3. Coverage matrix — security rules
 
 | Rule(s) | Issue IDs | Status |
 |---|---|---|
 | SEC-TB-1 | REQ-API-010, REQ-API-020, REQ-AUTHZ-010, REQ-PRIVACY-040 | COVERED |
-| SEC-TB-2 | — | BLOCKED — PQ-19 (network placement) |
-| SEC-TB-3 | REQ-PRIVACY-050, REQ-AUDIT-040 | PARTIALLY COVERED — PQ-19 |
+| SEC-TB-2 | — | UNBLOCKED — AWAITING DRAFT (PQ-19 RESOLVED: isolated subnets) |
+| SEC-TB-3 | REQ-PRIVACY-050, REQ-AUDIT-040 | PARTIALLY COVERED — egress restriction resolved (PQ-19), awaiting the infra draft |
 | SEC-AUTHN-1 | REQ-AUTHZ-010 | COVERED |
 | SEC-AUTHN-2 | REQ-AUTH-020, REQ-AUTH-030 | COVERED |
 | SEC-AUTHN-3 | REQ-AUTH-040 | COVERED |
@@ -160,7 +160,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | SEC-AUTHN-8 | REQ-AUTH-090 | COVERED |
 | SEC-SESSION-1, -2 | REQ-SESSION-010 | COVERED |
 | SEC-SESSION-3, -4, -5 | REQ-SESSION-030, REQ-SESSION-040, REQ-SESSION-050, REQ-CONSULT-020 | COVERED |
-| SEC-SESSION-7 | — | BLOCKED — PQ-19 (signing key store) |
+| SEC-SESSION-7 | — | UNBLOCKED — AWAITING DRAFT (PQ-19 RESOLVED: Secrets Manager, `kid` rotation) |
 | SEC-AUTHN-9 | REQ-AUTH-140, REQ-AUTH-150 | COVERED |
 | SEC-SESSION-6 | REQ-SESSION-020 | COVERED |
 | SEC-AUTHZ-1, -2 | REQ-AUTHZ-010, REQ-AUTHZ-020 | COVERED |
@@ -179,13 +179,13 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | SEC-INPUT-5 | REQ-API-030; REQ-BUILD-010 (wires the dynamic-query-construction static analysis SEC-INPUT-5 names as its verification method) | COVERED |
 | SEC-RENDER-1, -3, -4 | REQ-CATALOG-030; REQ-BUILD-010 (wires the `vue/no-v-html` lint rule SEC-RENDER-1 names as its verification method) | COVERED |
 | SEC-RENDER-2 | REQ-CATALOG-030 (conditional) | TO BE DECIDED — rich-text requirement open |
-| SEC-DATA-1 | — | BLOCKED — PQ-19 |
+| SEC-DATA-1 | — | UNBLOCKED — AWAITING DRAFT (PQ-19 RESOLVED: KMS everywhere, 35-day backups) |
 | SEC-DATA-2 | REQ-PRIVACY-010, REQ-PRIVACY-020 | COVERED |
 | SEC-DATA-3, -4 | — | UNBLOCKED — AWAITING DRAFT (PQ-16 RESOLVED); SEC-DATA-6 MOOT (synchronous export) |
 | SEC-DATA-5 | REQ-PRIVACY-060 | COVERED |
 | SEC-OPS-1 | — | BLOCKED — PQ-20 |
 | SEC-AI-1, -2, -3 | — | UNBLOCKED — AWAITING DRAFT (PQ-10 RESOLVED; rules added 2026-08-01) |
-| SEC-SECRET-1, -2, -3, -4 | REQ-AUDIT-040 (partial, for logs); REQ-BUILD-010 (SEC-SECRET-1 only — no secret material in the committed tree, ignore configuration by default) | BLOCKED — PQ-19 for SEC-SECRET-2, -3, -4 and for runtime secret resolution |
+| SEC-SECRET-1, -2, -3, -4 | REQ-AUDIT-040 (partial, for logs); REQ-BUILD-010 (SEC-SECRET-1 only — no secret material in the committed tree, ignore configuration by default) | UNBLOCKED — AWAITING DRAFT for SEC-SECRET-2, -3 (PQ-19 RESOLVED: Secrets Manager, protected Terraform state); SEC-SECRET-4 rides the auth drafts |
 | SEC-LOG-1, -2 | REQ-AUDIT-010, REQ-AUDIT-020 | COVERED |
 | SEC-LOG-3 | REQ-AUDIT-040 | COVERED |
 | SEC-LOG-4 | REQ-AUTH-050, REQ-AUTHZ-040 | COVERED |
@@ -201,9 +201,6 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 
 | Scope | Requirements | Blocked by |
 |---|---|---|
-| Signing key storage and rotation | SEC-SESSION-7 | PQ-19 |
-| Encryption at rest and backup handling | SEC-DATA-1 | PQ-19 |
-| CI security gates, Terraform baseline, secret management, network tiering | SEC-CICD-1, -3, -4; SEC-SECRET-2, -3; SEC-TB-2 | PQ-19 |
 | Audit retention, tamper-evidence, operational break-glass | SEC-LOG-5, -7; SEC-OPS-1 | PQ-20 |
 
 ## 5. Hierarchy
