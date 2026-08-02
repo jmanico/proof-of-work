@@ -124,6 +124,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | FR-9.3 | — | REST API | SEC-DATA-3 | — | UNBLOCKED — AWAITING DRAFT (PQ-16 RESOLVED) |
 | FR-9.4 | — | REST API; Persistence | SEC-DATA-4 | — | UNBLOCKED — AWAITING DRAFT (PQ-16 RESOLVED) |
 | FR-9.10 | — | REST API; Persistence | SEC-DATA-4, SEC-LOG-2, SEC-LOG-3 | — | UNBLOCKED — AWAITING DRAFT (PQ-16 RESOLVED) |
+| FR-9.11 | — | REST API; Identity | SEC-AUTHN-3, SEC-AUTHN-10, SEC-DATA-4 | Components → Form feedback | UNBLOCKED — AWAITING DRAFT (OQ-17 RESOLVED) |
 | FR-9.5 | REQ-PRIVACY-030 | REST API; Browser Client | SEC-AUTHZ-2, SEC-INPUT-3 | Components → Inputs, Form feedback | PARTIALLY COVERED — email change deferred to PQ-7 |
 | FR-9.6 | REQ-PRIVACY-040 | REST API; Browser Client | SEC-TB-1, SEC-INPUT-4 | Layout (72ch); Components | PARTIALLY COVERED — mechanism and enforcement covered; presentation form open (PQ-25); trigger set complete (PQ-12 RESOLVED — first use includes first selection) |
 | FR-9.7 | REQ-AUDIT-010, REQ-AUDIT-020 | REST API; Persistence | SEC-LOG-1, SEC-LOG-2, SEC-LOG-3 | — | COVERED |
@@ -140,7 +141,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | FR-11.3 | REQ-CONSULT-020 | REST API; Identity | SEC-AUTHZ-3, SEC-SESSION-4 | Components → Buttons | COVERED |
 | FR-11.4 | REQ-CONSULT-010, REQ-AUDIT-020 | REST API | SEC-LOG-1 | — | COVERED |
 
-**Totals** — 77 functional requirements: 42 `COVERED`, 7 `PARTIALLY COVERED`, 28 `UNBLOCKED — AWAITING DRAFT` (FR-2.16, FR-2.17, FR-3.1–FR-3.6, FR-4.8, FR-5.2, FR-5.3, FR-6.3, FR-6.4, FR-8.2, FR-8.4–FR-8.6, FR-8.10–FR-8.14, FR-9.3, FR-9.4, FR-9.10, FR-11.1, FR-11.5, FR-11.6), 0 `BLOCKED`, 0 `OUT OF SCOPE`, 0 untracked. **No functional requirement is blocked any longer** — every remaining gap is an issue draft to write, with only the PQ-20 operational questions still open. Counts re-tallied from the matrix rows on 2026-08-01 — the earlier 46/6 split did not match the rows. Every requirement traces to an issue, an awaiting-draft marker, or a named open question.
+**Totals** — 78 functional requirements: 42 `COVERED`, 7 `PARTIALLY COVERED`, 29 `UNBLOCKED — AWAITING DRAFT` (FR-2.16, FR-2.17, FR-3.1–FR-3.6, FR-4.8, FR-5.2, FR-5.3, FR-6.3, FR-6.4, FR-8.2, FR-8.4–FR-8.6, FR-8.10–FR-8.14, FR-9.3, FR-9.4, FR-9.10, FR-9.11, FR-11.1, FR-11.5, FR-11.6), 0 `BLOCKED`, 0 `OUT OF SCOPE`, 0 untracked. **No functional requirement is blocked any longer** — every remaining gap is an issue draft to write, with only the PQ-20 operational questions still open. Counts re-tallied from the matrix rows on 2026-08-01 — the earlier 46/6 split did not match the rows. Every requirement traces to an issue, an awaiting-draft marker, or a named open question.
 
 ## 3. Coverage matrix — security rules
 
