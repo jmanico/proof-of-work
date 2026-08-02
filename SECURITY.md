@@ -328,7 +328,7 @@ Applies because JWTs are explicitly selected in the security notes.
   - **Applies to:** Browser Client; all rendered plan, citation, and log content
   - **Verification:** Lint rule forbidding raw HTML binding; stored-XSS test injecting markup through admin-authored plan fields and subscriber-entered fields
   - **References:** `REF-PROMPT-VUE`, `REF-XSS`, `REF-ASVS-5`
-- **SEC-RENDER-2** (Confirmed) If rich-text plan content is ever required, it MUST be sanitized with a vetted HTML sanitizer before rendering, and custom sanitization MUST NOT be written. Whether rich text is needed at all: TO BE DECIDED.
+- **SEC-RENDER-2** (Confirmed) V1 plan content MUST use the structured plain-text fields, headings, steps, lists, tables, and approved diagrams defined by DESIGN.md; arbitrary admin-authored HTML and a rich-text rendering path are not required. If a future design change introduces rich text, it MUST be sanitized with a vetted HTML sanitizer before rendering, and custom sanitization MUST NOT be written.
   - **Applies to:** Browser Client; plan content
   - **Verification:** Test asserting known XSS vectors are neutralized by the sanitizer in the rendering path
   - **References:** `REF-PROMPT-VUE`, `REF-XSS`
@@ -524,7 +524,7 @@ Added 2026-08-01 with the OQ-5 resolution (REQUIREMENTS.md FR-8.12, FR-8.13; ARC
 | SEC-INPUT-5 | FR-9.1 | REST API Application → Relational Persistence | CONFIRMED |
 | SEC-INPUT-6 | — | REST API Application | PROVISIONAL |
 | SEC-RENDER-1 | FR-4.6, FR-5.1, FR-6.1, FR-8.6 | Browser Client | CONFIRMED |
-| SEC-RENDER-2 | FR-4.6 | Browser Client | TO BE DECIDED — rich-text requirement unknown |
+| SEC-RENDER-2 | FR-4.6 | Browser Client | CONFIRMED — v1 uses structured content with no arbitrary HTML or rich-text rendering path (DESIGN.md) |
 | SEC-RENDER-3 | FR-4.6 | Browser Client | CONFIRMED |
 | SEC-RENDER-4 | FR-9.1; DESIGN.md accessibility targets | Browser Client | PROVISIONAL |
 | SEC-DATA-1 | FR-9.8 and all health data | Relational Persistence; transport | CONFIRMED |
