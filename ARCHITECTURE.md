@@ -77,7 +77,7 @@ All business rules are enforced server-side. The client renders and validates fo
 | Requirement group | Responsible component / boundary | Status |
 |---|---|---|
 | FR-1.1, FR-1.2 (Delivery Channel) | Browser Client | SUPPORTED |
-| FR-2.1–FR-2.15 (Accounts and Authentication) | Identity and Session Handling; REST API Application (FR-2.1 enforcement, FR-2.7 role assignment) | SUPPORTED |
+| FR-2.1–FR-2.17 (Accounts and Authentication) | Identity and Session Handling; REST API Application (FR-2.1 enforcement, FR-2.7 role assignment) | SUPPORTED — vetting recorded on invitations, deprovisioning defined (SQ-12 RESOLVED) |
 | FR-3.1–FR-3.3, FR-3.5, FR-3.6 (Subscription entitlement and administration) | REST API Application | SUPPORTED — activation by admin-granted periods (REQUIREMENTS.md OQ-1 RESOLVED) |
 | FR-3.4 (Retention across lapse) | REST API Application; Relational Persistence | SUPPORTED |
 | FR-4.1–FR-4.8 (Plan Library and Content Verification) | REST API Application; Relational Persistence; Browser Client (FR-4.6 display) | SUPPORTED — one-time verification gate (REQUIREMENTS.md OQ-10, OQ-16 RESOLVED) |
