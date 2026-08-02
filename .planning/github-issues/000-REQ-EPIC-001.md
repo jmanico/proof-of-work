@@ -26,7 +26,7 @@
 ## Scope
 
 - **Applies To**: Multiple
-- **Components**: Browser Client (Vue.js); REST API Application (Node.js); Identity and Session Handling; Relational Persistence (RDBMS)
+- **Components**: Browser Client (Vue.js); REST API Application (Node.js); Identity and Session Handling; Relational Persistence (RDBMS); AI Inference (in-boundary, added 2026-08-01 by the OQ-5 resolution)
 - **Interfaces / Operations**: All specified workflows — registration and authentication, subscription entitlement, plan library and publication, plan browse and selection, plan customization, progress logging and review, data rights, consultant engagement, administration
 - **Actors**: `subscriber`, `consultant`, `admin`, unauthenticated visitor, operator, CI/CD identity
 - **Preconditions**: None
@@ -49,7 +49,7 @@
 ## Standards Alignment
 
 - **OWASP ASVS 5.0.0**: TO BE DECIDED — ASVS 5.0.0 Level 3 is the stated assurance target (`SECURITY.md`, Security assurance target). No requirement-level mapping has been verified against `REF-ASVS-5`, and `SECURITY.md` SQ-10 leaves both the target and its verifier open.
-- **OWASP AISVS 1.0**: N/A — no AI-enabled component is specified.
+- **OWASP AISVS 1.0**: TO BE DECIDED — an AI-enabled component exists (FR-8.12, FR-8.13; OQ-5 RESOLVED 2026-08-01); no mapping has been verified against the standard in this session.
 - **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
 - **NIST SP 800-207**: TO BE DECIDED — see Zero Trust Relevance.
 - **Regulatory**: TO BE DECIDED — blocked by `SECURITY.md` SQ-1 and `REQUIREMENTS.md` OQ-3.

@@ -121,6 +121,8 @@ Public references selected as authoritative defaults for the identified stack. T
 
 **Resulting changes.** This model added: FR-9.9 and FR-10.2 plus OQ-15 and OQ-16 to REQUIREMENTS.md; trust boundaries 4 and 5 and traceability rows to ARCHITECTURE.md; and, in this document, rules SEC-AUTHN-8, SEC-DATA-6, SEC-LOG-6, SEC-LOG-7, SEC-OPS-1, open question SQ-13, and the rewrite of SQ-9. No previously documented statement was contradicted by the model; no conflict between the four source documents was found beyond the jurisdiction inconsistency already recorded as SQ-1.
 
+**Addendum 2026-08-01 (OQ-5).** An in-boundary AI Inference component was added for nutrition estimation (FR-8.12, FR-8.13; ARCHITECTURE.md trust boundary 6). Threats to incorporate at the next revisit: prompt injection through food descriptions and images, unsafe or materially inaccurate estimation output (safety), inference cost abuse (denial-of-wallet), and model/dataset supply chain. Provisionally covered by SEC-AI-1–SEC-AI-3, SEC-HTTP-5, and DEP-5/DEP-7; OWASP AISVS applicability is recorded in the epic.
+
 ### Provisional Security Rules
 
 Rules marked **Confirmed** trace to an explicit statement in REQUIREMENTS.md, ARCHITECTURE.md, or the security notes. Rules marked **Provisional** are safe defaults for this profile and remain open to revision.
@@ -424,9 +426,26 @@ Applies because JWTs are explicitly selected in the security notes.
   - **Verification:** Attempted out-of-band modification of an audit record is detectable in review
   - **References:** `REF-LOG`, `REF-PROMPT-TF-AWS`
 
+#### AI Inference
+
+Added 2026-08-01 with the OQ-5 resolution (REQUIREMENTS.md FR-8.12, FR-8.13; ARCHITECTURE.md trust boundary 6).
+
+- **SEC-AI-1** (Confirmed) AI inference over user-supplied content MUST execute only within the system's own cloud boundary: a managed model service in the system's account configured for zero prompt retention and no training use, or self-hosted model weights. User data MUST NOT be transmitted to any third-party application service for inference (FR-9.8, SEC-TB-3), and the zero-retention configuration MUST be verified, not assumed.
+  - **Applies to:** AI Inference (FR-8.12, FR-8.13)
+  - **Verification:** Infrastructure review of the inference service's account placement and retention configuration; egress review confirming no third-party inference endpoint is reachable
+  - **References:** `REF-ASVS-5`, `REF-PROMPT-TF-AWS`
+- **SEC-AI-2** (Provisional) Model inputs and outputs are untrusted. Subscriber descriptions and photos MUST be treated as prompt-injection vectors: the inference context MUST NOT grant the model tool access, retrieval access, or data beyond the estimation task, and estimation responses MUST be schema-validated (SEC-INPUT-1) with numeric range checks (FR-8.9) before presentation. Inference endpoints MUST be rate-limited under SEC-HTTP-5 — inference cost makes them a denial-of-wallet target. Concrete thresholds: TO BE DECIDED (SQ-3).
+  - **Applies to:** REST API Application → AI Inference (trust boundary 6)
+  - **Verification:** Injection test suite over descriptions and images asserting no context escape; schema-validation tests on estimation responses; burst tests on inference endpoints
+  - **References:** `REF-ASVS-5`, `REF-PROMPT-API`, `REF-INPUT`
+- **SEC-AI-3** (Provisional) Food photos MUST be processed transiently — held only in memory or ephemeral storage for the duration of estimation, never persisted, never written to logs (SEC-LOG-3). Entries created from an estimate MUST carry the estimate label end-to-end (FR-8.12). OWASP AISVS 1.0 mappings for this component: TO BE DECIDED (with SQ-10).
+  - **Applies to:** AI Inference; REST API Application
+  - **Verification:** Storage and log inspection after estimation asserting no photo residue; response-shape assertion carrying the estimate label
+  - **References:** `REF-LOG`, `REF-ASVS-5`
+
 #### External Integrations
 
-- **SEC-EXT-1** (Confirmed) No external integration currently exists. Any future integration MUST be introduced behind an internally defined interface owned by the REST API Application, MUST NOT propagate vendor-specific behavior into business logic, and MUST NOT carry health data across the boundary (FR-9.8) without an explicit documented change to REQUIREMENTS.md.
+- **SEC-EXT-1** (Confirmed) No runtime external integration currently exists. The bundled nutrition dataset (FR-8.11) is a build-time artifact under DEP-5/DEP-7 discipline and AI inference runs in-account (SEC-AI-1); neither is a runtime third-party integration, and no user data flows to either source. Any future integration MUST be introduced behind an internally defined interface owned by the REST API Application, MUST NOT propagate vendor-specific behavior into business logic, and MUST NOT carry health data across the boundary (FR-9.8) without an explicit documented change to REQUIREMENTS.md.
   - **Applies to:** Future external boundaries
   - **Verification:** Architecture review at the time any integration is proposed
   - **References:** `REF-ASVS-5`, `REF-PC-2024`
@@ -528,6 +547,9 @@ Applies because JWTs are explicitly selected in the security notes.
 | SEC-LOG-6 | FR-10.2 | REST API Application | CONFIRMED |
 | SEC-LOG-7 | FR-9.7 | Relational Persistence; audit storage | PROVISIONAL — mechanism undecided (SQ-8, SQ-13) |
 | SEC-OPS-1 | FR-9.1, FR-9.8 | Operational-access boundary (5) | PROVISIONAL — access model undecided (SQ-13) |
+| SEC-AI-1 | FR-8.12, FR-8.13, FR-9.8 | AI Inference; deployment | CONFIRMED — in-boundary inference with verified zero retention |
+| SEC-AI-2 | FR-8.9, FR-8.12 | REST API Application → AI Inference (boundary 6) | PROVISIONAL — thresholds pending (SQ-3) |
+| SEC-AI-3 | FR-8.12, FR-8.13 | AI Inference | PROVISIONAL — AISVS mapping pending (SQ-10) |
 | DEP-1 … DEP-8 | — | All components | PROVISIONAL — no implementation and no dependencies exist yet |
 
 ### Dependency Security Rules
