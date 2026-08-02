@@ -1,9 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Product logo: three ascending bars with a goal marker">
-  <rect width="64" height="64" rx="14" fill="#0F766E"/>
-  <g fill="#FFFFFF">
-    <rect x="14" y="38" width="8" height="14" rx="4"/>
-    <rect x="28" y="30" width="8" height="22" rx="4"/>
-    <rect x="42" y="22" width="8" height="30" rx="4"/>
-  </g>
-  <circle cx="46" cy="14" r="4" fill="#5EEAD4"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-labelledby="proof-of-work-logo-title proof-of-work-logo-description">
+  <title id="proof-of-work-logo-title">Proof of Work</title>
+  <desc id="proof-of-work-logo-description">A letter P containing a check mark.</desc>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#17211B" stroke="#2B7C55" stroke-width="2"/>
+  <path fill="#F5F4EE" fill-rule="evenodd" d="M14 50V14h20c11 0 18 6 18 15s-7 15-18 15H25v6H14Zm11-27v12h9c5 0 8-2 8-6s-3-6-8-6h-9Z"/>
+  <path fill="#D7F45B" d="m25 30 8 8 14-16 5 4-19 21-13-12 5-5Z"/>
 </svg>
