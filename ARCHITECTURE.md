@@ -28,7 +28,7 @@ All business rules are enforced server-side. The client renders and validates fo
   - **Inputs:** User interaction; REST responses including validation errors, authorization failures, and entitlement failures.
   - **Outputs:** REST requests; rendered UI; accessible status and error announcements.
   - **Data owned or accessed:** Owns no durable data. Holds transient view state and session credentials as issued by Identity and Session Handling.
-  - **Open decisions:** Whether progress history renders as charts, tables, or both (REQUIREMENTS.md OQ-7; DESIGN.md OQ-4). Presentation of citations and verification status (DESIGN.md OQ-5). Presentation and acknowledgement flow for the medical disclaimer (FR-9.6; DESIGN.md OQ-6). Client-side rendering and routing are resolved: a Vite-built single-page application with `vue-router`, styled with plain CSS custom properties and scoped single-file-component styles (CLAUDE.md, Repository state). Offline capability is out of scope (REQUIREMENTS.md OQ-14).
+  - **Open decisions:** Progress history presentation is resolved: trend charts paired with accessible tables at entry granularity (REQUIREMENTS.md OQ-7 RESOLVED; FR-8.14; DESIGN.md OQ-4). Presentation of citations and verification status (DESIGN.md OQ-5). Presentation and acknowledgement flow for the medical disclaimer (FR-9.6; DESIGN.md OQ-6). Client-side rendering and routing are resolved: a Vite-built single-page application with `vue-router`, styled with plain CSS custom properties and scoped single-file-component styles (CLAUDE.md, Repository state). Offline capability is out of scope (REQUIREMENTS.md OQ-14).
 
 - **REST API Application (Node.js)**
   - **Responsibility:** Single server-side entry point and the sole authority for business rules. Authenticates every request via Identity and Session Handling; enforces role rules (FR-2.7, FR-10.1), subscription entitlement (FR-3.1, FR-3.2), owner scoping (FR-7.4, FR-9.1), and consultant engagement scoping (FR-11.2, FR-11.3) before any data access. Enforces publication gates (FR-4.4, FR-4.5, FR-4.7), copy-on-customize semantics (FR-7.2, FR-7.5), log-entry validation (FR-8.9), consent capture (FR-9.2), and audit writes on health-data access (FR-9.7, FR-11.4). Owns every business object described below.
@@ -65,7 +65,7 @@ All business rules are enforced server-side. The client renders and validates fo
 2. *Plan browse and view:* Client → REST API → entitlement and publication checks → Persistence → plan content with citations and verification record → Client.
 3. *Customization:* Client → REST API → entitlement check → copy of published plan written as a subscriber-owned record; published plan untouched.
 4. *Progress logging:* Client → REST API → consent check, owner scoping, field validation → log entry written → audit entry written.
-5. *Progress viewing:* Client → REST API → owner scoping → aggregated log history, and for diet, logged intake compared against the selected plan's targets → Client.
+5. *Progress viewing:* Client → REST API → owner scoping → entry-level log history over the requested range, and for diet, logged intake compared against the selected plan's targets → Client.
 6. *Admin publication:* Admin client → REST API → role check, citation-presence gate, verification record → plan published.
 7. *Consultant access:* Consultant client → REST API → active-engagement check → scoped subscriber data → audit entry written.
 8. *Data export and deletion:* Client → REST API → owner scoping and sensitive-operation authorization → export assembled or deletion executed → audit entry written. Synchronous vs. deferred execution remains TO BE DECIDED; if deferred, any generated export artifact is itself health data at rest and carries the controls in SECURITY.md SEC-DATA-6.
@@ -84,7 +84,7 @@ All business rules are enforced server-side. The client renders and validates fo
 | FR-5.1–FR-5.3 (Exercise Plans) | REST API Application; Browser Client | SUPPORTED — one active selection per type (REQUIREMENTS.md OQ-6 RESOLVED) |
 | FR-6.1–FR-6.4 (Diet Plans) | REST API Application; Browser Client | SUPPORTED — one active selection per type (REQUIREMENTS.md OQ-6 RESOLVED) |
 | FR-7.1–FR-7.5 (Plan Customization) | REST API Application; Relational Persistence | SUPPORTED |
-| FR-8.1–FR-8.3, FR-8.6–FR-8.10 (Progress Tracking) | REST API Application; Relational Persistence; Browser Client (FR-8.6 presentation, FR-8.9 error display) | SUPPORTED |
+| FR-8.1–FR-8.3, FR-8.6–FR-8.10, FR-8.14 (Progress Tracking) | REST API Application; Relational Persistence; Browser Client (FR-8.6/FR-8.14 presentation, FR-8.9 error display) | SUPPORTED |
 | FR-8.4, FR-8.5, FR-8.11–FR-8.13 (Food logging, targets, nutrition sources) | REST API Application; AI Inference; Browser Client | SUPPORTED — bundled dataset plus in-boundary AI estimation (REQUIREMENTS.md OQ-5 RESOLVED) |
 | FR-9.1 (Owner scoping) | REST API Application | SUPPORTED |
 | FR-9.2, FR-9.5, FR-9.6 (Consent, correction, disclaimer) | REST API Application; Browser Client | SUPPORTED |
