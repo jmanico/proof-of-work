@@ -77,7 +77,7 @@ All business rules are enforced server-side. The client renders and validates fo
 | FR-5.1–FR-5.3 (Exercise Plans) | REST API Application; Browser Client | SUPPORTED — one active selection per type (REQUIREMENTS.md OQ-6 RESOLVED) |
 | FR-6.1–FR-6.4 (Diet Plans) | REST API Application; Browser Client | SUPPORTED — one active selection per type (REQUIREMENTS.md OQ-6 RESOLVED) |
 | FR-7.1–FR-7.5 (Plan Customization) | REST API Application; Relational Persistence | SUPPORTED |
-| FR-8.1–FR-8.3, FR-8.6–FR-8.9 (Progress Tracking) | REST API Application; Relational Persistence; Browser Client (FR-8.6 presentation, FR-8.9 error display) | SUPPORTED |
+| FR-8.1–FR-8.3, FR-8.6–FR-8.10 (Progress Tracking) | REST API Application; Relational Persistence; Browser Client (FR-8.6 presentation, FR-8.9 error display) | SUPPORTED |
 | FR-8.4, FR-8.5 (Food logging and target comparison) | REST API Application; Browser Client | PARTIALLY DEFINED — no nutrition data source is defined (REQUIREMENTS.md OQ-5) |
 | FR-9.1 (Owner scoping) | REST API Application | SUPPORTED |
 | FR-9.2, FR-9.5, FR-9.6 (Consent, correction, disclaimer) | REST API Application; Browser Client | SUPPORTED |

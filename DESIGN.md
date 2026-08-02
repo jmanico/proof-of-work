@@ -113,5 +113,5 @@ Type scale (1.25 ratio, 16px base):
 - **OQ-5** How are plan citations and admin verification surfaced in the UI (inline links, a sources panel, a verification badge)? The requirement to display them is firm (FR-4.5, FR-4.6); the presentation is not.
 - **OQ-6** How is the medical disclaimer presented and acknowledged (interstitial, checkbox, persistent banner)? FR-9.6 requires acknowledgement before first plan use but does not specify the form.
 - **OQ-7** Do consultants and admins get a distinct visual treatment or a separate interface region, and how does a subscriber see that a consultant has access to their data?
-- **OQ-8** Are there localization, right-to-left, or unit-system (metric/imperial) requirements that affect layout and numeric formatting? REQUIREMENTS.md OQ-4 leaves units open.
+- **OQ-8** PARTIALLY RESOLVED (2026-08-01): the unit half is settled — a per-account metric/imperial preference (REQUIREMENTS.md FR-8.10, OQ-4 RESOLVED), with numeric values rendered in the account's unit system using the tabular figures this document already requires. Still open: localization and right-to-left requirements affecting layout.
 - **OQ-9** What imagery policy applies — photography, illustration, or neither? Exercise plans may need demonstration visuals, which the requirements neither specify nor exclude.

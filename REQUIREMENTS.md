@@ -76,7 +76,7 @@
 ### Progress Tracking
 
 - **FR-8.1** The system MUST allow a subscriber to log a body weight entry with a date.
-- **FR-8.2** The system MUST allow a subscriber to log body measurement entries with a date. The specific measurement fields are TO BE DECIDED.
+- **FR-8.2** The system MUST allow a subscriber to log body measurement entries with a date. The measurement fields are waist, chest, hips, upper arm, and thigh — each a length in the account's unit system (FR-8.10) — and body-fat percentage, which is unitless and MUST be within 0–100. *(OQ-4 RESOLVED.)*
 - **FR-8.3** The system MUST allow a subscriber to record completion of a workout from their plan, including sets, repetitions, and weight used per exercise.
 - **FR-8.4** The system MUST allow a subscriber to log food intake and MUST attribute calories and macronutrients to each logged entry.
 - **FR-8.5** The system MUST display logged calories and macronutrients for a given day against the targets of the subscriber's selected diet plan.
@@ -84,6 +84,7 @@
 - **FR-8.7** The system MUST allow a subscriber to edit and delete their own log entries.
 - **FR-8.8** The system MUST allow a subscriber to log entries for a past date, not only the current date.
 - **FR-8.9** The system MUST reject log entries with a non-numeric, negative, or absent required value and MUST report the specific invalid field to the user.
+- **FR-8.10** The system MUST maintain a per-account unit-system preference — metric (centimetres, kilograms) or imperial (inches, pounds) — applied to body measurements, body weight, and workout load; MUST store every logged value together with the unit it was entered in; and MUST convert between unit systems only at display time, never by mutating stored values. *(Resolves OQ-4 together with DESIGN.md OQ-8's unit half.)*
 
 ### Data Rights, Privacy, and Safety
 
@@ -115,7 +116,7 @@
 - **OQ-1** RESOLVED (2026-08-01). Subscriptions are admin-granted periods: an `admin` grants, extends, or revokes a period (FR-3.5), a subscription is active exactly while the current time falls within a granted period (FR-3.6), and every change is audited. Payment collection is out of band in v1 — the system stays self-contained with no payments integration (SECURITY.md SEC-EXT-1). Self-serve purchase via a payment processor is deferred to OQ-18; the paid consultant option is recorded the same way (FR-11.5). FR-3.1–FR-3.4 are now fully testable.
 - **OQ-2** RESOLVED (2026-08-01). No trial period, promotional tier, or free tier exists. Access requires a paid subscription; an `admin` MAY grant a time-boxed courtesy period through the ordinary FR-3.5 mechanism, which needs no additional machinery, states, or per-person trial tracking.
 - **OQ-3** RESOLVED (SECURITY.md SQ-1, 2026-08-01). HIPAA is not applicable: the system has no covered-entity or business-associate relationship — it is direct-to-consumer, bills no insurance, and integrates with no provider — so no BAA is required and FR-9.7's audit obligation stands on its own. In scope for US users: the FTC Health Breach Notification Rule, state consumer-health laws (e.g. Washington My Health My Data), and CCPA/CPRA. GDPR/UK GDPR govern EU/UK data subjects, with GDPR-grade rights granted to all users. The breach-notification workflow is specified under SECURITY.md SQ-11; counsel review before launch is required.
-- **OQ-4** Which body measurement fields must be supported (waist, chest, arms, hips, body-fat %), and are units configurable (metric vs. imperial)?
+- **OQ-4** RESOLVED (2026-08-01). Measurement fields are waist, chest, hips, upper arm, thigh, and body-fat percentage (FR-8.2). Units are configurable per account — metric (cm, kg) or imperial (in, lb) — covering measurements, body weight, and workout load; every record stores its value with its unit, and switching preference converts display only (FR-8.10). Body-fat percentage is unitless and bounded 0–100.
 - **OQ-5** Food logging requires nutrition data, but no external nutrition database is in scope. Do subscribers enter calories and macros manually, or does the system ship its own food catalog, and who maintains it?
 - **OQ-6** RESOLVED (2026-08-01). One active plan of each type: at most one active exercise plan selection and one active diet plan selection per subscriber (FR-5.3, FR-6.4). A selection names a published plan or the subscriber's own customized copy; selecting another replaces it, logged history is never altered, and FR-8.5's daily comparison reads the currently selected diet plan exactly as written. The FR-9.6 disclaimer gates the first plan use, including first selection.
 - **OQ-7** What time period and granularity must progress history cover (per day, per week, all-time), and are charts required or is a list sufficient?
