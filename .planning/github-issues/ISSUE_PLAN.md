@@ -4,7 +4,7 @@
 - **Execution mode**: originally `DRAFT_ONLY`; the epic was subsequently filed as GitHub issue #8 and all 62 leaves as issues #9–#56, #60, and #66–#78, each linked as a sub-issue of the epic
 - **Sources**: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, `DESIGN.md`, `REQUIREMENT_TEMPLATE.md`; `CLAUDE.md` followed as agent instruction, not as product specification
 - **Produced**: 2026-07-31
-- **Result**: 1 epic + 62 leaf issues drafted, all filed as live GitHub issues; 1 area of scope still blocked (section 4): audit retention, tamper-evidence, and break-glass (PQ-20)
+- **Result**: 1 epic + 62 leaf issues drafted, all filed as live GitHub issues; no blocked scope remains (section 4 is empty as of 2026-08-01)
 
 ---
 
@@ -39,7 +39,7 @@ Each `PQ-*` names the source identifiers it derives from and the scope it blocks
 - **PQ-17 — Abuse-prevention thresholds. RESOLVED** (`SECURITY.md` SQ-3, 2026-08-01). The standard parameter set is recorded as named constants in SEC-AUTHN-6/-8/-11, SEC-SESSION-3/-5, SEC-HTTP-1/-5, and SEC-AI-2: sessions 24 h/2 h (subscriber) and 12 h/30 min (privileged) with `SameSite=Lax`; reset tokens 30 min, invitations 72 h, 10 recovery codes; backoff 3-failures/1 s-doubling/15-min cap; auth 10/min, API 120/min, AI 50/day, export 1/day, bodies 1 MB/10 MB. Threats TM-S-1, TM-S-5, TM-D-1 all MITIGATED BY RULE. Alerting destinations and process remain with SQ-11.
 - **PQ-18 — ABAC attribute schema, policy language, and PDP/PEP architecture. RESOLVED** (`SECURITY.md` SQ-4, 2026-08-01). A first-party typed policy module at the single Fastify preHandler enforcement point; deny-overrides with missing-attribute denial; typed attribute schema sourced from Identity and persisted state only; capabilities named per action and mapped from role plus relationship. No policy-language dependency. The central policy module is unblocked and awaits an issue draft; REQ-AUTHZ-010 … 040 and REQ-CONSULT-010 remain covered as drafted.
 - **PQ-19 — CI/CD platform, secret store, AWS topology. RESOLVED** (`SECURITY.md` SQ-7, 2026-08-01). Three AWS accounts (dev/staging/production); ECS Fargate API, S3 + CloudFront client, RDS PostgreSQL Multi-AZ, Bedrock in-account for AI, Secrets Manager for secrets and signing keys (`kid` rotation, 90 days); VPC tiering with restricted NAT egress; GitHub Actions with per-environment OIDC roles, staging auto / production manual; SEC-CICD-4 gate set fixed (lint+typecheck, Vitest, Playwright+axe, osv-scanner, gitleaks, checkov, authorization suite); Argon2id 64 MiB/3/1 on the 1 vCPU/2 GB basis. Threat TM-T-6 MITIGATED BY RULE. Infrastructure scope awaits issue drafts.
-- **PQ-20 — Audit and log retention, access control, and tamper-evidence.** `SECURITY.md` SQ-8, SQ-13, SEC-LOG-5, SEC-LOG-7, SEC-OPS-1. Blocks: retention policy, tamper-evident audit storage, the operational break-glass model. Threats TM-R-2, TM-I-8, TM-P-4 open.
+- **PQ-20 — Audit and log retention, access control, and tamper-evidence. RESOLVED** (`SECURITY.md` SQ-8 and SQ-13, 2026-08-01). Security logs 12 months; audit entries 3 years with admin-only audited access; Postgres append-only privileges plus nightly hash-chained batches to S3 Object Lock (governance mode) in a log-archive account; break-glass by a dedicated IAM role with second-admin approval, a 4-hour box, session logging, and 7-day review. Threats TM-R-2, TM-I-8, TM-P-4 all MITIGATED BY RULE. SEC-LOG-5/-7 and SEC-OPS-1 await issue drafts.
 - **PQ-21 — Governing privacy regime. RESOLVED** (`SECURITY.md` SQ-1, `REQUIREMENTS.md` OQ-3, 2026-08-01). Global service with GDPR as the design ceiling: GDPR/UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws, and the FTC Health Breach Notification Rule for US users; HIPAA not applicable (no covered-entity or business-associate relationship). GDPR-grade rights for all users; data residency single US primary region with standard transfer mechanisms. Per-issue `Regulatory` fields become fillable as issues are taken up (statute sections still need per-issue verification); breach notification remains with SQ-11 (threat TM-P-3 now conditional on SQ-11 alone); retention periods remain with SQ-8; counsel review before launch required.
 - **PQ-22 — Privileged account provisioning and first passkey enrolment. RESOLVED.** Invitation from an existing `admin` carrying a single-use, short-lived, role-scoped enrolment token to a verified address; that token authorizes passkey registration only and never yields a session. The first `admin` comes from a one-time provisioning command that refuses to run once any `admin` exists. Role is fixed by the invitation and never settable from a request body. Recorded as `REQUIREMENTS.md` FR-2.10 and `SECURITY.md` SEC-AUTHN-9. This breaks the REQ-AUTH-020 / REQ-AUTH-030 circular dependency: enrolment no longer presupposes a passkey session. Threats TM-S-4 and the request-path half of TM-E-1 are closed; vetting and deprovisioning remain open (SQ-12).
 - **PQ-23 — Third-party API exposure and CORS. RESOLVED** (`SECURITY.md` SQ-6, 2026-08-01). The REST surface is first-party only; CORS is disabled outright with no allow-list to maintain (SEC-HTTP-3 Confirmed). The no-CORS assertion folds into the REQ-PLATFORM-040 header work at the consolidated pass.
@@ -183,13 +183,13 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | SEC-DATA-2 | REQ-PRIVACY-010, REQ-PRIVACY-020 | COVERED |
 | SEC-DATA-3, -4 | — | UNBLOCKED — AWAITING DRAFT (PQ-16 RESOLVED); SEC-DATA-6 MOOT (synchronous export) |
 | SEC-DATA-5 | REQ-PRIVACY-060 | COVERED |
-| SEC-OPS-1 | — | BLOCKED — PQ-20 |
+| SEC-OPS-1 | — | UNBLOCKED — AWAITING DRAFT (PQ-20 RESOLVED) |
 | SEC-AI-1, -2, -3 | — | UNBLOCKED — AWAITING DRAFT (PQ-10 RESOLVED; rules added 2026-08-01) |
 | SEC-SECRET-1, -2, -3, -4 | REQ-AUDIT-040 (partial, for logs); REQ-BUILD-010 (SEC-SECRET-1 only — no secret material in the committed tree, ignore configuration by default) | UNBLOCKED — AWAITING DRAFT for SEC-SECRET-2, -3 (PQ-19 RESOLVED: Secrets Manager, protected Terraform state); SEC-SECRET-4 rides the auth drafts |
 | SEC-LOG-1, -2 | REQ-AUDIT-010, REQ-AUDIT-020 | COVERED |
 | SEC-LOG-3 | REQ-AUDIT-040 | COVERED |
 | SEC-LOG-4 | REQ-AUTH-050, REQ-AUTHZ-040 | COVERED |
-| SEC-LOG-5, -7 | — | BLOCKED — PQ-20 |
+| SEC-LOG-5, -7 | — | UNBLOCKED — AWAITING DRAFT (PQ-20 RESOLVED) |
 | SEC-LOG-6 | REQ-AUDIT-030 | COVERED |
 | SEC-ERR-1 | REQ-API-040 | COVERED |
 | SEC-EXT-1, -2 | REQ-PRIVACY-050, REQ-PLAN-040 | COVERED |
@@ -201,7 +201,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 
 | Scope | Requirements | Blocked by |
 |---|---|---|
-| Audit retention, tamper-evidence, operational break-glass | SEC-LOG-5, -7; SEC-OPS-1 | PQ-20 |
+*None — every previously blocked area was resolved by 2026-08-01 and now awaits issue drafts (see the coverage matrices).*
 
 ## 5. Hierarchy
 
