@@ -4,7 +4,7 @@
 - **Execution mode**: originally `DRAFT_ONLY`; the epic was subsequently filed as GitHub issue #8 and all 62 leaves as issues #9–#56, #60, and #66–#78, each linked as a sub-issue of the epic
 - **Sources**: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, `DESIGN.md`, `REQUIREMENT_TEMPLATE.md`; `CLAUDE.md` followed as agent instruction, not as product specification
 - **Produced**: 2026-07-31
-- **Result**: 1 epic + 62 leaf issues drafted, all filed as live GitHub issues; 6 areas of scope still blocked (section 4)
+- **Result**: 1 epic + 62 leaf issues drafted, all filed as live GitHub issues; 4 areas of scope still blocked (section 4), all infrastructure-level (PQ-19, PQ-20)
 
 ---
 
@@ -35,7 +35,7 @@ Each `PQ-*` names the source identifiers it derives from and the scope it blocks
 - **PQ-13 — Plan verification workflow. RESOLVED** (`REQUIREMENTS.md` OQ-10 and OQ-16, 2026-08-01). One-time single-admin verification before first publication; the author may verify; edits never re-trigger verification but may not leave a published plan citation-less (FR-4.8). Threat TM-T-5 is RISK ACCEPTED with named compensating controls. The verification *operation* is unblocked and awaits an issue draft; the record and publication gate remain covered by REQ-PLAN-050.
 - **PQ-14 — Consultant capabilities. RESOLVED** (`REQUIREMENTS.md` OQ-12, 2026-08-01). Views of the engaged subscriber's plans, copies, and logs, plus edits of that subscriber's plan copies — nothing else, all audited (FR-11.6). No log writes, no messaging. Threat TM-E-3 is MITIGATED BY RULE. REQ-CONSULT-010 keeps delivering *who*; FR-11.6 awaits its own draft for *what*.
 - **PQ-15 — Consultant onboarding, vetting, and the paid option. RESOLVED** (`REQUIREMENTS.md` OQ-13, `SECURITY.md` SQ-12, 2026-08-01). Consultants are vetted out of band by the operator with the vetting record required on every invitation (FR-2.16); privileged accounts are deprovisioned by an audited admin action with the two-admin floor (FR-2.17, SEC-AUTHN-13); the paid option and engagement creation were already settled (PQ-4, FR-11.5). FR-11.1, FR-2.16, and FR-2.17 await issue drafts.
-- **PQ-16 — Export and deletion mechanics.** `REQUIREMENTS.md` FR-9.4 (deadline `TO BE DECIDED`); `SECURITY.md` SQ-5, SEC-DATA-4, SEC-DATA-6; `ARCHITECTURE.md` (synchronous versus deferred, TO BE DECIDED). Hard delete versus de-identification, backup and replica treatment, export format and artifact handling. Blocks: FR-9.3, FR-9.4. Threats TM-I-6, TM-I-7, TM-P-1 CONDITIONAL.
+- **PQ-16 — Export and deletion mechanics. RESOLVED** (`SECURITY.md` SQ-5, 2026-08-01). Synchronous JSON export with no stored artifact (SEC-DATA-6 moot); synchronous hard delete with tombstoned audit identifiers (FR-9.10), a 35-day backup horizon with restore re-deletion, and full completion within 35 days (FR-9.4). No background-processing boundary. Threats TM-I-6, TM-I-7, TM-P-1 all MITIGATED BY RULE. FR-9.3, FR-9.4, and FR-9.10 await issue drafts.
 - **PQ-17 — Abuse-prevention thresholds. RESOLVED** (`SECURITY.md` SQ-3, 2026-08-01). The standard parameter set is recorded as named constants in SEC-AUTHN-6/-8/-11, SEC-SESSION-3/-5, SEC-HTTP-1/-5, and SEC-AI-2: sessions 24 h/2 h (subscriber) and 12 h/30 min (privileged) with `SameSite=Lax`; reset tokens 30 min, invitations 72 h, 10 recovery codes; backoff 3-failures/1 s-doubling/15-min cap; auth 10/min, API 120/min, AI 50/day, export 1/day, bodies 1 MB/10 MB. Threats TM-S-1, TM-S-5, TM-D-1 all MITIGATED BY RULE. Alerting destinations and process remain with SQ-11.
 - **PQ-18 — ABAC attribute schema, policy language, and PDP/PEP architecture. RESOLVED** (`SECURITY.md` SQ-4, 2026-08-01). A first-party typed policy module at the single Fastify preHandler enforcement point; deny-overrides with missing-attribute denial; typed attribute schema sourced from Identity and persisted state only; capabilities named per action and mapped from role plus relationship. No policy-language dependency. The central policy module is unblocked and awaits an issue draft; REQ-AUTHZ-010 … 040 and REQ-CONSULT-010 remain covered as drafted.
 - **PQ-19 — CI/CD platform, secret store, AWS topology. PARTIALLY RESOLVED.** The platform is GitHub Actions with OIDC federation to AWS IAM roles, which settles SEC-CICD-1's credential model. `SECURITY.md` SQ-7, SEC-CICD-3, SEC-CICD-4, SEC-SECRET-2, SEC-SESSION-7 remain open. Still blocks: the pipeline security gate set, IaC baseline, secret management, encryption-at-rest configuration, network tiering, and egress restriction. Threat TM-T-6 remains CONDITIONAL.
@@ -121,8 +121,9 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | FR-8.9 | REQ-PROGRESS-030 | Boundary 1; REST API | SEC-INPUT-2, SEC-ERR-1 | Components → Form feedback | COVERED |
 | FR-9.1 | REQ-AUTHZ-020, REQ-PRIVACY-060 | REST API | SEC-AUTHZ-2, SEC-DATA-5 | — | COVERED |
 | FR-9.2 | REQ-PRIVACY-010 | REST API | SEC-DATA-2 | Components → Inputs | COVERED |
-| FR-9.3 | — | REST API; artifact storage | SEC-DATA-3, SEC-DATA-6 | — | BLOCKED — PQ-16 |
-| FR-9.4 | — | REST API; Persistence | SEC-DATA-4 | — | BLOCKED — PQ-16 |
+| FR-9.3 | — | REST API | SEC-DATA-3 | — | UNBLOCKED — AWAITING DRAFT (PQ-16 RESOLVED) |
+| FR-9.4 | — | REST API; Persistence | SEC-DATA-4 | — | UNBLOCKED — AWAITING DRAFT (PQ-16 RESOLVED) |
+| FR-9.10 | — | REST API; Persistence | SEC-DATA-4, SEC-LOG-2, SEC-LOG-3 | — | UNBLOCKED — AWAITING DRAFT (PQ-16 RESOLVED) |
 | FR-9.5 | REQ-PRIVACY-030 | REST API; Browser Client | SEC-AUTHZ-2, SEC-INPUT-3 | Components → Inputs, Form feedback | PARTIALLY COVERED — email change deferred to PQ-7 |
 | FR-9.6 | REQ-PRIVACY-040 | REST API; Browser Client | SEC-TB-1, SEC-INPUT-4 | Layout (72ch); Components | PARTIALLY COVERED — mechanism and enforcement covered; presentation form open (PQ-25); trigger set complete (PQ-12 RESOLVED — first use includes first selection) |
 | FR-9.7 | REQ-AUDIT-010, REQ-AUDIT-020 | REST API; Persistence | SEC-LOG-1, SEC-LOG-2, SEC-LOG-3 | — | COVERED |
@@ -139,7 +140,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | FR-11.3 | REQ-CONSULT-020 | REST API; Identity | SEC-AUTHZ-3, SEC-SESSION-4 | Components → Buttons | COVERED |
 | FR-11.4 | REQ-CONSULT-010, REQ-AUDIT-020 | REST API | SEC-LOG-1 | — | COVERED |
 
-**Totals** — 76 functional requirements: 42 `COVERED`, 7 `PARTIALLY COVERED`, 25 `UNBLOCKED — AWAITING DRAFT` (FR-2.16, FR-2.17, FR-3.1–FR-3.6, FR-4.8, FR-5.2, FR-5.3, FR-6.3, FR-6.4, FR-8.2, FR-8.4–FR-8.6, FR-8.10–FR-8.14, FR-11.1, FR-11.5, FR-11.6), 2 `BLOCKED` (FR-9.3, FR-9.4), 0 `OUT OF SCOPE`, 0 untracked. Counts re-tallied from the matrix rows on 2026-08-01 — the earlier 46/6 split did not match the rows. The whole authentication surface is drafted; subscription entitlement, plan selection, measurements, food logging, and progress history are unblocked (PQ-4, PQ-9, PQ-10, PQ-11, PQ-12 RESOLVED, awaiting drafts); the remaining blocked scope is export and deletion and offering the consultant option. Every requirement traces to an issue or to a named blocking question.
+**Totals** — 77 functional requirements: 42 `COVERED`, 7 `PARTIALLY COVERED`, 28 `UNBLOCKED — AWAITING DRAFT` (FR-2.16, FR-2.17, FR-3.1–FR-3.6, FR-4.8, FR-5.2, FR-5.3, FR-6.3, FR-6.4, FR-8.2, FR-8.4–FR-8.6, FR-8.10–FR-8.14, FR-9.3, FR-9.4, FR-9.10, FR-11.1, FR-11.5, FR-11.6), 0 `BLOCKED`, 0 `OUT OF SCOPE`, 0 untracked. **No functional requirement is blocked any longer** — every remaining gap is an issue draft to write or an infrastructure decision (PQ-19, PQ-20). Counts re-tallied from the matrix rows on 2026-08-01 — the earlier 46/6 split did not match the rows. The whole authentication surface is drafted; subscription entitlement, plan selection, measurements, food logging, and progress history are unblocked (PQ-4, PQ-9, PQ-10, PQ-11, PQ-12 RESOLVED, awaiting drafts); the remaining blocked scope is export and deletion and offering the consultant option. Every requirement traces to an issue or to a named blocking question.
 
 ## 3. Coverage matrix — security rules
 
@@ -180,7 +181,7 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | SEC-RENDER-2 | REQ-CATALOG-030 (conditional) | TO BE DECIDED — rich-text requirement open |
 | SEC-DATA-1 | — | BLOCKED — PQ-19 |
 | SEC-DATA-2 | REQ-PRIVACY-010, REQ-PRIVACY-020 | COVERED |
-| SEC-DATA-3, -4, -6 | — | BLOCKED — PQ-16 |
+| SEC-DATA-3, -4 | — | UNBLOCKED — AWAITING DRAFT (PQ-16 RESOLVED); SEC-DATA-6 MOOT (synchronous export) |
 | SEC-DATA-5 | REQ-PRIVACY-060 | COVERED |
 | SEC-OPS-1 | — | BLOCKED — PQ-20 |
 | SEC-AI-1, -2, -3 | — | UNBLOCKED — AWAITING DRAFT (PQ-10 RESOLVED; rules added 2026-08-01) |
@@ -201,8 +202,6 @@ Status values: `COVERED`, `PARTIALLY COVERED`, `BLOCKED`, `UNBLOCKED — AWAITIN
 | Scope | Requirements | Blocked by |
 |---|---|---|
 | Signing key storage and rotation | SEC-SESSION-7 | PQ-19 |
-| Data export | FR-9.3 | PQ-16 |
-| Account deletion | FR-9.4 | PQ-16 |
 | Encryption at rest and backup handling | SEC-DATA-1 | PQ-19 |
 | CI security gates, Terraform baseline, secret management, network tiering | SEC-CICD-1, -3, -4; SEC-SECRET-2, -3; SEC-TB-2 | PQ-19 |
 | Audit retention, tamper-evidence, operational break-glass | SEC-LOG-5, -7; SEC-OPS-1 | PQ-20 |

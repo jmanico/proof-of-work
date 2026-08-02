@@ -97,13 +97,14 @@
 
 - **FR-9.1** The system MUST scope every plan copy and log entry to its owning subscriber, and MUST NOT expose one subscriber's data to another subscriber.
 - **FR-9.2** The system MUST obtain the user's explicit consent to collect and process their health data before any health data is recorded.
-- **FR-9.3** The system MUST allow a user to export all of their own account, plan, and progress data in a machine-readable form.
-- **FR-9.4** The system MUST allow a user to request deletion of their account and all associated personal and health data, and MUST complete the deletion. The completion deadline is TO BE DECIDED.
+- **FR-9.3** The system MUST allow a user to export all of their own account, plan, and progress data in a machine-readable form, delivered synchronously as a single JSON download over the authenticated session; no export artifact is stored. *(SECURITY.md SQ-5 RESOLVED.)*
+- **FR-9.4** The system MUST allow a user to request deletion of their account and all associated personal and health data, and MUST complete the deletion: live-system deletion is a synchronous hard delete effective at request time, and full completion — including expiry of backup copies — occurs within 35 days. Any backup restore MUST re-apply deletions performed since that backup. *(SECURITY.md SQ-5 RESOLVED.)*
 - **FR-9.5** The system MUST allow a user to view and correct the personal data held about them.
 - **FR-9.6** The system MUST display a disclaimer stating that the plans and content are not medical advice, and MUST require the user to acknowledge it before they first use a plan.
 - **FR-9.7** The system MUST record an audit entry for each access to or modification of a user's health data, capturing the acting account, the action, and the time.
 - **FR-9.8** The system MUST NOT transmit user health data to any external service.
 - **FR-9.9** The system MUST allow a user to withdraw their previously given consent to health-data collection, and MUST NOT record new health data for that user while consent is withdrawn. Existing records remain subject to FR-9.3–FR-9.5. *(Threat-model-derived: SECURITY.md TM-P-2.)*
+- **FR-9.10** On account deletion, the system MUST retain audit entries with the deleted account's identifiers replaced by an irreversible tombstone identifier; audit entries never contain health values (SECURITY.md SEC-LOG-3), so nothing health-bearing survives. *(Resolves the audit-survival half of SECURITY.md SQ-5.)*
 
 ### Administration
 
