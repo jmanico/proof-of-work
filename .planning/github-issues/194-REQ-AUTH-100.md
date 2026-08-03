@@ -4,11 +4,11 @@
 
 - **ID**: REQ-AUTH-100
 - **Title**: Subscriber password authentication
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-08-01
+- **Last Updated**: 2026-08-03
 - **Priority**: Critical
 - **Requirement Type**: Functional
 - **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-2.3, FR-2.6, FR-2.8; `SECURITY.md` SEC-AUTHN-3, SEC-AUTHN-4, SEC-AUTHN-2
@@ -18,8 +18,8 @@
 - **Statement**: The system MUST authenticate a `subscriber` by verifying a submitted password against the stored credential, MUST issue a session only after any enabled second factor has also been satisfied, and MUST refuse password authentication outright for accounts holding the `admin` or `consultant` role.
 - **Rationale**: FR-2.3 requires password authentication and forbids revealing which factor was wrong. SEC-AUTHN-4 requires that a first-factor-only context grant access to nothing, so this issue must not issue a session and then upgrade it. FR-2.8 and SEC-AUTHN-2 make the role check part of authentication rather than a later authorization concern: the credential path is selected by the account's persisted role, so a privileged account cannot be authenticated by choosing a different form.
 - **Assumptions**: Credential verification is provided by REQ-AUTH-070; the MFA challenge itself is REQ-AUTH-120; the session record is created by REQ-SESSION-030 and transported by REQ-SESSION-050.
-- **Out of Scope**: Credential hashing (REQ-AUTH-070); the MFA challenge mechanics and recovery-code redemption (REQ-AUTH-120); passkey authentication (REQ-AUTH-020); the uniform failure response contract (REQ-AUTH-040, which this issue consumes); throttling (REQ-AUTH-060); password reset (REQ-AUTH-130); subscription entitlement, blocked by `REQUIREMENTS.md` OQ-1.
-- **Design Traceability**: `DESIGN.md` — Components → Inputs, Buttons (a busy state that blocks repeat submission), and Form feedback and errors. The failure message is deliberately generic, which is the documented resolution of the tension between naming the specific problem and SEC-AUTHN-3.
+- **Out of Scope**: Credential hashing (REQ-AUTH-070); the MFA challenge mechanics and recovery-code redemption (REQ-AUTH-120); passkey authentication (REQ-AUTH-020); the uniform failure response contract (REQ-AUTH-040, which this issue consumes); throttling (REQ-AUTH-060); password reset (REQ-AUTH-130); subscription entitlement, which is a per-request authorization concern owned by REQ-ENTITLE-010 (`REQUIREMENTS.md` OQ-1 RESOLVED — admin-granted periods, FR-3.5, FR-3.6), never an authentication concern.
+- **Design Traceability**: `DESIGN.md` — Product Patterns → Credentials, account security, and administration (Sign-in and second factor: email and password on one screen, failure copy never names the failing factor, throttled attempts surface as a neutral "Try again shortly" state); Core Components → Forms and validation, Actions (a busy state that blocks repeat submission). The failure message is deliberately generic, which is the documented resolution of the tension between naming the specific problem and SEC-AUTHN-3.
 - **Architecture Traceability**: `ARCHITECTURE.md` — Identity and Session Handling ("credential verification, MFA challenge for subscribers who enable it, session establishment"); trust boundary 2; data flow 1.
 - **Security Traceability**: SEC-AUTHN-3 (non-disclosing failures), SEC-AUTHN-4 (no partial authentication), SEC-AUTHN-2 (no password path for privileged roles), SEC-AUTHN-5 (via REQ-AUTH-070), SEC-LOG-4 (authentication events logged).
 
@@ -32,7 +32,7 @@
 - **Preconditions**: An account exists with a stored password credential
 - **Data Classification**: Restricted
 - **Personal or Regulated Data**: Personal Data — credentials and authentication events
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1)
+- **Jurisdiction / Regulatory Scope**: Global service with GDPR as the design ceiling (`SECURITY.md` SQ-1 RESOLVED): GDPR/UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; HIPAA not applicable
 
 ## Security Context
 
@@ -48,11 +48,11 @@
 
 ## Standards Alignment
 
-- **OWASP ASVS 5.0.0**: TO BE DECIDED — not verified against `REF-ASVS-5` in this session.
+- **OWASP ASVS 5.0.0**: TO BE DECIDED — mapping verified only at the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **OWASP AISVS 1.0**: N/A
-- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
+- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — mapping verified only at the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **NIST SP 800-207**: TO BE DECIDED — see Zero Trust Relevance.
-- **Regulatory**: TO BE DECIDED — blocked by `SECURITY.md` SQ-1.
+- **Regulatory**: GDPR/UK GDPR (EU/UK data subjects); CCPA/CPRA, Washington My Health My Data, FTC Health Breach Notification Rule (US users); HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED). Statute-section precision: TO BE DECIDED pending the SQ-1 pre-launch counsel review.
 - **Other**: `REF-AUTH`, `REF-63B`, `REF-ASVS-5`, as named by SEC-AUTHN-3 and SEC-AUTHN-4.
 - **Mapping Basis**: The cited rules name these references; the CWE identifiers name the improper-authentication, response-discrepancy, and attempt-restriction classes.
 
@@ -74,7 +74,7 @@
 - **On External Dependency Failure**: If the credential store is unreadable, deny; MUST NOT fall back to any alternative credential source or cached verdict.
 - **On System Error**: Generic error with a correlation identifier (SEC-ERR-1).
 - **Logging / Audit**: Per AC-06. A privileged password attempt is a notable event and MUST be logged with its cause class, since it indicates either misconfiguration or an attack.
-- **Alerting**: TO BE DECIDED — blocked by `SECURITY.md` SQ-3.
+- **Alerting**: Threshold alerts route to the security lead as SEC-OPS-2 detection inputs (`SECURITY.md` SQ-3, SQ-11 RESOLVED); SEC-LOG-4 authentication events, including privileged password attempts, are among those inputs.
 
 ## Test Strategy
 
@@ -96,12 +96,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime with Fastify; Vue single-page application (`CLAUDE.md`). Subscription entitlement is blocked by `REQUIREMENTS.md` OQ-1, so a successful authentication grants an authenticated session with no entitlement evaluation; that gap must be stated when the issue is closed.
+- **Constraints**: Node.js runtime with Fastify; Vue single-page application (`CLAUDE.md`). A successful authentication grants an authenticated session with no entitlement evaluation — subscription entitlement is a distinct per-request authorization gate (SEC-AUTHZ-8) delivered by REQ-ENTITLE-010, and authentication MUST NOT be conditioned on it (FR-3.2 assumes an authenticated but unentitled state exists).
 - **Prohibited Approaches**: A shared login endpoint that branches on a client-supplied credential-type flag rather than on the persisted role. Issuing any session, even a limited one, before the second factor completes (SEC-AUTHN-4). Returning different messages, status codes, or response times for unknown account, wrong password, and privileged account. Short-circuiting the credential check when no account exists, which creates a timing oracle — perform equivalent work in both cases. Logging the submitted password anywhere, including in a validation error.
 - **Implementation Guidance**: Resolve the account and its role first, then select the permitted credential path, then verify — this ordering is what makes AC-03 hold across every endpoint rather than only the one that remembered to check. For AC-02's timing requirement, coordinate carefully with REQ-AUTH-060's early short-circuit, which is the most likely source of an accidental oracle.
 - **AI Development Guidance**: `REF-AUTH`, `REF-63B`, `REF-PROMPT-JWT`, `REF-PROMPT-NODE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Security review of every session-issuing path, not only this one, confirming none accepts a password for a privileged role.
-- **Open Decisions**: None specific to this issue. Entitlement evaluation is blocked by `REQUIREMENTS.md` OQ-1 and belongs to a future issue that will extend this path.
+- **Open Decisions**: None specific to this issue. Entitlement evaluation (`REQUIREMENTS.md` OQ-1 RESOLVED) belongs to REQ-ENTITLE-010 and sits in the authorization layer, not this path.
 
 **Estimated effort**: 1.5–2 engineer-days. **Estimated changed lines**: 350–750.
 **Recommended model**: Claude Opus (`claude-opus-5`) — response uniformity across three failure modes and an absolute no-password rule for privileged roles are both invisible to functional testing and easy to break.

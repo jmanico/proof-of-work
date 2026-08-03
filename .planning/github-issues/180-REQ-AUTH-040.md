@@ -4,11 +4,11 @@
 
 - **ID**: REQ-AUTH-040
 - **Title**: Non-disclosing authentication failure responses
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: High
 - **Requirement Type**: Security
 - **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-2.3 (second clause); `SECURITY.md` SEC-AUTHN-3; threat TM-I-4
@@ -18,8 +18,8 @@
 - **Statement**: Authentication failures MUST NOT reveal which factor was incorrect, and MUST NOT allow account existence to be inferred from response content, status, or timing, across login, registration, and recovery surfaces.
 - **Rationale**: FR-2.3 requires rejecting invalid credentials without revealing which factor was wrong; SEC-AUTHN-3 extends that to account enumeration by content, status, or timing. The threat model records enumeration (TM-I-4) as a privacy concern because an account's existence in a health application is itself disclosure.
 - **Assumptions**: The credential paths that produce these failures exist. Subscriber registration (REQ-AUTH-080), email verification (REQ-AUTH-090), and password login (REQ-AUTH-100) exist alongside privileged passkey authentication (REQ-AUTH-020); `REQUIREMENTS.md` OQ-8 and OQ-15 are RESOLVED. This issue defines the response contract that every such path must satisfy, including those added later.
-- **Out of Scope**: The credential verification itself; anti-automation thresholds (SEC-AUTHN-6 mechanism delivered by REQ-AUTH-060; concrete thresholds blocked by `SECURITY.md` SQ-3); the registration and recovery flows themselves (REQ-AUTH-080, REQ-AUTH-090, REQ-AUTH-130, REQ-AUTH-150).
-- **Design Traceability**: `DESIGN.md` — Components → Form feedback and errors. Note the deliberate exception: `DESIGN.md` requires messages that name the specific problem, but for authentication the security rule takes precedence and a generic message is required; specificity remains for field-format validation of the submitted form.
+- **Out of Scope**: The credential verification itself; anti-automation (SEC-AUTHN-6 mechanism and its SQ-3-fixed thresholds delivered by REQ-AUTH-060); the registration and recovery flows themselves (REQ-AUTH-080, REQ-AUTH-090, REQ-AUTH-130, REQ-AUTH-150); non-enumerating outbound mail-send behavior, which SEC-EXT-3 assigns to the mail channel delivered by REQ-INFRA-060 and the flows that send.
+- **Design Traceability**: `DESIGN.md` — Credentials, account security, and administration codifies this contract in the interface: no sign-in, reset, resend, or verification response may reveal whether an address or account exists, failure copy never names the failing factor, throttled attempts surface as a neutral "Try again shortly" state, and request confirmations read "If that address is registered, we sent a message." Specificity remains for field-format validation of the submitted form (Forms and validation).
 - **Architecture Traceability**: `ARCHITECTURE.md` — Identity and Session Handling ("Rejects invalid credentials without revealing which factor failed (FR-2.3)"); trust boundary 2.
 - **Security Traceability**: SEC-AUTHN-3; supports SEC-ERR-1, SEC-LOG-4, SEC-AUTHN-6.
 
@@ -32,7 +32,7 @@
 - **Preconditions**: An authentication-related request has been submitted
 - **Data Classification**: Confidential — the existence of an account is itself personal data in a health context
 - **Personal or Regulated Data**: Personal Data
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1)
+- **Jurisdiction / Regulatory Scope**: Global service, single US primary region (`SECURITY.md` SQ-1 RESOLVED): GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; GDPR-grade rights granted to all users; HIPAA not applicable
 
 ## Security Context
 
@@ -52,7 +52,7 @@
 - **OWASP AISVS 1.0**: N/A
 - **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
 - **NIST SP 800-207**: N/A
-- **Regulatory**: TO BE DECIDED — blocked by `SECURITY.md` SQ-1; account existence is personal data under the regimes REQUIREMENTS.md names.
+- **Regulatory**: GDPR and UK GDPR (EU/UK data subjects); CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule (US users); HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED). Account existence in a health application is personal data under this regime set. Statute-section mappings: TO BE DECIDED — verified at the SQ-1 pre-launch counsel review.
 - **Other**: `REF-AUTH` as cited by SEC-AUTHN-3; `REF-63B`.
 - **Mapping Basis**: SEC-AUTHN-3 cites `REF-AUTH` and `REF-ASVS-5`; the CWE identifiers name the observable-discrepancy classes, including the timing variant the rule explicitly covers.
 
@@ -72,7 +72,7 @@
 - **On External Dependency Failure**: If credential storage is unavailable, return the generic authentication failure rather than a distinguishable system error that reveals the account lookup succeeded.
 - **On System Error**: Generic error with a correlation identifier (SEC-ERR-1), indistinguishable from other failures in what it reveals about account state.
 - **Logging / Audit**: Log every authentication failure with cause class, submitted-identifier hash or account identifier where resolvable, source context, and correlation identifier. MUST NOT log the submitted credential (SEC-LOG-3).
-- **Alerting**: TO BE DECIDED — blocked by `SECURITY.md` SQ-3; enumeration detection depends on thresholds that are undefined.
+- **Alerting**: Threshold alerts on enumeration-shaped failure patterns (SEC-LOG-4 events; thresholds fixed by SQ-3) route to the security lead as SEC-OPS-2 detection inputs (`SECURITY.md` SQ-3, SQ-11 RESOLVED).
 
 ## Test Strategy
 
@@ -94,12 +94,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). This issue delivers the contract and applies it to the drafted credential paths (REQ-AUTH-020, -080, -090, -100, -130); it MUST be re-applied to each new credential path.
+- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). This issue delivers the contract and applies it to the drafted credential paths (REQ-AUTH-020, -080, -090, -100, -130, and the FR-2.18 email-change flow REQ-AUTH-180); it MUST be re-applied to each new credential path.
 - **Prohibited Approaches**: "User not found" versus "incorrect password"; different status codes by account state; short-circuiting credential verification when the account does not exist, which creates the timing signal AC-02 forbids; revealing a collision during registration.
 - **Implementation Guidance**: Perform equivalent work on the unregistered path — including a dummy verification of comparable cost — so timing does not separate the cases. The same uniformity helper serves REQ-AUTHZ-040's denial responses.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-NODE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Security review of every authentication-related response path; privacy review of what the client displays.
-- **Open Decisions**: `REQUIREMENTS.md` OQ-8 and OQ-15 are RESOLVED — their flows (REQ-AUTH-090, REQ-AUTH-100, REQ-AUTH-130) add response paths that must satisfy this contract. `SECURITY.md` TM-D-2 is closed by SEC-AUTHN-6: fixed lockout is prohibited in favour of exponential backoff (REQ-AUTH-060); concrete thresholds remain open under SQ-3.
+- **Open Decisions**: None. `REQUIREMENTS.md` OQ-8 and OQ-15 are RESOLVED — their flows (REQ-AUTH-090, REQ-AUTH-100, REQ-AUTH-130) add response paths that must satisfy this contract, as does the FR-2.18 email-change flow (REQ-AUTH-180). `SECURITY.md` TM-D-2 is closed by SEC-AUTHN-6: fixed lockout is prohibited in favour of exponential backoff (REQ-AUTH-060), with concrete thresholds fixed by SQ-3 (RESOLVED). Outbound mail sending is likewise non-enumerating (SEC-EXT-3, REQ-INFRA-060).
 
 **Estimated effort**: 0.5–1.5 engineer-days. **Estimated changed lines**: 150–350.
 **Recommended model**: Claude Opus (`claude-opus-5`) — subtle disclosure and timing behavior where a naive implementation passes functional tests and still leaks.

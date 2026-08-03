@@ -4,11 +4,11 @@
 
 - **ID**: REQ-AUTHZ-030
 - **Title**: Admin-only restriction on plan lifecycle operations
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: Critical
 - **Requirement Type**: Security
 - **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-4.2, FR-4.3, FR-10.1; `SECURITY.md` SEC-AUTHZ-4
@@ -18,10 +18,10 @@
 - **Statement**: Plan authoring, editing, verification, publication, and unpublication MUST be permitted only to accounts with the `admin` role and MUST be denied to `subscriber` and `consultant` accounts, and subscribers MUST NOT be able to author plans, submit plans for publication, or share plans with other users.
 - **Rationale**: FR-10.1 restricts these actions to admins; FR-4.2 forbids subscriber authoring, submission, and sharing; FR-4.3 grants the actions to admins; SEC-AUTHZ-4 states the enforcement rule.
 - **Assumptions**: Role is resolved from the verified session (REQ-AUTHZ-010) and is server-assigned (REQ-API-020, REQ-AUTH-010).
-- **Out of Scope**: The verification workflow itself, which depends on `REQUIREMENTS.md` OQ-10 (re-verification after edit) and OQ-16 (dual control) and is blocked; how admin accounts are provisioned (REQ-AUTH-140, SEC-AUTHN-9; vetting and deprovisioning remain open under `SECURITY.md` SQ-12); customization of a published plan by a subscriber, which is a distinct permitted behavior (REQ-CUSTOM-010).
-- **Design Traceability**: `DESIGN.md` OQ-7 asks whether admins get a distinct interface region; that is open and does not affect this server-side rule.
+- **Out of Scope**: The verification operation's one-time-gate semantics (FR-4.8; REQ-PLAN-070 — `REQUIREMENTS.md` OQ-10 and OQ-16 RESOLVED); how admin accounts are provisioned, vetted, and deprovisioned (REQ-AUTH-140, SEC-AUTHN-9, FR-2.10; FR-2.16, FR-2.17 — REQ-AUTH-160, REQ-AUTH-170; `SECURITY.md` SQ-12 RESOLVED); the admin health-data prohibition and administrative account views (FR-10.3, SEC-AUTHZ-9; REQ-AUTHZ-060); exercise catalog management (FR-5.4; REQ-PLAN-080); customization of a published plan by a subscriber, which is a distinct permitted behavior (REQ-CUSTOM-010).
+- **Design Traceability**: `DESIGN.md` OQ-7 RESOLVED — admins have a distinct labelled "Admin workspace" (Information Architecture and Navigation); this server-side rule does not depend on the client presentation.
 - **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application ("enforces role rules (FR-2.7, FR-10.1)"); DR-4 ("Published plans are mutable only by admin-role operations").
-- **Security Traceability**: SEC-AUTHZ-4; supports SEC-AUTHZ-1, SEC-LOG-6, SEC-INPUT-4.
+- **Security Traceability**: SEC-AUTHZ-4; supports SEC-AUTHZ-1, SEC-LOG-6, SEC-INPUT-4. Adjacent, not absorbed: SEC-AUTHZ-9 (REQ-AUTHZ-060) bounds what the `admin` role may read — this issue grants plan-lifecycle capability only and adds no health-data access.
 
 ## Scope
 
@@ -32,7 +32,7 @@
 - **Preconditions**: Authenticated session with a resolved role
 - **Data Classification**: Internal — plan content is not personal data, but its integrity carries safety impact
 - **Personal or Regulated Data**: None — plan content is admin-authored; the verification record names the acting admin
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1)
+- **Jurisdiction / Regulatory Scope**: N/A — these operations process no subscriber personal or health data; the SQ-1 regime set (`SECURITY.md` SQ-1 RESOLVED) attaches to the system's personal data elsewhere
 
 ## Security Context
 
@@ -72,7 +72,7 @@
 - **On External Dependency Failure**: Deny on persistence unavailability; never proceed on an unverified role.
 - **On System Error**: Roll back; generic error with a correlation identifier.
 - **Logging / Audit**: Log denials with actor, role, operation, and plan identifier (SEC-LOG-4). Permitted admin actions emit audit entries per FR-10.2 and SEC-LOG-6 (REQ-AUDIT-030).
-- **Alerting**: TO BE DECIDED — no threshold for repeated privileged-operation denials is defined.
+- **Alerting**: Threshold alerts route to the security lead as SEC-OPS-2 detection inputs (`SECURITY.md` SQ-3, SQ-11 RESOLVED).
 
 ## Test Strategy
 
@@ -99,7 +99,7 @@
 - **Implementation Guidance**: Express the role requirement declaratively next to the route so the role matrix test can be generated from the same source.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-ABAC`; `CLAUDE.md`.
 - **Required Human Review**: Security review of the role matrix.
-- **Open Decisions**: `REQUIREMENTS.md` OQ-16 asks whether verification requires a second admin (dual control). This issue enforces "admin only"; if OQ-16 resolves to dual control, the verification operation gains an additional constraint in the blocked verification issue, not here.
+- **Open Decisions**: None. `REQUIREMENTS.md` OQ-16 resolved dual control as consciously declined (FR-4.8; `SECURITY.md` TM-T-5 RISK ACCEPTED): the verifying admin MAY be the plan's author, and the verification operation is delivered by REQ-PLAN-070 with no second-admin constraint.
 
 **Estimated effort**: 0.5–1 engineer-day. **Estimated changed lines**: 150–350.
 **Recommended model**: Claude Opus (`claude-opus-5`) — small, security-sensitive, and safety-relevant; exhaustive role-matrix coverage matters more than autonomy.

@@ -4,22 +4,22 @@
 
 - **ID**: REQ-PLAN-050
 - **Title**: Publication gate requiring citation and verification record
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: Critical
 - **Requirement Type**: Functional
-- **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-4.4, FR-4.5, FR-4.7, FR-10.2; `SECURITY.md` SEC-INPUT-4
+- **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-4.4, FR-4.5, FR-4.7, FR-4.8, FR-10.2; `SECURITY.md` SEC-INPUT-4
 
 ## Requirement
 
 - **Statement**: The system MUST block publication of a plan that carries no citation or no admin verification record, MUST record which admin verified the plan and when, MUST make only published plans visible to subscribers, and MUST audit the publication action.
-- **Rationale**: FR-4.4 requires at least one peer-reviewed citation before publication and explicitly requires blocking publication without one; FR-4.5 requires explicit admin verification with the verifying admin and time recorded; FR-4.7 restricts subscriber visibility to published plans; SEC-INPUT-4 requires these as server-side validation rather than UI affordance.
+- **Rationale**: FR-4.4 requires at least one peer-reviewed citation before publication and explicitly requires blocking publication without one; FR-4.5 requires explicit admin verification with the verifying admin and time recorded; FR-4.7 restricts subscriber visibility to published plans; SEC-INPUT-4 requires these as server-side validation rather than UI affordance. FR-4.8 fixes verification as a one-time gate before first publication — performable by any `admin`, including the plan's author — so this gate checks record presence and never re-requires verification after an edit.
 - **Assumptions**: Citations exist as records (REQ-PLAN-040) and a verification record can be present on a plan (REQ-PLAN-010, REQ-PLAN-020).
-- **Out of Scope**: The verification *workflow* — who may verify relative to who authored, and whether an edit invalidates a prior verification — which `REQUIREMENTS.md` OQ-16 and OQ-10 leave open and which is blocked; unpublication (REQ-PLAN-060); how verification status is displayed (`DESIGN.md` OQ-5).
-- **Design Traceability**: `DESIGN.md` — Components → Buttons (one primary action per view, busy state blocking repeat submission), Form feedback and errors; `DESIGN.md` OQ-5 leaves verification-badge presentation open.
+- **Out of Scope**: The verification *operation* that creates the verification record — a one-time gate under FR-4.8 (`REQUIREMENTS.md` OQ-10 and OQ-16 RESOLVED), planned as REQ-PLAN-070; unpublication (REQ-PLAN-060) and its selection-ending consequence (FR-4.9, REQ-SELECT-030); how verification status is displayed — resolved by `DESIGN.md` OQ-5 (Product Patterns → Plans, citations, and review state).
+- **Design Traceability**: `DESIGN.md` — Core Components → Actions (one primary action per region; busy state prevents repeat submission; specific verbs such as "Publish plan"); Forms and validation; Product Patterns → Plans, citations, and review state ("Draft admin views show a publication checklist with separate Citation present and Review recorded gates"; admin views show the verifier identity and timestamp required by FR-4.5); `DESIGN.md` OQ-5 RESOLVED (2026-08-01).
 - **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application ("Enforces publication gates (FR-4.4, FR-4.5, FR-4.7)"); data flow 6 ("role check, citation-presence gate, verification record → plan published").
 - **Security Traceability**: SEC-INPUT-4, SEC-AUTHZ-4, SEC-INPUT-3, SEC-LOG-6.
 
@@ -73,7 +73,7 @@
 - **On External Dependency Failure**: If persistence or audit storage is unavailable, publication fails atomically.
 - **On System Error**: Roll back the state change and its audit entry together.
 - **Logging / Audit**: One audit entry per successful publish (FR-10.2, REQ-AUDIT-030). Refusals logged with the failing precondition.
-- **Alerting**: TO BE DECIDED — given TM-T-5, a publication by the same admin who authored and verified the plan is a natural alert candidate, but `REQUIREMENTS.md` OQ-16 leaves dual control open and no alerting model exists.
+- **Alerting**: Publish audit entries (SEC-LOG-6) and refusals are SEC-LOG-4/SEC-OPS-2 detection inputs; threshold alerts route to the security lead (`SECURITY.md` SQ-11 RESOLVED). Same-admin author-verify-publish is not alerted by rule: `REQUIREMENTS.md` OQ-16 resolved dual control as consciously declined, with post-hoc audit review as the compensating control.
 
 ## Test Strategy
 
@@ -87,20 +87,20 @@
 
 ## Dependencies
 
-- **Upstream Requirements**: REQ-PLAN-010, REQ-PLAN-020, REQ-PLAN-030, REQ-PLAN-040, REQ-AUTHZ-030, REQ-AUDIT-030
+- **Upstream Requirements**: REQ-PLAN-010, REQ-PLAN-020, REQ-PLAN-030, REQ-PLAN-040, REQ-PLAN-070, REQ-AUTHZ-030, REQ-AUDIT-030
 - **Downstream Requirements**: REQ-PLAN-060, REQ-CATALOG-010, REQ-CATALOG-020, REQ-CUSTOM-010
 - **External Dependencies**: None
-- **Dependency Assumptions**: The verification record exists as a persisted attribute of the plan; the operation that *creates* it is blocked, so this gate is testable using a seeded record until that operation is unblocked.
-- **Failure Impact**: This gate is the only specified control standing between an admin account and health guidance reaching every subscriber, and TM-T-5 records that a single compromised admin can currently satisfy it alone.
+- **Dependency Assumptions**: The verification record exists as a persisted attribute of the plan; the operation that *creates* it is REQ-PLAN-070 (FR-4.8), so this gate is testable using a seeded record until that issue lands.
+- **Failure Impact**: This gate is the only specified control standing between an admin account and health guidance reaching every subscriber. TM-T-5 — a single compromised admin can author, verify, and publish alone — is RISK ACCEPTED (OQ-16, 2026-08-01), with FR-10.2/SEC-LOG-6 audit, passkey-only admin authentication (SEC-AUTHN-2), and the two-admin minimum (FR-2.15) as the compensating controls.
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM and Fastify (`CLAUDE.md`). The gate checks that a verification record is *present*; whether the verifier must differ from the author (`REQUIREMENTS.md` OQ-16) and whether an edit invalidates verification (OQ-10) are open and MUST NOT be decided here. This makes the issue's coverage of FR-4.5 partial: the record and the gate are delivered, the workflow is not.
+- **Constraints**: PostgreSQL with Drizzle ORM and Fastify (`CLAUDE.md`). The gate checks that a verification record is *present*. The workflow is fixed by FR-4.8 (`REQUIREMENTS.md` OQ-10 and OQ-16 RESOLVED): verification is required once, before first publication, MAY be performed by any `admin` including the plan's author, and an edit to a published plan never clears or re-requires it — so this gate MUST NOT invalidate a verification record on edit. The verification operation itself is delivered by REQ-PLAN-070.
 - **Prohibited Approaches**: A combined save-and-publish path; enforcing the gate only in the admin UI; allowing publication state to be set through create or edit; treating a citation count cached on the plan row as authoritative without checking the citation records themselves.
 - **Implementation Guidance**: Because REQ-PLAN-040 refuses removal of the last citation from a published plan, and this gate refuses publication without one, the invariant "published implies at least one citation" holds from both directions — assert it as a test in both issues.
 - **AI Development Guidance**: `REF-PC-2024`, `REF-PROMPT-API`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
-- **Required Human Review**: Security review of the gate; product and safety review of the publication process while OQ-16 is open.
-- **Open Decisions**: `REQUIREMENTS.md` OQ-16 (dual-control verification) and OQ-10 (re-verification after edit). Both are blocked; the verification-creation operation has no issue until they resolve.
+- **Required Human Review**: Security review of the gate; product and safety review that the compensating controls for the accepted TM-T-5 risk (audit, passkey-only admins, two-admin minimum) are in place around it.
+- **Open Decisions**: None — `REQUIREMENTS.md` OQ-16 (dual control declined, risk accepted) and OQ-10 (verification never re-triggers on edit) are resolved by FR-4.8, and the verification-creation operation is planned as REQ-PLAN-070.
 
 **Estimated effort**: 1–1.5 engineer-days. **Estimated changed lines**: 250–500.
-**Recommended model**: Claude Opus (`claude-opus-5`) — the highest safety-impact business gate in the specification, with an adjacent open question that must be preserved rather than resolved.
+**Recommended model**: Claude Opus (`claude-opus-5`) — the highest safety-impact business gate in the specification, sitting on a consciously accepted single-admin risk whose compensating controls must hold exactly.

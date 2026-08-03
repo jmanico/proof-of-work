@@ -4,11 +4,11 @@
 
 - **ID**: REQ-CONSULT-010
 - **Title**: Engagement-scoped consultant access
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: Critical
 - **Requirement Type**: Security
 - **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-11.2, FR-11.4; `SECURITY.md` SEC-AUTHZ-3
@@ -17,9 +17,9 @@
 
 - **Statement**: A `consultant` MUST NOT be granted access to a subscriber's plans or health data unless an active engagement exists between that consultant and that subscriber, and every consultant access to a subscriber's health data MUST produce an audit entry.
 - **Rationale**: FR-11.2 states the access condition; FR-11.4 requires the audit entry; SEC-AUTHZ-3 restates both as a server-side rule with tests for the no-engagement, active-engagement, and ended-engagement cases. The threat model treats a malicious or compromised consultant as a primary adversary.
-- **Assumptions**: An engagement record exists linking a consultant to a subscriber with a state. How an engagement is *created* and paid for is blocked by `REQUIREMENTS.md` OQ-13 and OQ-1; this issue enforces the access rule against a seeded engagement.
-- **Out of Scope**: Purchasing the paid consultant option (FR-11.1), blocked by OQ-13 and OQ-1; what a consultant may *do* within scope — read only, edit plans, message — which `REQUIREMENTS.md` OQ-12 leaves open and which `SECURITY.md` records as threat TM-E-3; ending an engagement (REQ-CONSULT-020); consultant onboarding and vetting (`SECURITY.md` SQ-12).
-- **Design Traceability**: `DESIGN.md` OQ-7 asks how a subscriber sees that a consultant has access to their data; that presentation is open and not delivered here, though the audit trail from AC-04 is the record such a view would draw on.
+- **Assumptions**: An engagement record exists linking a consultant to a subscriber with a state. Engagement creation is an `admin` action naming the consultant and the subscriber (FR-11.5; `REQUIREMENTS.md` OQ-13 and OQ-1 RESOLVED), delivered by REQ-CONSULT-030; payment stays out of band in v1 (OQ-18 deferred). This issue enforces the access rule against an engagement that exists.
+- **Out of Scope**: Creating and administratively revoking an engagement (FR-11.1, FR-11.5) — REQ-CONSULT-030; what a consultant may *do* within scope, which FR-11.6 fixes as views plus plan-copy edits (`REQUIREMENTS.md` OQ-12 RESOLVED; threat TM-E-3 MITIGATED BY RULE) — REQ-CONSULT-040; ending an engagement (REQ-CONSULT-020); consultant vetting records and deprovisioning (FR-2.16, FR-2.17; `SECURITY.md` SQ-12 RESOLVED) — REQ-AUTH-160 and REQ-AUTH-170.
+- **Design Traceability**: `DESIGN.md` OQ-7 RESOLVED — Information Architecture and Navigation: subscribers see consultant access in a Home summary and in Account → Consultant access, both naming the consultant and stating the exact access granted by FR-11.6; consultant pages carry a persistent selected-client context bar stating the scope ("View progress and selected plans; edit plan copies"), and no client data remains visible after an engagement ends. The audit trail from AC-01 is the record those views draw on.
 - **Architecture Traceability**: `ARCHITECTURE.md` — data flow 7 ("Consultant client → REST API → active-engagement check → scoped subscriber data → audit entry written"); REST API Application ("consultant engagement scoping (FR-11.2, FR-11.3) before any data access"); DR-4.
 - **Security Traceability**: SEC-AUTHZ-3, SEC-AUTHZ-1, SEC-AUTHZ-2, SEC-LOG-1, SEC-DATA-5, SEC-SESSION-4.
 
@@ -32,7 +32,7 @@
 - **Preconditions**: Authenticated `consultant` session established by passkey (REQ-AUTH-020)
 - **Data Classification**: Restricted
 - **Personal or Regulated Data**: Health Data
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1, `REQUIREMENTS.md` OQ-3)
+- **Jurisdiction / Regulatory Scope**: GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED, `REQUIREMENTS.md` OQ-3 RESOLVED)
 
 ## Security Context
 
@@ -48,11 +48,11 @@
 
 ## Standards Alignment
 
-- **OWASP ASVS 5.0.0**: TO BE DECIDED — not verified against `REF-ASVS-5` in this session.
+- **OWASP ASVS 5.0.0**: TO BE DECIDED — per-issue mappings are verified during the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **OWASP AISVS 1.0**: N/A
-- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
+- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — per-issue mappings are verified during the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **NIST SP 800-207**: TO BE DECIDED — see Zero Trust Relevance.
-- **Regulatory**: TO BE DECIDED — third-party access to health data is a regulated disclosure under every regime `REQUIREMENTS.md` names, but the governing set is blocked by `SECURITY.md` SQ-1.
+- **Regulatory**: Third-party access to health data is a regulated disclosure under the `SECURITY.md` SQ-1 regime set — GDPR/UK GDPR for EU/UK data subjects; CCPA/CPRA, Washington My Health My Data, and the FTC Health Breach Notification Rule for US users; HIPAA not applicable. Statute-section precision: TO BE DECIDED per-issue (SQ-1 counsel review, SQ-10).
 - **Other**: `REF-PROMPT-ABAC`, `REF-ASVS-5` as cited by SEC-AUTHZ-3.
 - **Mapping Basis**: FR-11.2, FR-11.4, and SEC-AUTHZ-3 are the normative sources and name these references; the CWE identifiers name the missing-authorization classes.
 
@@ -73,7 +73,7 @@
 - **On External Dependency Failure**: If persistence or audit storage is unavailable, deny rather than return unaudited data (REQ-AUDIT-020).
 - **On System Error**: Generic error with a correlation identifier; no partial data.
 - **Logging / Audit**: Audit entry for every consultant access to health data (FR-11.4, SEC-LOG-1). Denials logged as security events (REQ-AUTHZ-040). No health values in logs (SEC-LOG-3).
-- **Alerting**: TO BE DECIDED — a consultant accessing an unusual number of subjects is a natural signal, but thresholds are blocked by `SECURITY.md` SQ-3.
+- **Alerting**: Authorization denials and consultant health-data access entries (SEC-LOG-4, SEC-LOG-1) are detection inputs; threshold alerts route to the security lead under SEC-OPS-2 (`SECURITY.md` SQ-3 and SQ-11 RESOLVED). A consultant accessing an unusual number of subjects is a natural signal within that channel.
 
 ## Test Strategy
 
@@ -87,20 +87,20 @@
 
 ## Dependencies
 
-- **Upstream Requirements**: REQ-AUTH-010, REQ-AUTH-020, REQ-AUTHZ-010, REQ-AUTHZ-020, REQ-AUDIT-020, REQ-PRIVACY-060
-- **Downstream Requirements**: REQ-CONSULT-020
+- **Upstream Requirements**: REQ-AUTH-010, REQ-AUTH-020, REQ-AUTHZ-010, REQ-AUTHZ-020, REQ-AUDIT-020, REQ-PRIVACY-060, REQ-CONSULT-030
+- **Downstream Requirements**: REQ-CONSULT-020, REQ-CONSULT-040
 - **External Dependencies**: None
-- **Dependency Assumptions**: An engagement record with a resolvable active state exists in persistence, even though the operation that creates it is blocked by `REQUIREMENTS.md` OQ-13.
-- **Failure Impact**: An unengaged consultant reading subscriber health data is a third-party disclosure — the failure mode FR-11.2 exists to prevent, and the one most likely to carry regulatory weight once `SECURITY.md` SQ-1 resolves.
+- **Dependency Assumptions**: An engagement record with a resolvable active state exists in persistence, created by the `admin` action FR-11.5 defines (REQ-CONSULT-030).
+- **Failure Impact**: An unengaged consultant reading subscriber health data is a third-party disclosure — the failure mode FR-11.2 exists to prevent, and a regulated disclosure under the `SECURITY.md` SQ-1 regime set (GDPR/UK GDPR; CCPA/CPRA, Washington My Health My Data, FTC HBNR).
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`). This issue bounds *who* a consultant may reach, not *what* they may do once inside scope — `REQUIREMENTS.md` OQ-12 is open and `SECURITY.md` records the gap as TM-E-3. Implement read access consistent with the subscriber's own read paths and do not grant write capabilities, since none are specified; record that as the provisional position rather than a decision.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`). This issue bounds *who* a consultant may reach; *what* they may do inside scope is fixed by FR-11.6 (`REQUIREMENTS.md` OQ-12 RESOLVED) — views of the engaged subscriber's selected plans, customized plan copies, and progress logs, plus edits of plan copies only, never log-entry writes — and is delivered by REQ-CONSULT-040. `SECURITY.md` records threat TM-E-3 as MITIGATED BY RULE on that basis. Implement read access consistent with the subscriber's own read paths.
 - **Prohibited Approaches**: Caching engagement state in the session or token, which would defeat SEC-SESSION-4 and REQ-CONSULT-020; a role check without an engagement check; a consultant-wide listing endpoint that returns data across subjects; treating an ended engagement as active until token expiry.
 - **Implementation Guidance**: Compose the engagement predicate with the owner predicate from REQ-AUTHZ-020 in a single scope resolver, so that a consultant's scope is a strict subset of the subject's own scope and cannot exceed it.
 - **AI Development Guidance**: `REF-PROMPT-ABAC`, `REF-PROMPT-API`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Security review of the engagement predicate; privacy review of what a consultant sees.
-- **Open Decisions**: `REQUIREMENTS.md` OQ-12 (consultant capabilities), OQ-13 (onboarding, vetting, and how the paid option is purchased), OQ-1 (payments); `SECURITY.md` SQ-4 (how capabilities map onto the three roles) and SQ-12 (provisioning and deprovisioning). This issue therefore covers FR-11.2 and FR-11.4 while FR-11.1 remains blocked.
+- **Open Decisions**: None affecting this issue's behavior — `REQUIREMENTS.md` OQ-12, OQ-13, and OQ-1 and `SECURITY.md` SQ-4 and SQ-12 are RESOLVED; engagement creation is planned as REQ-CONSULT-030 and in-scope capabilities as REQ-CONSULT-040. Self-serve payments stay deferred (`REQUIREMENTS.md` OQ-18). Per-issue standards mappings remain TO BE DECIDED until the SQ-10 pre-launch assessment.
 
 **Estimated effort**: 1–2 engineer-days. **Estimated changed lines**: 300–650.
 **Recommended model**: Claude Opus (`claude-opus-5`) — third-party access to health data, where the correct scope is a composition of two predicates and the failure is a regulated disclosure.

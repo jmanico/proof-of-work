@@ -4,24 +4,24 @@
 
 - **ID**: REQ-PLAN-020
 - **Title**: Diet plan content model with calorie and macronutrient targets
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: High
 - **Requirement Type**: Functional
 - **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-4.1, FR-6.1, FR-6.2
 
 ## Requirement
 
-- **Statement**: The system MUST persist diet plans as admin-authored records that specify their meals and their daily calorie and macronutrient targets, together with the plan's citations, its verification record, and its publication state.
-- **Rationale**: FR-6.2 requires each diet plan to specify its meals and its daily calorie and macronutrient targets; FR-6.1 requires a subscriber to view a plan's full contents; FR-4.1 places diet plans in the admin-authored library. The targets are also the comparison basis for FR-8.5, so their structure is load-bearing beyond display.
+- **Statement**: The system MUST persist diet plans as admin-authored records that specify their meals and their daily calorie and macronutrient targets — protein, carbohydrate, and fat, each targeted in grams (FR-6.2) — together with the plan's citations, its verification record, and its publication state.
+- **Rationale**: FR-6.2 requires each diet plan to specify its meals and its daily calorie and macronutrient targets, and fixes the macronutrients as protein, carbohydrate, and fat in grams — the system-wide macronutrient set shared by food logging (FR-8.4), the daily comparison (FR-8.5), and AI estimation (FR-8.12). FR-6.1 requires a subscriber to view a plan's full contents; FR-4.1 places diet plans in the admin-authored library. The targets are the comparison basis for FR-8.5 (REQ-FOOD-030), so their structure is load-bearing beyond display.
 - **Assumptions**: Exercise plans and diet plans are distinct entities (`ARCHITECTURE.md`, Data model expectations).
-- **Out of Scope**: Exercise plans (REQ-PLAN-010); authoring operations (REQ-PLAN-030); citation management (REQ-PLAN-040); the publication gate (REQ-PLAN-050); food logging and the comparison of logged intake against these targets (FR-8.4, FR-8.5), both blocked by `REQUIREMENTS.md` OQ-5 because no nutrition data source is defined; plan selection, blocked by OQ-6.
-- **Design Traceability**: `DESIGN.md` — Typography (numeric data — calories and macros — rendered with tabular/lining figures so values align in columns); Layout and Spacing (72ch for plan descriptions).
-- **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application ("Owns … diet plan"); Relational Persistence; DR-4; FR-6.1–FR-6.3 traceability row.
-- **Security Traceability**: SEC-INPUT-1, SEC-INPUT-5, SEC-INPUT-3 (publication and verification not client-settable), SEC-RENDER-1 and SEC-RENDER-2.
+- **Out of Scope**: Exercise plans (REQ-PLAN-010); authoring operations (REQ-PLAN-030); citation management (REQ-PLAN-040); the publication gate (REQ-PLAN-050); the verification operation (REQ-PLAN-070); food logging and the comparison of logged intake against these targets, owned by REQ-FOOD-020 and REQ-FOOD-030 (`REQUIREMENTS.md` OQ-5 RESOLVED — bundled dataset plus in-boundary AI estimation); diet plan selection, owned by REQ-SELECT-020 (OQ-6 RESOLVED).
+- **Design Traceability**: `DESIGN.md` — Typography (numeric data — calories and macros — rendered with lining tabular figures so values align in columns; values and their units do not wrap onto separate lines; long-form text limited to 68ch for plan descriptions); Product Patterns → Progress and target comparison (explicit text such as "82 g of 110 g target", which consumes these targets).
+- **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application ("Owns … diet plan"); Relational Persistence; DR-4; FR-6.1–FR-6.4 traceability row.
+- **Security Traceability**: SEC-INPUT-1, SEC-INPUT-5, SEC-INPUT-3 (publication and verification not client-settable), SEC-RENDER-1 and SEC-RENDER-2 (v1 content is structured plain text — Confirmed).
 
 ## Scope
 
@@ -48,21 +48,21 @@
 
 ## Standards Alignment
 
-- **OWASP ASVS 5.0.0**: TO BE DECIDED — not verified against `REF-ASVS-5` in this session.
+- **OWASP ASVS 5.0.0**: TO BE DECIDED — per-issue mappings are verified during the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **OWASP AISVS 1.0**: N/A
-- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
+- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — per-issue mappings are verified during the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **NIST SP 800-207**: N/A
 - **Regulatory**: N/A — plan content is not personal or regulated data. Note that dietary prescriptions carry safety weight, which FR-9.6's disclaimer and FR-4.4's citation requirement address rather than a statute named in any source document.
 - **Other**: `REF-INPUT` for field constraint design.
-- **Mapping Basis**: FR-6.2 fixes the required content; the security references are those `SECURITY.md` cites for the validation and rendering rules the model must support.
+- **Mapping Basis**: FR-6.2 fixes the required content including the macronutrient trio; the security references are those `SECURITY.md` cites for the validation and rendering rules the model must support.
 
 ## Acceptance Criteria
 
-1. **AC-01 — Expected behavior**: Given a persisted diet plan, when it is retrieved, then it carries its identity, title and description, its meals, its daily calorie target, its daily macronutrient targets, its citations, its verification record where one exists, and its publication state.
-2. **AC-02 — Boundary or failure behavior**: Given an attempt to persist a diet plan whose daily calorie or macronutrient target is absent, non-numeric, or negative, or that has no meals, when the write occurs, then it is rejected with the failing field identified and nothing is persisted.
-3. **AC-03 — Prohibited behavior**: Given the model, when it is defined, then publication state and the verification record MUST NOT be settable from a request body (SEC-INPUT-3), and a diet plan MUST NOT be persistable without the daily calorie and macronutrient targets FR-6.2 requires.
+1. **AC-01 — Expected behavior**: Given a persisted diet plan, when it is retrieved, then it carries its identity, title and description, its meals, its daily calorie target, its daily protein, carbohydrate, and fat targets in grams, its citations, its verification record where one exists, and its publication state.
+2. **AC-02 — Boundary or failure behavior**: Given an attempt to persist a diet plan whose daily calorie target or any of its protein, carbohydrate, or fat targets is absent, non-numeric, or negative, or that has no meals, when the write occurs, then it is rejected with the failing field identified and nothing is persisted.
+3. **AC-03 — Prohibited behavior**: Given the model, when it is defined, then publication state and the verification record MUST NOT be settable from a request body (SEC-INPUT-3), and a diet plan MUST NOT be persistable without the daily calorie target and all three FR-6.2 macronutrient targets.
 4. **AC-04 — Additional criterion**: Given a plan's meals, when they are retrieved, then their order is stable and reproducible across reads.
-5. **AC-05 — Additional criterion**: Given the macronutrient targets, when they are modelled, then each macronutrient is a distinct named numeric field rather than free text, so that FR-8.5's comparison against logged intake is computable once `REQUIREMENTS.md` OQ-5 resolves.
+5. **AC-05 — Additional criterion**: Given the macronutrient targets, when they are modelled, then protein, carbohydrate, and fat are distinct named numeric fields in grams rather than free text, so that FR-8.5's comparison against logged intake (REQ-FOOD-030) is computable directly against the same system-wide macronutrient set FR-8.4 attributes to food log entries.
 
 ## Failure Behavior
 
@@ -73,34 +73,34 @@
 - **On External Dependency Failure**: The operation fails atomically if persistence is unavailable.
 - **On System Error**: Roll back so no partially written plan, meal set, or target set survives.
 - **Logging / Audit**: Plan lifecycle actions are audited per REQ-AUDIT-030; the plan body is not copied into audit entries.
-- **Alerting**: N/A
+- **Alerting**: N/A — a data model has no runtime alert condition of its own; lifecycle-action audit events are REQ-AUDIT-030's concern.
 
 ## Test Strategy
 
-- **Unit Tests**: Validation for title, description, meal name, calorie target, and each macronutrient target across valid, missing, non-numeric, negative, and over-length cases.
+- **Unit Tests**: Validation for title, description, meal name, calorie target, and each of the protein, carbohydrate, and fat targets across valid, missing, non-numeric, negative, and over-length cases.
 - **Integration Tests**: Persist and retrieve a plan with multiple meals and a full target set, asserting content fidelity and stable ordering.
 - **Security Tests**: Mass-assignment attempts on publication state and verification record; markup-bearing meal descriptions stored verbatim with escaping verified at the rendering boundary (REQ-CATALOG-030).
 - **Compliance Tests / Evidence**: N/A
-- **Acceptance-Criteria Traceability**: AC-01 — round-trip test; AC-02 — validation matrix; AC-03 — mass-assignment and required-target tests; AC-04 — ordering test; AC-05 — schema shape assertion.
+- **Acceptance-Criteria Traceability**: AC-01 — round-trip test; AC-02 — validation matrix; AC-03 — mass-assignment and required-target tests; AC-04 — ordering test; AC-05 — schema shape assertion for the gram-denominated trio.
 - **Coverage Target**: Every modelled field covered positive and negative.
 - **Required Test Environment**: PostgreSQL with drizzle-kit migrations applied; an admin identity; Vitest as the runner.
 
 ## Dependencies
 
 - **Upstream Requirements**: REQ-API-010, REQ-API-020, REQ-API-030
-- **Downstream Requirements**: REQ-PLAN-030, REQ-PLAN-040, REQ-PLAN-050, REQ-PLAN-060, REQ-CATALOG-020, REQ-CUSTOM-010
-- **External Dependencies**: None — notably, no external nutrition database is in scope (`REQUIREMENTS.md`, External integrations; OQ-5).
+- **Downstream Requirements**: REQ-PLAN-030, REQ-PLAN-040, REQ-PLAN-050, REQ-PLAN-060, REQ-CATALOG-020, REQ-CUSTOM-010, REQ-SELECT-020, REQ-FOOD-030
+- **External Dependencies**: None — no external nutrition service exists at runtime; the bundled dataset (FR-8.11, REQ-FOOD-010) is a separate build- or deploy-time artifact and does not feed this model.
 - **Dependency Assumptions**: The chosen RDBMS supports the numeric and referential constraints AC-02 and AC-05 require.
 - **Failure Impact**: Targets modelled as free text would make FR-8.5 uncomputable and would push the comparison logic into presentation code.
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM and drizzle-kit migrations (`CLAUDE.md`); schema design remains TO BE DECIDED. Which macronutrients must be modelled is not enumerated by `REQUIREMENTS.md` beyond "macronutrient targets"; the conventional set is protein, carbohydrate, and fat, but this MUST be confirmed by product rather than assumed silently — record it as an open decision if it is not confirmed before implementation.
-- **Prohibited Approaches**: A single free-text "targets" field; storing targets only as a computed percentage without absolute values; a shared plan table that merges exercise and diet plans; introducing an external nutrition data source, which is out of scope and would cross the FR-9.8 boundary.
-- **Implementation Guidance**: Model meals as ordered child records so customization (FR-7.1) can edit individual meals. Keep units explicit on calorie and macronutrient values.
+- **Constraints**: PostgreSQL with Drizzle ORM and drizzle-kit migrations (`CLAUDE.md`); schema design and indexing are implementation-level, decided with the code (`ARCHITECTURE.md`). The macronutrient set is fixed by FR-6.2 (resolved 2026-08-03): protein, carbohydrate, and fat, each targeted in grams — the system-wide set shared with FR-8.4 and FR-8.12; no other macronutrient field may be added without a `REQUIREMENTS.md` change.
+- **Prohibited Approaches**: A single free-text "targets" field; storing targets only as a computed percentage without absolute gram values; a shared plan table that merges exercise and diet plans; introducing an external nutrition data source, which is out of scope and would cross the FR-9.8 boundary.
+- **Implementation Guidance**: Model meals as ordered child records so customization (FR-7.1) can edit individual meals. The macronutrient unit is grams (FR-6.2); keep the calorie target a distinct numeric field. Display formatting — tabular figures, unit adjacency — is the client's job against `DESIGN.md`.
 - **AI Development Guidance**: `REF-PROMPT-QUALITY`, `REF-PROMPT-NODE`; `CLAUDE.md`.
-- **Required Human Review**: Product review of the macronutrient field set; architecture review of the schema.
-- **Open Decisions**: The exact macronutrient set to model (not enumerated in `REQUIREMENTS.md`); the unit system (`REQUIREMENTS.md` OQ-4 leaves units open for measurements and `DESIGN.md` OQ-8 for numeric formatting generally); rich text (SEC-RENDER-2). Food logging and target comparison (OQ-5) are blocked and have no issue.
+- **Required Human Review**: Architecture review of the schema; product review of the meal model.
+- **Open Decisions**: None. The macronutrient set is fixed (FR-6.2, resolved 2026-08-03); rich text is settled (SEC-RENDER-2 Confirmed); units for these targets are grams by rule, distinct from the FR-8.10 measurement unit preference (`REQUIREMENTS.md` OQ-4 RESOLVED); food logging and target comparison are specified (OQ-5 RESOLVED — REQ-FOOD-020, REQ-FOOD-030).
 
 **Estimated effort**: 1–1.5 engineer-days. **Estimated changed lines**: 250–500.
-**Recommended model**: Claude Fable (`claude-fable-5`) — a foundational model that must stay consistent with the exercise plan model and with the blocked food-logging work it will later feed.
+**Recommended model**: Claude Fable (`claude-fable-5`) — a foundational model that must stay consistent with the exercise plan model and with the food-logging and comparison work it feeds (REQ-FOOD-020, REQ-FOOD-030).

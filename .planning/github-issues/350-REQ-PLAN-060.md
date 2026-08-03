@@ -4,22 +4,22 @@
 
 - **ID**: REQ-PLAN-060
 - **Title**: Plan unpublication
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: High
 - **Requirement Type**: Functional
-- **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-4.3, FR-4.7, FR-7.5, FR-10.2
+- **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-4.3, FR-4.7, FR-4.9, FR-7.5, FR-10.2
 
 ## Requirement
 
 - **Statement**: An `admin` MUST be able to unpublish a plan, an unpublished plan MUST cease to be visible to subscribers, existing subscriber customized copies derived from it MUST remain unchanged, and the action MUST produce an audit entry.
-- **Rationale**: FR-4.3 grants unpublication to admins; FR-4.7 restricts subscriber visibility to published plans; FR-7.5 requires an existing customized copy to remain unchanged when its source plan is unpublished; FR-10.2 requires the action to be audited. Unpublication is the corrective control when a published plan turns out to be wrong or harmful, which makes it the counterpart to the TM-T-5 threat.
+- **Rationale**: FR-4.3 grants unpublication to admins; FR-4.7 restricts subscriber visibility to published plans; FR-7.5 requires an existing customized copy to remain unchanged when its source plan is unpublished; FR-10.2 requires the action to be audited. Unpublication is the corrective control when a published plan turns out to be wrong or harmful, which makes it the counterpart to the TM-T-5 threat. FR-4.9 (added 2026-08-03) attaches the selection-ending consequence to this transition: every active selection naming the plan ends, with an explanatory state and a replacement prompt, delivered by REQ-SELECT-030.
 - **Assumptions**: The publication gate and publication state exist (REQ-PLAN-050).
-- **Out of Scope**: Deleting a plan, which no requirement grants; whether unpublication should notify subscribers who follow the plan, which no source document specifies; plan selection semantics, blocked by `REQUIREMENTS.md` OQ-6, which would determine what "following an unpublished plan" means.
-- **Design Traceability**: `DESIGN.md` — Components → Buttons ("Destructive actions use `error` as the filled color and require explicit confirmation"), Form feedback and errors, Focus states.
+- **Out of Scope**: Deleting a plan, which no requirement grants; the FR-4.9 selection-ending consequence — ending each active selection that names the plan, the explanatory state and replacement prompt shown to affected subscribers, and the FR-8.5 no-target state — which is delivered by REQ-SELECT-030 and triggered by this issue's state transition; active plan selection itself (FR-5.3, FR-6.4; REQ-SELECT-010, REQ-SELECT-020).
+- **Design Traceability**: `DESIGN.md` — Core Components → Actions ("Destructive button: `error` treatment, explicit verb, and confirmation"), Forms and validation, Accessibility (focus); Status, feedback, and loading (`Unpublished` status chip).
 - **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application ("Enforces publication gates (FR-4.4, FR-4.5, FR-4.7), copy-on-customize semantics (FR-7.2, FR-7.5)"); data flow 6.
 - **Security Traceability**: SEC-AUTHZ-4, SEC-INPUT-3, SEC-INPUT-4, SEC-LOG-6.
 
@@ -62,7 +62,7 @@
 2. **AC-02 — Boundary or failure behavior**: Given a subscriber holding a customized copy derived from the plan, when the plan is unpublished, then the copy remains retrievable and byte-identical to its state before the unpublication (FR-7.5).
 3. **AC-03 — Prohibited behavior**: Given an unpublish request, when it is made by a `subscriber` or `consultant`, then it MUST be denied and the plan MUST remain published; and unpublication MUST NOT delete, alter, or hide any subscriber's customized copy or log entries.
 4. **AC-04 — Additional criterion**: Given an unpublished plan, when a subscriber requests it directly by identifier, then the response is indistinguishable from that for a plan that does not exist (FR-4.7, REQ-AUTHZ-040).
-5. **AC-05 — Additional criterion**: Given the admin interface, when unpublication is invoked, then it requires explicit confirmation and is presented as a destructive action (`DESIGN.md`, Components → Buttons).
+5. **AC-05 — Additional criterion**: Given the admin interface, when unpublication is invoked, then it requires explicit confirmation and is presented as a destructive action with an explicit verb (`DESIGN.md`, Core Components → Actions).
 
 ## Failure Behavior
 
@@ -73,7 +73,7 @@
 - **On External Dependency Failure**: If persistence or audit storage is unavailable, the operation fails atomically and the plan's state is unchanged.
 - **On System Error**: Roll back the state change and its audit entry together.
 - **Logging / Audit**: One audit entry per successful unpublish (REQ-AUDIT-030). Denials logged as security events.
-- **Alerting**: TO BE DECIDED — no alerting model exists in the source documents, though unpublication of a widely followed plan is operationally significant.
+- **Alerting**: Unpublish audit entries (SEC-LOG-6) and authorization denials (SEC-LOG-4) are SEC-OPS-2 detection inputs; threshold alerts route to the security lead (`SECURITY.md` SQ-11 RESOLVED).
 
 ## Test Strategy
 
@@ -88,19 +88,19 @@
 ## Dependencies
 
 - **Upstream Requirements**: REQ-PLAN-050, REQ-AUTHZ-030, REQ-AUDIT-030, REQ-CUSTOM-030
-- **Downstream Requirements**: REQ-CATALOG-010, REQ-CATALOG-020
+- **Downstream Requirements**: REQ-CATALOG-010, REQ-CATALOG-020, REQ-SELECT-030
 - **External Dependencies**: None
 - **Dependency Assumptions**: Customized copies are independent records rather than references to the published plan, which REQ-CUSTOM-010 and REQ-CUSTOM-030 establish; without that, AC-02 is unachievable.
 - **Failure Impact**: If unpublication cascades into customized copies, an admin's corrective action destroys subscriber data that FR-7.5 explicitly protects.
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM and Fastify (`CLAUDE.md`). Whether a subscriber currently following an unpublished plan retains access to it through their own copy is answered by FR-7.5 for copies; for plan *selection* it depends on `REQUIREMENTS.md` OQ-6 and is out of scope.
-- **Prohibited Approaches**: Deleting the plan instead of unpublishing it; cascading the state change to derived copies; soft-deleting copies; relying on the client to stop displaying an unpublished plan.
-- **Implementation Guidance**: Treat unpublication as a state transition on the plan alone. The subscriber-facing filter established in REQ-PLAN-050 is what makes visibility follow automatically; do not add a second filtering mechanism.
+- **Constraints**: PostgreSQL with Drizzle ORM and Fastify (`CLAUDE.md`). What happens to a subscriber following the plan is now fully specified: customized copies remain unchanged (FR-7.5), and every active selection naming the plan ends with an explanatory state and a replacement prompt (FR-4.9, delivered by REQ-SELECT-030); no logged history is altered by either.
+- **Prohibited Approaches**: Deleting the plan instead of unpublishing it; cascading the state change to derived copies; soft-deleting copies; relying on the client to stop displaying an unpublished plan; leaving an active selection pointing at an unpublished plan as if nothing changed (FR-4.9).
+- **Implementation Guidance**: Treat unpublication as a state transition on the plan alone. The subscriber-facing filter established in REQ-PLAN-050 is what makes visibility follow automatically; do not add a second filtering mechanism. The FR-4.9 selection-ending consequence is implemented by REQ-SELECT-030 against this transition — coordinate so ending selections and the state change cannot diverge, rather than implementing selection logic twice.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
-- **Required Human Review**: Security review of the role gate; product review of what subscribers see when a plan they follow is withdrawn.
-- **Open Decisions**: Whether subscribers should be notified of unpublication is unspecified in all source documents. Plan selection semantics (`REQUIREMENTS.md` OQ-6) remain open and would extend this issue's scope when resolved.
+- **Required Human Review**: Security review of the role gate; product review of the FR-4.9 explanatory state and replacement prompt (with REQ-SELECT-030).
+- **Open Decisions**: None — plan selection semantics (`REQUIREMENTS.md` OQ-6) and the unpublish-while-selected consequence (FR-4.9) are resolved; the in-app explanatory state is the specified subscriber-facing notice, and no out-of-band notification is specified by any source document.
 
 **Estimated effort**: 0.5–1 engineer-day. **Estimated changed lines**: 150–350.
 **Recommended model**: Claude Opus (`claude-opus-5`) — small, but the data-preservation guarantee in AC-02 is the kind of thing a cascade delete quietly breaks.

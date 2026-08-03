@@ -4,11 +4,11 @@
 
 - **ID**: REQ-AUDIT-040
 - **Title**: Log redaction of health values, credentials, and tokens
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: Critical
 - **Requirement Type**: Privacy
 - **Source / Parent**: REQ-EPIC-001; `SECURITY.md` SEC-LOG-3, SEC-TB-3; threat TM-I-5
@@ -18,8 +18,8 @@
 - **Statement**: No logging surface may record health values, credentials, tokens, or full personal records, and no log or diagnostic data may be transmitted to a destination outside the system boundary.
 - **Rationale**: SEC-LOG-3 states the content rule and notes that audit entries reference the data accessed rather than copying it; SEC-TB-3 and FR-9.8 forbid transmitting health data to any external service including logging and monitoring destinations. The threat model rates health data leaking into logs, error responses, or external analytics (TM-I-5) as high severity.
 - **Assumptions**: A structured logging component exists (REQ-AUTH-050) and all logging flows through it.
-- **Out of Scope**: What events are logged (REQ-AUTH-050); the audit entry model (REQ-AUDIT-010); retention and access control for logs (SEC-LOG-5, blocked by `SECURITY.md` SQ-8); tamper-evidence (SEC-LOG-7, blocked by SQ-13).
-- **Design Traceability**: `DESIGN.md` — Components → Form feedback and errors, insofar as user-visible messages must not become a second uncontrolled surface for the values this rule protects.
+- **Out of Scope**: What events are logged (REQ-AUTH-050); the audit entry model (REQ-AUDIT-010); retention, access control, and tamper-evidence for logs and audit storage (SEC-LOG-5, SEC-LOG-7; `SECURITY.md` SQ-8 and SQ-13 RESOLVED — delivered by REQ-INFRA-040); transactional email content rules, which are the mail channel's own obligation (SEC-EXT-3 — delivered by REQ-INFRA-060).
+- **Design Traceability**: `DESIGN.md` — Core Components → Forms and validation ("A generic system failure includes the correlation identifier from SEC-ERR-1 without internal detail"), insofar as user-visible messages must not become a second uncontrolled surface for the values this rule protects.
 - **Architecture Traceability**: `ARCHITECTURE.md` — "All outbound paths"; the absence of an external-integration boundary by construction; DR-7.
 - **Security Traceability**: SEC-LOG-3, SEC-TB-3, SEC-SECRET-1, SEC-ERR-1; supports SEC-DATA-1, SEC-RENDER-4.
 
@@ -32,7 +32,7 @@
 - **Preconditions**: None
 - **Data Classification**: Restricted
 - **Personal or Regulated Data**: Health Data
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1, `REQUIREMENTS.md` OQ-3)
+- **Jurisdiction / Regulatory Scope**: GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED, `REQUIREMENTS.md` OQ-3 RESOLVED)
 
 ## Security Context
 
@@ -48,11 +48,11 @@
 
 ## Standards Alignment
 
-- **OWASP ASVS 5.0.0**: TO BE DECIDED — not verified against `REF-ASVS-5` in this session.
+- **OWASP ASVS 5.0.0**: TO BE DECIDED — mapped only when verified during the independent pre-launch assessment (`SECURITY.md` SQ-10 RESOLVED).
 - **OWASP AISVS 1.0**: N/A
-- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
+- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — mapped only when verified during the independent pre-launch assessment (`SECURITY.md` SQ-10 RESOLVED).
 - **NIST SP 800-207**: N/A
-- **Regulatory**: TO BE DECIDED — blocked by `SECURITY.md` SQ-1; under any of the regimes `REQUIREMENTS.md` names, health data in logs is in scope for the same obligations as health data in the database.
+- **Regulatory**: The SQ-1 regime set governs (GDPR/UK GDPR for EU/UK data subjects; CCPA/CPRA, Washington My Health My Data, FTC HBNR for US users; HIPAA not applicable); health data in logs is in scope for the same obligations as health data in the database. Statute-section precision: TO BE DECIDED — per-issue mappings await the SQ-1 pre-launch counsel review.
 - **Other**: `REF-LOG`, `REF-PROMPT-NODE` as cited by SEC-LOG-3.
 - **Mapping Basis**: SEC-LOG-3 cites `REF-LOG`, `REF-PROMPT-NODE`, and `REF-ASVS-5`; SEC-TB-3 supplies the egress prohibition; the CWE identifiers name the exposure classes.
 
@@ -60,7 +60,7 @@
 
 1. **AC-01 — Expected behavior**: Given a logging call carrying an object that includes health, credential, or token fields, when the record is emitted, then those fields are absent or replaced with a redaction marker, and the remaining context — event type, actor, correlation identifier — is preserved.
 2. **AC-02 — Boundary or failure behavior**: Given a corpus of logs produced by exercising every logged event with seeded health values and credentials, when the corpus is scanned, then none of the seeded values appears in any record, in any encoding.
-3. **AC-03 — Prohibited behavior**: Given the application and infrastructure configuration, when egress is reviewed, then no log, error report, trace, metric, or diagnostic payload is sent to any destination outside the system boundary (SEC-TB-3, FR-9.8), including third-party analytics, error-reporting, and monitoring services.
+3. **AC-03 — Prohibited behavior**: Given the application and infrastructure configuration, when egress is reviewed, then no log, error report, trace, metric, or diagnostic payload is sent to any destination outside the system boundary (SEC-TB-3, FR-9.8), including third-party analytics, error-reporting, and monitoring services; the named egress endpoints — in-account Bedrock inference (SEC-AI-1) and in-account SES transactional email (SEC-EXT-3, SEC-CICD-3) — are not log destinations and receive no log or diagnostic data.
 4. **AC-04 — Additional criterion**: Given a redaction policy, when a new field is added to any request or entity, then the policy defaults to redacting unknown fields in logged payloads rather than emitting them.
 5. **AC-05 — Additional criterion**: Given the Browser Client, when an error occurs, then it does not write health data or tokens to the browser console or to any client-side reporting channel (SEC-RENDER-4).
 
@@ -73,7 +73,7 @@
 - **On External Dependency Failure**: N/A — no external logging destination is permitted, so none can fail.
 - **On System Error**: The fault is logged with a correlation identifier and redacted context; the client sees only the generic error (SEC-ERR-1).
 - **Logging / Audit**: This issue governs the content of all logging. A redaction failure detected in test is a security defect, not a cosmetic one.
-- **Alerting**: N/A
+- **Alerting**: N/A — the source documents attach no runtime alert condition to redaction itself; a redaction failure is caught by the CI corpus scan, and security-event alerting generally routes to the security lead as SEC-OPS-2 detection inputs (SQ-11 RESOLVED).
 
 ## Test Strategy
 
@@ -83,7 +83,7 @@
 - **Compliance Tests / Evidence**: The corpus scan report and the egress review, retained as evidence for FR-9.8 and SEC-TB-3.
 - **Acceptance-Criteria Traceability**: AC-01 — redactor unit suite; AC-02 — corpus scan; AC-03 — egress review; AC-04 — unknown-field default test; AC-05 — client console test.
 - **Coverage Target**: Every logged event and every protected field class exercised.
-- **Required Test Environment**: Seeded health data with distinctive values, log capture across server and client, and access to the deployment configuration for egress review. pino log capture on Vitest; the log sink and deployment topology remain TO BE DECIDED (`SECURITY.md` SQ-7, SQ-8).
+- **Required Test Environment**: Seeded health data with distinctive values, log capture across server and client, and access to the deployment configuration for egress review. pino log capture on Vitest; deployment topology is fixed (`SECURITY.md` SQ-7 RESOLVED: separate dev/staging/production accounts, ECS Fargate API, NAT egress restricted to named endpoints) and log retention is fixed (SQ-8 RESOLVED: 12-month security logs, 3-year audit entries — REQ-INFRA-040).
 
 ## Dependencies
 
@@ -95,12 +95,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime with Fastify and its pino logger, whose redaction paths are the intended delivery mechanism for SEC-LOG-3; the log sink remains TO BE DECIDED (`SECURITY.md` SQ-8). `SECURITY.md` explicitly anticipates future integrations ("none YET"), so the egress prohibition must be enforced by configuration review, not only by the current absence of integrations.
+- **Constraints**: Node.js runtime with Fastify and its pino logger, whose redaction paths are the intended delivery mechanism for SEC-LOG-3; retention and archive storage are fixed (`SECURITY.md` SQ-8 RESOLVED — SEC-LOG-5, SEC-LOG-7, delivered by REQ-INFRA-040). The only sanctioned egress endpoints are in-account Bedrock (SEC-AI-1) and in-account SES (SEC-EXT-3); `SECURITY.md` still anticipates future integrations ("none YET"), so the egress prohibition must be enforced by configuration review, not only by the current absence of integrations.
 - **Prohibited Approaches**: Deny-lists of field names as the only mechanism; logging whole request or response bodies at any level including debug; enabling a third-party APM, error-reporting, or session-replay tool; redacting in the sink rather than before emission.
 - **Implementation Guidance**: Prefer an allow-list of loggable fields over a deny-list of forbidden ones, which is what makes AC-04 achievable. Audit entries reference data by identifier rather than copying it (REQ-AUDIT-010), so the same discipline applies on both surfaces.
 - **AI Development Guidance**: `REF-LOG`, `REF-PROMPT-NODE`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Privacy review of the redaction policy; security review of egress configuration.
-- **Open Decisions**: Log retention and access control (`SECURITY.md` SQ-8) and operator access to logs (SQ-13, SEC-OPS-1) remain open; redaction reduces but does not eliminate the exposure those questions cover.
+- **Open Decisions**: None. Log retention and access control (`SECURITY.md` SQ-8 RESOLVED — SEC-LOG-5) and operator access below the application (SQ-13 RESOLVED — SEC-OPS-1 break-glass, delivered by REQ-INFRA-050) are fixed; redaction reduces but does not eliminate the exposure those controls bound.
 
 **Estimated effort**: 1–1.5 engineer-days. **Estimated changed lines**: 200–450.
 **Recommended model**: Claude Opus (`claude-opus-5`) — a privacy control whose failures are silent and whose correct form (allow-list, fail-closed) is easy to get subtly wrong.

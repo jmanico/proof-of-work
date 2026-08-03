@@ -4,11 +4,11 @@
 
 - **ID**: REQ-AUDIT-010
 - **Title**: Audit entry model and append-only enforcement
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: Critical
 - **Requirement Type**: Compliance
 - **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-9.7; `SECURITY.md` SEC-LOG-1, SEC-LOG-2; threat TM-R-2
@@ -18,10 +18,10 @@
 - **Statement**: The system MUST persist audit entries recording the acting account, the action, the affected subject, and the time, and those entries MUST be append-only from the application's perspective — no role, including `admin`, may edit or delete an audit entry through any application interface.
 - **Rationale**: FR-9.7 requires an audit entry for each access to or modification of health data with those fields; SEC-LOG-1 restates the field set and extends it to consultant access; SEC-LOG-2 requires append-only semantics so that the record of an action cannot be erased by the actor.
 - **Assumptions**: Audit entries live in Relational Persistence alongside the other business objects (`ARCHITECTURE.md`, Data model expectations).
-- **Out of Scope**: Which operations must write an entry (REQ-AUDIT-020, REQ-AUDIT-030); redaction rules for log content (REQ-AUDIT-040); tamper-evidence against actors below the application (SEC-LOG-7, blocked by `SECURITY.md` SQ-8 and SQ-13); retention periods and access control for audit storage (SEC-LOG-5, blocked by SQ-8).
+- **Out of Scope**: Which operations must write an entry (REQ-AUDIT-020, REQ-AUDIT-030); redaction rules for log content (REQ-AUDIT-040); tamper-evidence against actors below the application and the hash-chained archive (SEC-LOG-7; `SECURITY.md` SQ-8 and SQ-13 RESOLVED — delivered by REQ-INFRA-040); retention periods and admin-only investigative access for audit storage (SEC-LOG-5; SQ-8 RESOLVED — delivered by REQ-INFRA-040); tombstoning of identifiers on account deletion (FR-9.10 — delivered by REQ-PRIVACY-100).
 - **Design Traceability**: N/A — no source document specifies an audit-viewing interface, and none is created here.
 - **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application ("Owns … audit entry"); Relational Persistence; DR-4; DR-9.
-- **Security Traceability**: SEC-LOG-1, SEC-LOG-2; supports SEC-LOG-3 (entries reference data, never copy it), SEC-LOG-6, SEC-DATA-4 (retained audit entries MUST NOT hold health values).
+- **Security Traceability**: SEC-LOG-1, SEC-LOG-2; supports SEC-LOG-3 (entries reference data, never copy it), SEC-LOG-5 and SEC-LOG-7 (retention and tamper evidence, REQ-INFRA-040), SEC-LOG-6, SEC-DATA-4 (retained audit entries MUST NOT hold health values; identifiers tombstone per FR-9.10, REQ-PRIVACY-100).
 
 ## Scope
 
@@ -32,7 +32,7 @@
 - **Preconditions**: None
 - **Data Classification**: Restricted — an audit trail of health-data access is itself sensitive (`SECURITY.md` TM-P-4)
 - **Personal or Regulated Data**: Personal Data — actor and subject identifiers; Health Data values MUST NOT be copied into an entry
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1, `REQUIREMENTS.md` OQ-3)
+- **Jurisdiction / Regulatory Scope**: GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED, `REQUIREMENTS.md` OQ-3 RESOLVED)
 
 ## Security Context
 
@@ -48,11 +48,11 @@
 
 ## Standards Alignment
 
-- **OWASP ASVS 5.0.0**: TO BE DECIDED — not verified against `REF-ASVS-5` in this session.
+- **OWASP ASVS 5.0.0**: TO BE DECIDED — mapped only when verified during the independent pre-launch assessment (`SECURITY.md` SQ-10 RESOLVED).
 - **OWASP AISVS 1.0**: N/A
-- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
+- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — mapped only when verified during the independent pre-launch assessment (`SECURITY.md` SQ-10 RESOLVED).
 - **NIST SP 800-207**: N/A
-- **Regulatory**: TO BE DECIDED — FR-9.7 is asserted by `REQUIREMENTS.md` as behavior regardless of regime; the specific statutory basis is blocked by `SECURITY.md` SQ-1 and `REQUIREMENTS.md` OQ-3.
+- **Regulatory**: The SQ-1 regime set governs (GDPR/UK GDPR for EU/UK data subjects; CCPA/CPRA, Washington My Health My Data, FTC HBNR for US users; HIPAA not applicable); FR-9.7 is required as behavior for all users regardless of jurisdiction. Statute-section precision: TO BE DECIDED — per-issue mappings await the SQ-1 pre-launch counsel review.
 - **Other**: `REF-LOG` as cited by SEC-LOG-1 and SEC-LOG-2.
 - **Mapping Basis**: FR-9.7 fixes the required fields; SEC-LOG-1 and SEC-LOG-2 fix the semantics and cite `REF-LOG`. No control identifier is asserted without verification.
 
@@ -73,7 +73,7 @@
 - **On External Dependency Failure**: If persistence is unavailable, the audit write fails and the calling health-data operation MUST NOT complete (REQ-AUDIT-020, DR-9).
 - **On System Error**: The audit write participates in the same transaction as the audited action, so a rollback removes both or neither.
 - **Logging / Audit**: This issue defines the audit record itself. Attempts to mutate audit entries are logged as security events (SEC-LOG-4).
-- **Alerting**: TO BE DECIDED — an attempted audit mutation is a plausible alert candidate, but no alerting model exists in any source document.
+- **Alerting**: An attempted audit mutation is logged as a security event (SEC-LOG-4); threshold alerts route to the security lead as SEC-OPS-2 detection inputs (`SECURITY.md` SQ-11 RESOLVED).
 
 ## Test Strategy
 
@@ -88,19 +88,19 @@
 ## Dependencies
 
 - **Upstream Requirements**: REQ-API-030
-- **Downstream Requirements**: REQ-AUDIT-020, REQ-AUDIT-030, REQ-AUTH-030, REQ-CONSULT-010, REQ-PRIVACY-010, REQ-PROGRESS-010, REQ-PROGRESS-020
+- **Downstream Requirements**: REQ-AUDIT-020, REQ-AUDIT-030, REQ-AUTH-030, REQ-CONSULT-010, REQ-PRIVACY-010, REQ-PRIVACY-100, REQ-PROGRESS-010, REQ-PROGRESS-020, REQ-INFRA-040
 - **External Dependencies**: None
 - **Dependency Assumptions**: The chosen RDBMS supports per-role privilege grants fine enough to withhold update and delete on a single table.
 - **Failure Impact**: Without append-only semantics the audit trail proves nothing, and FR-9.7's accountability guarantee is nominal.
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM and drizzle-kit migrations (`CLAUDE.md`). `SECURITY.md` SEC-LOG-2 binds the application only; protection against a database-credential holder is explicitly a separate, unresolved rule (SEC-LOG-7) and this issue MUST NOT be described as delivering it.
+- **Constraints**: PostgreSQL with Drizzle ORM and drizzle-kit migrations (`CLAUDE.md`). `SECURITY.md` SEC-LOG-2 binds the application only; protection against a database-credential holder is a separate, now-resolved rule (SEC-LOG-7: INSERT and SELECT only for the application's database role, revoked in raw-SQL migrations, plus the hash-chained Object Lock archive) delivered by REQ-INFRA-040 — this issue MUST NOT be described as delivering it, though AC-04's privilege shape is the same one SEC-LOG-7 mandates.
 - **Prohibited Approaches**: An `updated_at` column or any mutation path on audit entries; storing the accessed health values "for context"; taking the acting account from the request; writing the entry outside the audited action's transaction.
-- **Implementation Guidance**: Model the affected subject as a reference (subject account identifier plus record type and identifier) rather than embedded content, which satisfies SEC-LOG-3 by construction and keeps FR-9.4's deletion obligations tractable.
+- **Implementation Guidance**: Model the affected subject as a reference (subject account identifier plus record type and identifier) rather than embedded content, which satisfies SEC-LOG-3 by construction and keeps FR-9.4's deletion obligations tractable — on account deletion those identifiers are replaced by the FR-9.10 keyed HMAC-SHA-256 tombstone derivation (SEC-DATA-4; REQ-PRIVACY-100), so identifier fields must be structurally replaceable.
 - **AI Development Guidance**: `REF-LOG`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Security and privacy review of the entry schema; database privilege review.
-- **Open Decisions**: Retention and access control (`SECURITY.md` SQ-8); tamper-evidence against operators (SEC-LOG-7, SQ-13); what survives account deletion (SEC-DATA-4, SQ-5). All blocked; this issue is deliberately limited to the application-layer guarantee.
+- **Open Decisions**: None. The formerly open surroundings are resolved: retention and access control (`SECURITY.md` SQ-8 RESOLVED — SEC-LOG-5, REQ-INFRA-040); tamper-evidence against operators (SQ-13 RESOLVED — SEC-LOG-7, REQ-INFRA-040); what survives account deletion (SQ-5 RESOLVED — FR-9.10 tombstoning, REQ-PRIVACY-100). This issue remains deliberately limited to the application-layer guarantee.
 
 **Estimated effort**: 1–1.5 engineer-days. **Estimated changed lines**: 250–500.
 **Recommended model**: Claude Opus (`claude-opus-5`) — a compliance-critical data model whose value depends entirely on the mutation and content prohibitions holding.
