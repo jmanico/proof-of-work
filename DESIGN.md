@@ -226,7 +226,7 @@ Daily calorie and macro comparisons show explicit text such as “82 g of 110 g 
 
 Account groups Profile, Units and appearance, Security, Subscription, Consultant access, and Privacy. Export is described as a JSON download and remains separate from deletion. Consent withdrawal explains that new logging stops while existing records remain available under FR-9.3–FR-9.5.
 
-Account deletion uses a dedicated page, not a small dialog. It summarizes immediate live-system deletion, the 35-day backup horizon, audit tombstoning, and loss of access (FR-9.4, FR-9.10). The final action requires re-authentication when required by SECURITY.md and an explicit destructive button labelled **Permanently delete account**.
+Account deletion uses a dedicated page, not a small dialog. It summarizes immediate live-system deletion, the 35-day backup horizon, audit tombstoning, and loss of access (FR-9.4, FR-9.10). The final action requires fresh re-authentication (SECURITY.md SEC-AUTHN-7) and an explicit destructive button labelled **Permanently delete account**.
 
 ## Content Voice
 
