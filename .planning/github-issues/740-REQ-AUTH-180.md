@@ -4,7 +4,7 @@
 
 - **ID**: REQ-AUTH-180
 - **Title**: Email-address change
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -82,7 +82,7 @@
 - **Security Tests**: Captured pre-change session replayed after completion, asserting denial (SEC-AUTHN-12); token replay after redemption or replacement, asserting refusal; differential response and timing tests on token issuance for registered versus unregistered new addresses (SEC-AUTHN-3); MFA-enabled account attempting the change with first factor only, asserting refusal (SEC-AUTHN-7); mass-assignment attempt writing the address field directly, asserting it is ignored (SEC-INPUT-3).
 - **Compliance Tests / Evidence**: Audit trail of a completed change as FR-9.5 correction-right evidence.
 - **Acceptance-Criteria Traceability**: AC-01 — happy-path integration suite; AC-02 — in-flight recovery-anchor tests; AC-03 — freshness and factor unit/security tests; AC-04 — pending-deletion integration test; AC-05 — replay, notice, session-termination, and enumeration security suite.
-- **Coverage Target**: Positive and negative coverage of every gate (re-auth, verification, pending-deletion) and every token state transition (project threshold TO BE DECIDED, `CLAUDE.md`).
+- **Coverage Target**: Positive and negative coverage of every gate (re-auth, verification, pending-deletion) and every token state transition (project threshold 90% line and branch, `CLAUDE.md`, 2026-08-03).
 - **Required Test Environment**: Vitest and HTTP test client; mail-interface test double capturing token and notice sends; controllable clock for freshness and token lifetime; fixtures for MFA-enabled, MFA-disabled, and pending-deletion accounts.
 
 ## Dependencies

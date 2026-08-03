@@ -4,7 +4,7 @@
 
 - **ID**: REQ-INFRA-070
 - **Title**: Merge-blocking CI security gates
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -17,8 +17,8 @@
 
 - **Statement**: The CI pipeline MUST run the fixed gate set on every pull request — lint and typecheck, the Vitest unit and component suites, the Playwright with axe end-to-end suite, the osv-scanner dependency vulnerability audit, the gitleaks secret scan, the checkov IaC scan, and the authorization test suite — and a failure of any gate MUST block merge to `main`.
 - **Rationale**: SEC-CICD-4 requires security-relevant automated checks to run in CI and block merge on failure, and SQ-7 fixed the gate set; `CLAUDE.md` names GitHub Actions as the platform and this exact set as the merge-blocking gates. The build and deploy path can rewrite the system itself (`ARCHITECTURE.md` trust boundary 4), so an advisory-only check is no control: TM-T-6 (pipeline compromise) and TM-T-7 (malicious or vulnerable dependency) are both rated high severity, and several security rules name a gate as their verification method — SEC-RENDER-1 and SEC-INPUT-5 (lint rules), SEC-SECRET-1 (secret scanning), SEC-CICD-3 (IaC scanning), DEP-5 (vulnerability audit), SEC-AUTHZ-1 (authorization tests).
-- **Assumptions**: The workspace scaffolding, runner scripts, and lint configuration the gates invoke exist (REQ-BUILD-010); runner commands and the code-coverage threshold remain TO BE DECIDED in `CLAUDE.md` and are not fixed here — the gates run whatever documented commands REQ-BUILD-010 establishes. Staging auto-deploys from `main` and production requires manual approval (SEC-CICD-1), so `main` is the deployment source the gates protect.
-- **Out of Scope**: The content of the suites the gates execute — the authorization test suite (REQ-AUTHZ-010 through REQ-AUTHZ-060 and their feature tests), accessibility coverage (DESIGN.md Design Verification), dependency policy itself (REQ-PIPE-010 — DEP-1 … DEP-8); deployment identities and environment promotion (REQ-INFRA-010 — SEC-CICD-1, SEC-CICD-2); branch naming, PR template, and reviewer rules (`CLAUDE.md` — TO BE DECIDED, deliberately not resolved here).
+- **Assumptions**: The workspace scaffolding, runner scripts, and lint configuration the gates invoke exist (REQ-BUILD-010); runner commands remain TO BE DECIDED in `CLAUDE.md` and are not fixed here — the gates run whatever documented commands REQ-BUILD-010 establishes; the coverage threshold is fixed at 90% line and branch (`CLAUDE.md`, 2026-08-03). Staging auto-deploys from `main` and production requires manual approval (SEC-CICD-1), so `main` is the deployment source the gates protect.
+- **Out of Scope**: The content of the suites the gates execute — the authorization test suite (REQ-AUTHZ-010 through REQ-AUTHZ-060 and their feature tests), accessibility coverage (DESIGN.md Design Verification), dependency policy itself (REQ-PIPE-010 — DEP-1 … DEP-8); deployment identities and environment promotion (REQ-INFRA-010 — SEC-CICD-1, SEC-CICD-2); branch naming, PR template, and reviewer rules (recorded in `CLAUDE.md`, 2026-08-03: squash-only merges, `<type>/<short-slug>` branches, no required human reviewer while single-maintainer — this issue configures the required status checks, not the reviewer rules).
 - **Design Traceability**: `DESIGN.md`, Design Verification — the browser-level commitments "belong in the Playwright and axe suite named by CLAUDE.md"; that suite is one of the gates.
 - **Architecture Traceability**: `ARCHITECTURE.md` — trust boundary 4 (CI/CD-and-IaC path → production environment); DR-5 (the CI/CD migration-and-import path is a sanctioned path whose integrity these gates protect).
 - **Security Traceability**: SEC-CICD-4 (primary); SEC-CICD-1 (pipeline identities the gates run under); SEC-SECRET-1 (gitleaks), SEC-CICD-3 (checkov), DEP-5/DEP-7 (osv-scanner over the committed lockfile), SEC-RENDER-1 and SEC-INPUT-5 (lint-rule verification), SEC-AUTHZ-1–SEC-AUTHZ-9 (authorization suite as a gate).
@@ -94,12 +94,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: GitHub Actions is the platform (`CLAUDE.md`); the gate set is fixed by SEC-CICD-4/SQ-7 and MUST NOT be reduced without a `SECURITY.md` change; runner commands come from REQ-BUILD-010 — this issue MUST NOT invent commands or fix the coverage threshold (both TO BE DECIDED in `CLAUDE.md`).
+- **Constraints**: GitHub Actions is the platform (`CLAUDE.md`); the gate set is fixed by SEC-CICD-4/SQ-7 and MUST NOT be reduced without a `SECURITY.md` change; runner commands come from REQ-BUILD-010 — this issue MUST NOT invent commands (runner commands remain TO BE DECIDED in `CLAUDE.md`); the coverage threshold it gates is the fixed 90% line and branch (`CLAUDE.md`, 2026-08-03).
 - **Prohibited Approaches**: Advisory-only checks; `continue-on-error` on any gate; routine administrator bypass or merge-override labels; gates that pass when their tooling fails to run; resolving floating tool or action versions at run time (DEP-7); echoing detected secrets into logs.
 - **Implementation Guidance**: One workflow per gate (or clearly separated jobs) so each reports a distinct required status and a failure is attributable at a glance; make the authorization suite a named, separate status rather than folding it into the general Vitest job, since SEC-CICD-4 lists it as its own gate. Keep the failing-case fixtures on dedicated scratch branches so the evidence run is repeatable.
 - **AI Development Guidance**: `REF-CICD`, `REF-SSDF`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Security review of workflow definitions and branch protection settings; re-review on any change to the gate set or its bypass surface.
-- **Open Decisions**: Runner commands and the code-coverage threshold are TO BE DECIDED in `CLAUDE.md` (delivered by REQ-BUILD-010 and a coverage decision respectively); branch naming, PR template, and reviewer requirements are TO BE DECIDED and deliberately untouched here.
+- **Open Decisions**: Runner commands are TO BE DECIDED in `CLAUDE.md` (delivered by REQ-BUILD-010); the coverage threshold (90% line and branch) and the branch/PR workflow were fixed in `CLAUDE.md` 2026-08-03.
 
 **Estimated effort**: 1–1.5 engineer-days. **Estimated changed lines**: 300–600.
 **Recommended model**: Claude Opus (`claude-opus-5`) — pipeline configuration where fail-closed semantics and an unbypassable required-check surface are the acceptance bar.

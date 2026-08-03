@@ -4,7 +4,7 @@
 
 - **ID**: REQ-FOOD-050
 - **Title**: In-boundary inference service configuration
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -81,7 +81,7 @@
 - **Security Tests**: Egress probe from the API's network segment asserting third-party inference endpoints are unreachable (SEC-AI-1 egress review); checkov/IaC scan rules asserting the retention, training, IAM, and egress settings (SEC-CICD-4 gate); a deliberate out-of-band model change in a non-production environment asserting drift detection surfaces it.
 - **Compliance Tests / Evidence**: The zero-retention/no-training verification evidence and the egress review record, retained for the SQ-1 pre-launch counsel review and the SQ-10 assessment.
 - **Acceptance-Criteria Traceability**: AC-01 — invocation integration test; AC-02 — retention-verification pipeline check; AC-03 — egress probe plus IAM policy test; AC-04 — drift-detection exercise and configuration-resolution unit tests.
-- **Coverage Target**: Project coverage threshold TO BE DECIDED (`CLAUDE.md`); every configuration-resolution and fail-closed branch MUST have positive and negative tests.
+- **Coverage Target**: Project coverage threshold 90% line and branch (`CLAUDE.md`, 2026-08-03); every configuration-resolution and fail-closed branch MUST have positive and negative tests.
 - **Required Test Environment**: A deployed dev-account environment with Terraform state, CloudTrail access, and an in-VPC probe host or equivalent; checkov in CI.
 
 ## Dependencies

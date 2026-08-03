@@ -4,7 +4,7 @@
 
 - **ID**: REQ-PROGRESS-040
 - **Title**: Body measurement entry logging
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -81,7 +81,7 @@
 - **Security Tests**: BOLA suite — subscriber B against subscriber A's entry identifiers for read, edit, and delete, asserting denial without existence disclosure; mass-assignment probes submitting owner, audit, and undeclared laterality fields; write attempts as consultant and admin asserting denial (FR-10.3, FR-11.6).
 - **Compliance Tests / Evidence**: Audit-trail evidence that every access and modification produced the FR-9.7 fields; consent-gate refusal evidence for the SQ-1 regimes.
 - **Acceptance-Criteria Traceability**: AC-01 — create round-trip suite; AC-02 — boundary and rejection suite; AC-03 — BOLA and gate suites; AC-04 — edit/delete and mass-assignment suites.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); all validation boundaries, gates, and denial paths MUST have positive and negative tests regardless.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); all validation boundaries, gates, and denial paths MUST have positive and negative tests regardless.
 - **Required Test Environment**: Vitest with an HTTP test client and PostgreSQL fixtures; accounts in consented, unconsented, withdrawn, and unverified states; two subscriber identities for BOLA tests; Playwright for the client form, error presentation, and delete confirmation.
 
 ## Dependencies

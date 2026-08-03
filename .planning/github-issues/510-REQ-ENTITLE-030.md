@@ -4,7 +4,7 @@
 
 - **ID**: REQ-ENTITLE-030
 - **Title**: Admin subscription-period grant, extension, and revocation
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -82,7 +82,7 @@
 - **Security Tests**: Role matrix — subscriber and consultant invoking each operation, asserting denial (AC-03); mass-assignment suite submitting period/subscription fields on non-admin writes, asserting they are ignored (SEC-INPUT-3); attempt to mutate or delete the resulting audit entry through every role, asserting denial (SEC-LOG-2).
 - **Compliance Tests / Evidence**: Audit-entry samples for each action type as accountability evidence; the mass-assignment suite result.
 - **Acceptance-Criteria Traceability**: AC-01 — action integration suite; AC-02 — validation and atomicity suite; AC-03 — role-matrix and mass-assignment suites; AC-04 — audit-failure injection test; AC-05 — revocation-propagation test.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); every action × role combination and every failure path MUST have positive and negative tests.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); every action × role combination and every failure path MUST have positive and negative tests.
 - **Required Test Environment**: PostgreSQL with migrations applied; identities for all three roles (admin passkey-authenticated fixture); a controllable clock; fault-injection capability for the audit write; Vitest as the runner.
 
 ## Dependencies

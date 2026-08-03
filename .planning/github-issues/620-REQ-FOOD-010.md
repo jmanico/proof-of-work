@@ -4,7 +4,7 @@
 
 - **ID**: REQ-FOOD-010
 - **Title**: Bundled nutrition dataset import, versioning, and search
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -83,7 +83,7 @@
 - **Security Tests**: Import with a corrupted artifact asserting deploy failure and no partial data; egress assertion that no outbound nutrition-service request occurs during search (network-level test double that fails the test on any unexpected egress); SQL-injection suite over the search term (SEC-INPUT-5); unauthenticated search enumeration asserting denial.
 - **Compliance Tests / Evidence**: Recorded dataset version and artifact hash for each deploy, retained as supply-chain evidence under DEP-5/DEP-7.
 - **Acceptance-Criteria Traceability**: AC-01 — import integration suite; AC-02 — search/computation suite; AC-03 — corrupted-artifact test; AC-04 — egress assertion test; AC-05 — re-import immutability test; AC-06 — unauthenticated and malformed-input suite.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); all computation and integrity-failure paths MUST have positive and negative tests.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); all computation and integrity-failure paths MUST have positive and negative tests.
 - **Required Test Environment**: A small fixture dataset artifact with a valid and an invalid hash; PostgreSQL via the migration tooling; HTTP test client with authenticated subscriber fixtures; a network egress recorder; Vitest as the runner.
 
 ## Dependencies

@@ -4,7 +4,7 @@
 
 - **ID**: REQ-AUTHZ-060
 - **Title**: Admin health-data prohibition and administrative account views
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -82,7 +82,7 @@
 - **Security Tests**: BOLA-style probes as an authenticated admin against subscriber log entries, plan copies, and selections by direct identifier, list, and search, asserting denial and zero health-value bytes in responses; response-shape fuzzing for field-selection and expansion parameters; fail-open probe injecting policy-evaluation errors and asserting denial.
 - **Compliance Tests / Evidence**: The standing SEC-AUTHZ-9 policy-enumeration test result as data-minimization evidence for the SQ-1 counsel review.
 - **Acceptance-Criteria Traceability**: AC-01 — administration-view integration suite; AC-02 — policy-enumeration unit suite; AC-03 — admin BOLA security suite; AC-04 — response-shape and parameter-rejection tests; AC-05 — fail-open denial tests.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); every admin-reachable route serving subscriber data MUST appear in either the administrative-fields assertion or the denial assertion.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); every admin-reachable route serving subscriber data MUST appear in either the administrative-fields assertion or the denial assertion.
 - **Required Test Environment**: Vitest; HTTP test client; fixtures for admin, subscriber (with health data across all FR-9.12 types), and consultant identities; the authorization test suite named as a merge-blocking CI gate (SEC-CICD-4).
 
 ## Dependencies

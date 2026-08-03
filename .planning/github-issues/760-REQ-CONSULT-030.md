@@ -4,7 +4,7 @@
 
 - **ID**: REQ-CONSULT-030
 - **Title**: Consultant engagement lifecycle by admin action
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -81,7 +81,7 @@
 - **Security Tests**: Attempted creation and revocation as `subscriber` and `consultant`, asserting denial; mass-assignment probes supplying engagement state, parties, and identifiers in bodies, asserting the fields are not bound (SEC-INPUT-3); audit-omission probe asserting a failed audit write fails the operation.
 - **Compliance Tests / Evidence**: Audit-entry field assertions (acting admin, action, both accounts, time) retained as evidence for the FR-11.5 record.
 - **Acceptance-Criteria Traceability**: AC-01 — creation integration suite; AC-02 — revocation and immediate-denial suite; AC-03 — party-validation and duplicate-engagement suite; AC-04 — role-denial and mass-assignment suites.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); all transition, denial, and audit paths MUST have positive and negative tests.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); all transition, denial, and audit paths MUST have positive and negative tests.
 - **Required Test Environment**: Vitest; HTTP test client; fixture accounts for all three roles; persistence with the consultant engagement and audit entry tables.
 
 ## Dependencies

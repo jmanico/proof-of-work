@@ -4,7 +4,7 @@
 
 - **ID**: REQ-PLAN-070
 - **Title**: One-time plan verification operation
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -82,7 +82,7 @@
 - **Security Tests**: Verification attempts as subscriber and consultant asserting denial (SEC-AUTHZ-4); mass-assignment test submitting verification-record fields in create and edit bodies asserting they are ignored (SEC-INPUT-3); replay of the verify operation asserting the original verifier and timestamp survive.
 - **Compliance Tests / Evidence**: Audit-entry field assertions (acting admin, action, plan, time) as evidence for the TM-T-5 compensating control.
 - **Acceptance-Criteria Traceability**: AC-01 — integration verify suite; AC-02 — author-self-verify test; AC-03 — repeat-verify unit and integration tests; AC-04 — edit-after-verify suite; AC-05 — role-denial and mass-assignment security tests.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); all state transitions and denial paths MUST have positive and negative tests.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); all state transitions and denial paths MUST have positive and negative tests.
 - **Required Test Environment**: Vitest; HTTP test client; fixtures for admin (author and non-author), subscriber, and consultant identities; draft, verified, and published plan fixtures.
 
 ## Dependencies

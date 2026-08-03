@@ -4,7 +4,7 @@
 
 - **ID**: REQ-INFRA-010
 - **Title**: Environment accounts, pipeline identities, and deployment flow
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -82,7 +82,7 @@
 - **Security Tests**: Attempted role assumption with a mismatched repository or environment claim, asserting denial; attempted use of the dev role against production resources, asserting denial; inventory scan asserting no IAM user access keys exist for pipeline identities; a deliberate out-of-band console change in a non-production environment asserting drift detection reports it.
 - **Compliance Tests / Evidence**: The IAM policy and trust-configuration review record; the production approval log; retained for the SQ-10 pre-launch assessment.
 - **Acceptance-Criteria Traceability**: AC-01 — OIDC deploy integration test plus IAM policy scan; AC-02 — deployment-flow integration test; AC-03 — credential inventory and cross-environment denial tests; AC-04 — drift-detection exercise and branch-protection check; AC-05 — REQ-PIPE-020 provenance review evidence plus pipeline-step review.
-- **Coverage Target**: Project coverage threshold TO BE DECIDED (`CLAUDE.md`); every IAM trust and permission policy MUST be exercised by at least one allow and one deny case.
+- **Coverage Target**: Project coverage threshold 90% line and branch (`CLAUDE.md`, 2026-08-03); every IAM trust and permission policy MUST be exercised by at least one allow and one deny case.
 - **Required Test Environment**: The dev AWS account with CloudTrail enabled; a GitHub repository with environments and protection rules configured; checkov in CI.
 
 ## Dependencies

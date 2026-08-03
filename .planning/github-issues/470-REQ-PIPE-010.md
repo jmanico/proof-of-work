@@ -4,7 +4,7 @@
 
 - **ID**: REQ-PIPE-010
 - **Title**: Dependency policy and reproducible resolution
-- **Version**: 1.1.0
+- **Version**: 1.1.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -100,7 +100,7 @@
 - **Implementation Guidance**: `SECURITY.md` DEP-2 prefers zero new dependencies, while DEP-1 forbids replacing vetted security functionality with custom code — the two together mean the dependencies this project should accept are precisely the security-critical ones, and few others.
 - **AI Development Guidance**: `REF-SUPPLY`, `REF-DEPS`, `REF-SSDF`, `REF-PROMPT-NODE`, `REF-PROMPT-VUE`; `CLAUDE.md`.
 - **Required Human Review**: Security review of every dependency addition.
-- **Open Decisions**: None affecting the policy — the SEC-CICD-4 blocking-check set is fixed (`SECURITY.md` SQ-7 RESOLVED) and planned as REQ-INFRA-070; until that gate lands, this control depends on human review. Runner commands and the code-coverage threshold remain TO BE DECIDED (`CLAUDE.md`). Per-issue standards mappings remain TO BE DECIDED until the SQ-10 pre-launch assessment.
+- **Open Decisions**: None affecting the policy — the SEC-CICD-4 blocking-check set is fixed (`SECURITY.md` SQ-7 RESOLVED) and planned as REQ-INFRA-070; until that gate lands, this control depends on human review. Runner commands remain TO BE DECIDED (`CLAUDE.md`, delivered by REQ-BUILD-010); the code-coverage threshold is fixed at 90% line and branch (`CLAUDE.md`, 2026-08-03). Per-issue standards mappings remain TO BE DECIDED until the SQ-10 pre-launch assessment.
 
 **Estimated effort**: 0.5–1 engineer-day. **Estimated changed lines**: 50–200 (configuration and documentation; excludes the lockfile itself, which is a generated file).
 **Recommended model**: Claude Opus (`claude-opus-5`) — a small but consequential supply-chain discipline where the judgement calls (DEP-1 versus DEP-2) matter more than the code.

@@ -4,7 +4,7 @@
 
 - **ID**: REQ-AUTHZ-050
 - **Title**: Central typed authorization policy module
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -69,7 +69,7 @@
 - **On Invalid Input**: N/A at this layer — request-shape validation is REQ-API-010; the policy module consumes only server-sourced attributes.
 - **On Authentication Failure**: N/A — handled before policy evaluation by REQ-AUTHZ-010; the module is never invoked without a resolved identity.
 - **On Authorization Failure**: Deny the operation with a generic response that does not disclose whether the target resource exists (SEC-AUTHZ-2 posture); the client receives enough structured reason to present the permission state per `DESIGN.md` without re-deriving the rule (DR-2).
-- **On Security-Decision Failure**: Deny by default. An exception thrown anywhere inside policy evaluation denies the request (SEC-AUTHZ-7; `{{CODE_QUALITY_PROMPT}}` fail-closed discipline).
+- **On Security-Decision Failure**: Deny by default. An exception thrown anywhere inside policy evaluation denies the request (SEC-AUTHZ-7; the `SECURITY.md` CODE_QUALITY_PROMPT resolution's fail-closed discipline).
 - **On External Dependency Failure**: If persisted state needed for an attribute cannot be read, the attribute is unresolvable and the decision is a denial; the module MUST NOT substitute defaults for absent attributes.
 - **On System Error**: Generic error with a correlation identifier (SEC-ERR-1); no handler execution; no partial state change.
 - **Logging / Audit**: Every authorization denial is logged with route, capability, decision reason class, and correlation identifier (SEC-LOG-4); logs never contain health values, credentials, or tokens (SEC-LOG-3). Health-data audit entries themselves are REQ-AUDIT-020's obligation on the paths the module permits.
@@ -82,7 +82,7 @@
 - **Security Tests**: Route-inventory test over the full route table (AC-04); fail-open probes — forced persistence errors during attribute resolution asserting denial; the authorization test suite that SEC-CICD-4 names as a merge-blocking gate runs against this module.
 - **Compliance Tests / Evidence**: Policy-module review against the SEC-AUTHZ-6 attribute schema, recorded for the SQ-10 pre-launch assessment.
 - **Acceptance-Criteria Traceability**: AC-01 — capability permit unit suite plus integration pass-through; AC-02 — missing-attribute and fault-injection suites; AC-03 — attribute-injection suite and capability-map unit assertions; AC-04 — route-inventory test; AC-05 — deny-overrides and purity unit suite.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); every policy function and every denial path MUST have positive and negative tests regardless.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); every policy function and every denial path MUST have positive and negative tests regardless.
 - **Required Test Environment**: Vitest; HTTP test client against the Fastify app; fixture accounts for all three roles with varied email-verified, MFA, consent, subscription, and engagement states; a route-inventory source.
 
 ## Dependencies
@@ -97,7 +97,7 @@
 
 - **Constraints**: TypeScript on Node.js with Fastify (`CLAUDE.md`); the enforcement point is the Fastify preHandler lifecycle hook (`SECURITY.md` SQ-4); policy expressed as first-party typed pure functions; attribute sources restricted to Identity and Session Handling and persisted state.
 - **Prohibited Approaches**: Per-endpoint bespoke authorization as the primary control (SEC-AUTHZ-5); adopting a policy-language or policy-engine dependency (DEP-1, DEP-2); reading any decision attribute from client input or unverified headers (SEC-AUTHZ-6); permit-overrides or first-applicable combination; defaulting a missing attribute to a permissive value; caching decisions or attributes in the session or token such that revocation waits for expiry (SEC-SESSION-4, SEC-SESSION-6); silent exception swallowing in evaluation paths.
-- **Implementation Guidance**: Structure per `REF-PROMPT-ABAC`: the preHandler hook is the PEP, the typed policy module is the PDP, and attribute loaders over Identity and persisted state are the PIPs. Name capabilities as SEC-AUTHZ-6 illustrates (`plan.publish`, `plan_copy.edit`, `log.write`) and derive them from role plus relationship — owner, engaged consultant (FR-11.6), or admin. Keep the capability map a single reviewable declaration so the SEC-AUTHZ-9 review ("no admin-mapped health-data capability exists") is a table inspection, not a code hunt. Immutable attribute context avoids time-of-check-to-time-of-use gaps (`{{CODE_QUALITY_PROMPT}}`).
+- **Implementation Guidance**: Structure per `REF-PROMPT-ABAC`: the preHandler hook is the PEP, the typed policy module is the PDP, and attribute loaders over Identity and persisted state are the PIPs. Name capabilities as SEC-AUTHZ-6 illustrates (`plan.publish`, `plan_copy.edit`, `log.write`) and derive them from role plus relationship — owner, engaged consultant (FR-11.6), or admin. Keep the capability map a single reviewable declaration so the SEC-AUTHZ-9 review ("no admin-mapped health-data capability exists") is a table inspection, not a code hunt. Immutable attribute context avoids time-of-check-to-time-of-use gaps (the `SECURITY.md` CODE_QUALITY_PROMPT resolution).
 - **AI Development Guidance**: `REF-PROMPT-ABAC`, `REF-PROMPT-API`, `REF-PROMPT-QUALITY`; `CLAUDE.md` (Fastify lifecycle hooks as the single authorization enforcement point).
 - **Required Human Review**: Security review of the policy module, the capability map, and the enforcement-point wiring; architecture review that no protected route bypasses the hook.
 - **Open Decisions**: None — SQ-4 is RESOLVED and fixes the model, the attribute schema, and the enforcement point. The REST API Application's internal module decomposition remains open (`ARCHITECTURE.md`) but does not change this module's responsibility or interface.

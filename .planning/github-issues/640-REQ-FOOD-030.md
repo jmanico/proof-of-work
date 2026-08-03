@@ -4,7 +4,7 @@
 
 - **ID**: REQ-FOOD-030
 - **Title**: Daily intake versus selected diet plan targets
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -83,7 +83,7 @@
 - **Security Tests**: BOLA suite requesting another subscriber's day, asserting denial without existence disclosure; response-shape assertion enforcing the SEC-DATA-5 field allow-list (no extra entry fields, no other-day leakage, no plan internals); admin access attempt asserting denial (FR-10.3); log-content assertion that no health value appears in logs or audit entries.
 - **Compliance Tests / Evidence**: Audit-granularity evidence (one entry per request, FR-9.7) retained for the SQ-1 counsel review; accessibility evidence for the indicator and its text equivalent rides the Playwright + axe suite (`CLAUDE.md`, DESIGN.md Design Verification).
 - **Acceptance-Criteria Traceability**: AC-01 — aggregation and rendering suites; AC-02 — copy-target and selection-change suites; AC-03 — over-target and empty-day suites; AC-04 — no-target suite; AC-05 — BOLA and response-shape suites; AC-06 — audit suite.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); every denial and state-derivation path MUST have positive and negative coverage.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); every denial and state-derivation path MUST have positive and negative coverage.
 - **Required Test Environment**: Two subscriber fixtures with entries and selections in each state (published plan, customized copy, no selection, selection ended by unpublication); admin fixture; PostgreSQL; Vitest, HTTP test client, and Playwright + axe for the presentation checks.
 
 ## Dependencies

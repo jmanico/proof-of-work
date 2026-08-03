@@ -4,7 +4,7 @@
 
 - **ID**: REQ-EPIC-001
 - **Title**: Implement the specified subscription fitness web application
-- **Version**: 1.1.0
+- **Version**: 1.1.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -18,7 +18,7 @@
 - **Statement**: The system MUST implement the behavior specified in `REQUIREMENTS.md`, within the component boundaries of `ARCHITECTURE.md`, under the rules of `SECURITY.md`, and to the interface conventions of `DESIGN.md`. This epic is a container; all implementable behavior is decomposed into the child issues listed below and adds no behavior of its own.
 - **Rationale**: The repository contains specifications only. A single traceable decomposition is required so that every specified behavior has exactly one implementation owner and every unresolved decision is visible rather than silently resolved during implementation.
 - **Assumptions**: The four specification documents are the sole authority. `CLAUDE.md` and `AGENTS.md` are agent instructions, not product specification.
-- **Out of Scope**: Any behavior not stated in the four specification documents. Any resolution of a marker that remains open — the `TO BE DECIDED` items in `CLAUDE.md` (runner commands, coverage threshold, local development instructions, branch/PR workflow), the `TO BE DECIDED` module-decomposition and module-versus-service decisions in `ARCHITECTURE.md`, the `UNKNOWN` scale targets, and the deferred `REQUIREMENTS.md` OQ-18 payments decision.
+- **Out of Scope**: Any behavior not stated in the four specification documents. Any resolution of a marker that remains open — the `TO BE DECIDED` items in `CLAUDE.md` (runner commands, local development instructions), the `TO BE DECIDED` Identity module-versus-service decision in `ARCHITECTURE.md` (module decomposition was RESOLVED 2026-08-03), the `UNKNOWN` scale targets, and the deferred `REQUIREMENTS.md` OQ-18 payments decision. The coverage threshold (90% line and branch) and branch/PR workflow were fixed in `CLAUDE.md` 2026-08-03.
 - **Design Traceability**: `DESIGN.md` in full.
 - **Architecture Traceability**: `ARCHITECTURE.md` — Browser Client, REST API Application, Identity and Session Handling, Relational Persistence, AI Inference (in-boundary); trust boundaries 1–6; dependency rules DR-1…DR-9; the scheduled executions of the REST API Application (nightly audit archival, deletion-ledger maintenance, FR-9.11 window expiry).
 - **Security Traceability**: `SECURITY.md` in full — SEC-TB-*, SEC-AUTHN-*, SEC-SESSION-*, SEC-AUTHZ-*, SEC-HTTP-*, SEC-INPUT-*, SEC-RENDER-*, SEC-DATA-*, SEC-OPS-*, SEC-SECRET-*, SEC-LOG-*, SEC-ERR-*, SEC-AI-*, SEC-EXT-*, SEC-CICD-*, DEP-1…DEP-8.
@@ -80,7 +80,7 @@
 - **Security Tests**: N/A at epic level.
 - **Compliance Tests / Evidence**: `ISSUE_PLAN.md` coverage matrices are the evidence that every FR and every SEC rule maps to a filed or planned issue.
 - **Acceptance-Criteria Traceability**: AC-01…AC-03 are verified by review of the coverage matrices and the child issue states.
-- **Coverage Target**: TO BE DECIDED — Vitest is selected, but no coverage threshold has been set (`CLAUDE.md`, Repository state).
+- **Coverage Target**: 90% line and branch coverage (`CLAUDE.md`, Repository state; fixed 2026-08-03).
 - **Required Test Environment**: N/A at epic level; the toolchain is recorded in `CLAUDE.md`, Repository state.
 
 ## Dependencies
@@ -98,7 +98,7 @@
 - **Implementation Guidance**: Child issues are ordered topologically in `ISSUE_PLAN.md`. Cross-cutting enforcement issues (REQ-AUTHZ-*, REQ-API-*, REQ-AUDIT-*) precede the feature issues that depend on them; the infrastructure leaves (REQ-INFRA-*) deliver the SQ-7 topology those issues deploy onto.
 - **AI Development Guidance**: `CLAUDE.md`; `SECURITY.md` prompt imports `REF-PROMPT-NODE`, `REF-PROMPT-VUE`, `REF-PROMPT-JWT`, `REF-PROMPT-API`, `REF-PROMPT-ABAC`, `REF-PROMPT-QUALITY`, `REF-PROMPT-TF-AWS`.
 - **Required Human Review**: Security and privacy review before any production release; privacy-counsel review before launch (SQ-1); the post-implementation threat-model re-run validated by product and privacy counsel (SQ-9); the independent third-party ASVS 5.0.0 Level 3 assessment before any conformance claim (SQ-10).
-- **Open Decisions**: Runner commands, code-coverage threshold, local development instructions, and the branch/PR workflow (`CLAUDE.md`); REST API internal module decomposition and the Identity module-versus-service question (`ARCHITECTURE.md`, DR-8); concrete load, latency, and availability targets (`ARCHITECTURE.md`, UNKNOWN); per-issue ASVS 5.0.0 / AISVS 1.0 / NIST SP 800-53 mappings and statute-section precision (SQ-10, SQ-1); `REQUIREMENTS.md` OQ-18 (deferred payments).
+- **Open Decisions**: Runner commands and local development instructions (`CLAUDE.md`; the coverage threshold, branch/PR workflow, and REST API module decomposition were fixed 2026-08-03); the Identity module-versus-service question (`ARCHITECTURE.md`, DR-8); concrete load, latency, and availability targets (`ARCHITECTURE.md`, UNKNOWN); per-issue ASVS 5.0.0 / AISVS 1.0 / NIST SP 800-53 mappings and statute-section precision (SQ-10, SQ-1); `REQUIREMENTS.md` OQ-18 (deferred payments).
 
 ## Child Issues
 

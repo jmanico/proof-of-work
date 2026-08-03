@@ -4,7 +4,7 @@
 
 - **ID**: REQ-AUTH-170
 - **Title**: Privileged deprovisioning
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -82,7 +82,7 @@
 - **Security Tests**: Captured-token replay after deprovisioning across every protected route class; re-enable attempts via mass assignment of account state (SEC-INPUT-3), passkey re-registration, and direct flag mutation, asserting failure; deprovision attempts as `subscriber` and `consultant`, asserting denial; two-admin race test issuing simultaneous deprovisions of both admins, asserting at least two admins remain.
 - **Compliance Tests / Evidence**: Audit-trail evidence for a deprovision cycle as SQ-12 accountability evidence.
 - **Acceptance-Criteria Traceability**: AC-01 — deprovision integration suite; AC-02 — captured-token and passkey replay suite; AC-03 — floor unit and integration tests; AC-04 — re-enable and role-denial security suite; AC-05 — fault-injection partial-failure test.
-- **Coverage Target**: Positive and negative coverage of every revocation step, the floor check, and every denial path (project threshold TO BE DECIDED, `CLAUDE.md`).
+- **Coverage Target**: Positive and negative coverage of every revocation step, the floor check, and every denial path (project threshold 90% line and branch, `CLAUDE.md`, 2026-08-03).
 - **Required Test Environment**: Vitest and HTTP test client; fixtures for two- and three-admin populations, a consultant with active engagement and live sessions, registered-passkey state; fault-injection hooks for mid-sequence failure.
 
 ## Dependencies

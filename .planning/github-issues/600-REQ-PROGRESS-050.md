@@ -4,7 +4,7 @@
 
 - **ID**: REQ-PROGRESS-050
 - **Title**: Per-account unit system and display-only conversion
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -15,7 +15,7 @@
 
 ## Requirement
 
-- **Statement**: The system MUST maintain a per-account unit-system preference — metric (centimetres, kilograms) or imperial (inches, pounds) — applied to body measurements, body weight, and workout load, MUST store every logged value together with the unit it was entered in, and MUST convert between unit systems only at display time, never by mutating stored values.
+- **Statement**: The system MUST maintain a per-account unit-system preference — metric (centimetres, kilograms) or imperial (inches, pounds) — chosen by the user as a required step of registration with no silent default (FR-8.10, fixed 2026-08-03; the registration form is REQ-AUTH-080), applied to body measurements, body weight, and workout load, MUST store every logged value together with the unit it was entered in, and MUST convert between unit systems only at display time, never by mutating stored values.
 - **Rationale**: FR-8.10 fixes the preference, the store-with-entered-unit rule, and display-only conversion, resolving `REQUIREMENTS.md` OQ-4's unit half with `DESIGN.md` OQ-8. Storing the entered value with its unit keeps logged history exact and auditable; converting only at display time means a preference switch can never corrupt or drift historical data. FR-8.9's plausibility ranges are defined in metric, so validation MUST check the metric equivalent of the entered value regardless of the entry unit.
 - **Assumptions**: An account exists to carry the preference (REQ-AUTH-080). Body-fat percentage is unitless (FR-8.2) and is unaffected by the preference.
 - **Out of Scope**: The plausibility ranges themselves and per-entry validation flows, which each logging issue applies (REQ-PROGRESS-010, REQ-PROGRESS-020, REQ-PROGRESS-040, REQ-PROGRESS-030); chart and table rendering of converted values (REQ-PROGRESS-060); calorie and macronutrient units, which FR-6.2/FR-8.4 fix as grams and are not part of the metric/imperial preference; localization of number formatting beyond the unit suffix (`DESIGN.md` defers additional languages beyond v1).
@@ -81,7 +81,7 @@
 - **Security Tests**: Forged-unit payloads attempting to smuggle out-of-range values past validation; mass-assignment probes attempting to set another account's preference or rewrite a stored value/unit through the preference endpoint; client-supplied "converted" values asserting the server ignores them.
 - **Compliance Tests / Evidence**: Evidence that export (REQ-PRIVACY-080) carries stored values with their stored units, demonstrating unmutated records.
 - **Acceptance-Criteria Traceability**: AC-01 — preference-switch integration suite; AC-02 — metric-equivalent boundary suite; AC-03 — immutability and allow-list suites; AC-04 — mixed-history rendering suite.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); every conversion path and boundary MUST have positive and negative tests regardless.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); every conversion path and boundary MUST have positive and negative tests regardless.
 - **Required Test Environment**: Vitest with PostgreSQL fixtures containing mixed metric and imperial entries; an HTTP test client; Playwright for the Account → Units and appearance flow and unit-suffix rendering.
 
 ## Dependencies
@@ -99,7 +99,7 @@
 - **Implementation Guidance**: Model each stored quantity as (value, unit) and expose a single display-conversion helper the client consumes via API responses; round only at display and at the one-decimal-place storage boundary, never both cumulatively on the stored value.
 - **AI Development Guidance**: `REF-PROMPT-NODE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Architecture review that no write path stores a converted value; test review of the conversion boundary cases.
-- **Open Decisions**: The initial unit-system preference for a newly registered account is not stated by any specification document — TO BE DECIDED; surface for a product decision rather than defaulting silently.
+- **Open Decisions**: None. The initial preference question is RESOLVED (FR-8.10, 2026-08-03): the unit system is a required choice at registration, no silent default exists, and the choice remains changeable in Account settings.
 
 **Estimated effort**: 0.5–1 engineer-days. **Estimated changed lines**: 200–450.
 **Recommended model**: Claude Opus (`claude-opus-5`) — small surface, but the immutability and metric-equivalent rules must be exact.

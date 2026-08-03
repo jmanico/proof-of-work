@@ -4,7 +4,7 @@
 
 - **ID**: REQ-SELECT-020
 - **Title**: Active diet plan selection
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -82,7 +82,7 @@
 - **Security Tests**: BOLA suite — subscriber A selects subscriber B's copy identifier, asserting denial with no existence disclosure; mass-assignment suite submitting owner and selection-state fields; unpublished-plan selection attempts; unauthenticated and lapsed-subscription attempts.
 - **Compliance Tests / Evidence**: Test evidence that no selection write occurs without recorded consent and a verified email (FR-9.2, FR-2.11, FR-9.12), retained for the SQ-1 counsel review.
 - **Acceptance-Criteria Traceability**: AC-01 — happy-path integration test; AC-02 — replacement, history-invariance, and comparison-source integration tests; AC-03 — BOLA/boundary security suite; AC-04 — gate-failure unit and integration tests; AC-05 — mass-assignment and cardinality suites.
-- **Coverage Target**: Project threshold TO BE DECIDED (`CLAUDE.md`); all authorization, gate, and error paths MUST have positive and negative coverage.
+- **Coverage Target**: Project threshold 90% line and branch (`CLAUDE.md`, 2026-08-03); all authorization, gate, and error paths MUST have positive and negative coverage.
 - **Required Test Environment**: Vitest and HTTP test client; fixtures for two subscribers with published diet plans carrying FR-6.2 targets, own and foreign customized copies, and accounts in each gate state (unconsented, withdrawn, unverified, lapsed).
 
 ## Dependencies

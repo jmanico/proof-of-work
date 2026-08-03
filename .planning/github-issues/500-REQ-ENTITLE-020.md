@@ -4,7 +4,7 @@
 
 - **ID**: REQ-ENTITLE-020
 - **Title**: View own subscription status
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -81,7 +81,7 @@
 - **Security Tests**: IDOR attempt with a foreign account identifier in every parameter position, asserting no cross-account disclosure (AC-03); unauthenticated request denied; response over-exposure review.
 - **Compliance Tests / Evidence**: N/A — no distinct compliance evidence beyond the tests above.
 - **Acceptance-Criteria Traceability**: AC-01 — status integration suite; AC-02 — lapsed/none fixtures suite; AC-03 — IDOR suite; AC-04 — response-shape assertion.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); all status-computation branches and the IDOR negative path MUST be covered.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); all status-computation branches and the IDOR negative path MUST be covered.
 - **Required Test Environment**: PostgreSQL with migrations applied; two subscriber identities with distinct period fixtures; a controllable clock; Vitest as the runner.
 
 ## Dependencies

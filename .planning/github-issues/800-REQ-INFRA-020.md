@@ -4,7 +4,7 @@
 
 - **ID**: REQ-INFRA-020
 - **Title**: Network tiering and encryption at rest and in transit
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -81,7 +81,7 @@
 - **Security Tests**: External scan asserting only CloudFront answers publicly (AC-01); reachability probes to the RDS endpoint from the internet and from a non-sanctioned in-VPC host asserting failure (SEC-TB-2 verification); plaintext database connection attempt asserting refusal; egress probes from the API subnet asserting only named endpoints resolve and connect (FR-9.8 egress review); attempt to create a public S3 object asserting the block.
 - **Compliance Tests / Evidence**: The encryption-configuration evidence (storage, backups, replicas) and the egress review record, retained for the SQ-1 counsel review and the SQ-10 assessment.
 - **Acceptance-Criteria Traceability**: AC-01 — external enumeration test; AC-02 — reachability probe suite; AC-03 — encryption configuration checks and plaintext-connection test; AC-04 — egress probe suite.
-- **Coverage Target**: Project coverage threshold TO BE DECIDED (`CLAUDE.md`); every tier boundary MUST have at least one allowed-path and one denied-path probe.
+- **Coverage Target**: Project coverage threshold 90% line and branch (`CLAUDE.md`, 2026-08-03); every tier boundary MUST have at least one allowed-path and one denied-path probe.
 - **Required Test Environment**: A deployed dev-account environment with an in-VPC probe host (or equivalent SSM-run probe) in a non-sanctioned segment, an external scan runner, and checkov in CI.
 
 ## Dependencies
