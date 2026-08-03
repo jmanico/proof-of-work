@@ -4,7 +4,7 @@
 
 - **ID**: REQ-PROGRESS-030
 - **Title**: Log entry validation and field-level error reporting
-- **Version**: 1.1.0
+- **Version**: 1.2.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -15,7 +15,7 @@
 
 ## Requirement
 
-- **Statement**: The system MUST reject a log entry whose required value is non-numeric, negative, or absent, whose date is in the future, or whose value falls outside its named-constant plausibility range — body weight 20–500 kg, body-measurement lengths 10–300 cm, body-fat percentage 2–75, workout load 0–600 kg, each checked against the metric equivalent of the entered value — MUST report the specific invalid field to the user without disclosing internal state, and the client MUST present that error inline beside the failing field with icon and text, programmatically associated with the field, moving focus to the first invalid field on submit failure.
+- **Statement**: The system MUST reject a log entry whose required value is non-numeric, negative, or absent, whose date is in the future — later than the current calendar date evaluated at UTC+14, the named-constant earliest civil timezone (FR-8.9, fixed 2026-08-03) — or whose value falls outside its named-constant plausibility range — body weight 20–500 kg, body-measurement lengths 10–300 cm, body-fat percentage 2–75, workout load 0–600 kg, sets per exercise 1–100 and repetitions per set 1–1000 (both integers), each checked against the metric equivalent of the entered value — MUST report the specific invalid field to the user without disclosing internal state, and the client MUST present that error inline beside the failing field with icon and text, programmatically associated with the field, moving focus to the first invalid field on submit failure.
 - **Rationale**: FR-8.9 requires rejection with the non-numeric, negative, absent-required, future-dated, and out-of-range classes, fixes the plausibility ranges as named constants, and requires storage to at most one decimal place for weights and lengths; FR-8.8 supplies the future-date rule; SEC-INPUT-2 restates the reporting contract with the non-disclosure constraint, and SEC-INPUT-1's range checks source from FR-8.9; `DESIGN.md` fixes how the error is presented and announced. Together they make one testable contract that every log entry type reuses.
 - **Assumptions**: Boundary schema validation exists (REQ-API-010); this issue defines the log-entry-specific numeric rules and the shared presentation contract.
 - **Out of Scope**: The entity-specific field sets, which belong to each log type — body weight (REQ-PROGRESS-010), workouts (REQ-PROGRESS-020), measurements (FR-8.2, REQ-PROGRESS-040), food (FR-8.4, REQ-FOOD-020); the generic error response shape for system faults (REQ-API-040); the per-account unit-system preference and display conversion (FR-8.10, REQ-PROGRESS-050 — this issue consumes the entered unit only to compute the metric equivalent for range checks).

@@ -4,7 +4,7 @@
 
 - **ID**: REQ-PROGRESS-020
 - **Title**: Workout completion logging
-- **Version**: 1.1.0
+- **Version**: 1.2.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -59,7 +59,7 @@
 ## Acceptance Criteria
 
 1. **AC-01 — Expected behavior**: Given an authenticated subscriber with active consent, a verified email address, and access to a plan or customized copy, when they record a completed workout with per-exercise sets, repetitions, and weight used, then the entry and its per-exercise records are persisted against their account — each per-exercise record referencing its FR-5.4 catalog entry, storing a server-derived snapshot of the exercise name at log time, and storing the load value with the unit it was entered in (FR-8.10) — are retrievable by them, and an audit entry records the write.
-2. **AC-02 — Boundary or failure behavior**: Given a workout entry where any per-exercise sets, repetitions, or weight value is absent, non-numeric, or negative, or where the weight is outside the 0–600 kg load range checked against the metric equivalent (FR-8.9), or where the date is absent, unparseable, or in the future (FR-8.8), when it is submitted, then it is rejected, the response names the specific invalid field including which exercise it belongs to, and nothing is persisted.
+2. **AC-02 — Boundary or failure behavior**: Given a workout entry where any per-exercise sets, repetitions, or weight value is absent, non-numeric, or negative, or where the weight is outside the 0–600 kg load range checked against the metric equivalent, or where sets are outside 1–100 or repetitions outside 1–1000 or either is non-integer (FR-8.9), or where the date is absent, unparseable, or in the future per the FR-8.9 UTC+14 calendar-date rule (FR-8.8), when it is submitted, then it is rejected, the response names the specific invalid field including which exercise it belongs to, and nothing is persisted.
 3. **AC-03 — Prohibited behavior**: Given a workout entry referencing a plan or customized copy the subscriber cannot access, or a catalog entry that does not exist, when it is submitted, then it is refused without disclosing whether that plan, copy, or catalog entry exists; and the entry MUST NOT be bound to an owner supplied in the request, MUST NOT carry a client-supplied exercise-name snapshot, and MUST NOT complete without an audit entry.
 4. **AC-04 — Additional criterion**: Given a past date, when a workout entry is submitted for it, then it is accepted and stored against that date (FR-8.8).
 5. **AC-05 — Additional criterion**: Given an owned workout entry, when the subscriber edits or deletes it, then the change takes effect atomically across the entry and its per-exercise records, is audited, and deletion requires explicit confirmation in the client.
