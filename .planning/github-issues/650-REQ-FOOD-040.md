@@ -4,7 +4,7 @@
 
 - **ID**: REQ-FOOD-040
 - **Title**: AI-assisted nutrition estimation flow
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -83,7 +83,7 @@
 - **Security Tests**: Prompt-injection corpus over descriptions and images asserting no context escape and schema containment (SEC-AI-2 verification); upload abuse suite — polyglot files, extension/content mismatch, decompression bombs, oversized bodies, metadata-bearing photos (SEC-INPUT-7 verification); burst tests at 5/minute and 50/day boundaries; log-content assertions that no description, photo, or health value is emitted; client storage inspection asserting no photo persists after confirm/cancel/failure (DESIGN.md Design Verification, SEC-RENDER-4).
 - **Compliance Tests / Evidence**: Evidence that estimation requests are refused without consent, retained for the SQ-1 pre-launch counsel review.
 - **Acceptance-Criteria Traceability**: AC-01 — description-path integration suite; AC-02 — photo-path integration suite plus residue inspection; AC-03 — gate-refusal suite; AC-04 — upload abuse suite; AC-05 — burst tests; AC-06 — injection corpus, invalid-model-output tests, label assertions, and log-content assertions.
-- **Coverage Target**: Project coverage threshold TO BE DECIDED (`CLAUDE.md`); all gates, validation branches, and error paths MUST have positive and negative tests.
+- **Coverage Target**: Project coverage threshold 90% line and branch (`CLAUDE.md`, 2026-08-03); all gates, validation branches, and error paths MUST have positive and negative tests.
 - **Required Test Environment**: Vitest with an inference-service stub returning conforming, non-conforming, and hostile responses; fixture images per format including malformed, oversized, bomb, and EXIF/GPS-bearing samples; accounts in each consent/verification state; Playwright for the client estimate flow and "Not saved" preview behavior.
 
 ## Dependencies

@@ -4,7 +4,7 @@
 
 - **ID**: REQ-AUTH-080
 - **Title**: Subscriber registration with email and password
-- **Version**: 1.1.0
+- **Version**: 1.1.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -15,7 +15,7 @@
 
 ## Requirement
 
-- **Statement**: The system MUST allow a person to register an account with an email address and a password, MUST assign that account the `subscriber` role, and MUST refuse a password that fails the policy in SEC-AUTHN-6 or appears in the known-breached list.
+- **Statement**: The system MUST allow a person to register an account with an email address and a password, MUST assign that account the `subscriber` role, MUST refuse a password that fails the policy in SEC-AUTHN-6 or appears in the known-breached list, and MUST capture the FR-8.10 unit-system preference (metric or imperial) as a required registration choice with no silent default (fixed 2026-08-03; the preference machinery itself is REQ-PROGRESS-050).
 - **Rationale**: FR-2.2 requires registration; FR-2.7 requires exactly one role per account, and registration is the only self-service path that creates one, so it is where the `subscriber` default is fixed. SEC-AUTHN-6 sets the policy — a length floor with no composition rules and no forced rotation, plus refusal of known-breached passwords — because `REF-63B` finds composition rules degrade real-world password choice while breach reuse is the dominant practical attack (threat TM-S-1).
 - **Assumptions**: Credential storage is provided by REQ-AUTH-070 and is not reimplemented here. Privileged roles are never created by this path; they come only from REQ-AUTH-140.
 - **Out of Scope**: Credential hashing itself (REQ-AUTH-070); email verification and the health-data gate (REQ-AUTH-090); authentication (REQ-AUTH-100); throttling (REQ-AUTH-060); `admin` and `consultant` creation (REQ-AUTH-140); subscription entitlement (`REQUIREMENTS.md` OQ-1 RESOLVED — admin-granted periods, delivered by REQ-ENTITLE-010 and REQ-ENTITLE-030); the concrete source selection for the breached-password list, an implementation decision under the DEP-1–DEP-8 rules noted under Open Decisions — its import discipline is fixed by SEC-AUTHN-6 (versioned build- or deploy-time artifact under DEP-5/DEP-7, version recorded).

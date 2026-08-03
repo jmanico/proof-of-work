@@ -4,7 +4,7 @@
 
 - **ID**: REQ-PROGRESS-060
 - **Title**: Progress history display with trend charts and paired tables
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -82,7 +82,7 @@
 - **Security Tests**: BOLA suite across all history parameters; response-shape assertions for SEC-DATA-5 (no extra fields, no cross-account rows); bulk-retrieval attempts as subscriber, consultant (no engagement), and admin asserting denial; browser-storage inspection after leaving the view (SEC-RENDER-4).
 - **Compliance Tests / Evidence**: Playwright + axe-core coverage of the Progress pages — chart accessible names and range summaries, keyboard reach of data points, programmatic range exposure, record-card reflow at 320px and 200% zoom, reduced-motion behavior — per the `DESIGN.md` Design Verification list.
 - **Acceptance-Criteria Traceability**: AC-01 — range and granularity integration suite; AC-02 — catalog-continuity and empty-state suites; AC-03 — BOLA, response-shape, and storage-inspection suites; AC-04 — Playwright + axe chart-contract suite; AC-05 — audit-granularity suite.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); every denial path, range boundary, and accessibility commitment above MUST have automated coverage regardless.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); every denial path, range boundary, and accessibility commitment above MUST have automated coverage regardless.
 - **Required Test Environment**: Vitest with PostgreSQL fixtures containing multi-year, multi-plan, renamed- and retired-exercise history for two subscribers; an HTTP test client; Playwright with axe-core in light, dark, and reduced-motion configurations at 320px and desktop widths.
 
 ## Dependencies

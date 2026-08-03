@@ -4,7 +4,7 @@
 
 - **ID**: REQ-FOOD-020
 - **Title**: Food log entry with calorie and macronutrient attribution
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -60,7 +60,7 @@
 
 1. **AC-01 — Expected behavior (dataset path)**: Given a consenting, email-verified, entitled subscriber, when they save a food entry from a dataset item and quantity (REQ-FOOD-010), then the entry persists with the computed calories, protein, carbohydrate, and fat stored on the entry itself, and a later dataset re-import does not alter the stored values.
 2. **AC-02 — Expected behavior (manual and estimate paths)**: Given the same preconditions, when the subscriber saves manually typed values, or confirms an editable estimate pre-fill, then the entry persists with exactly the subscriber-confirmed values; an entry created from an estimate carries the `Estimate` label in persistence and in every subsequent read, and an entry with no estimate requested carries no such label.
-3. **AC-03 — Boundary or failure behavior (validation)**: Given a save on any of the three paths with a non-numeric calorie value, a negative macronutrient value, an absent required value, or a future date, when validation runs, then the request is rejected naming the specific invalid field (FR-8.9, SEC-INPUT-2), nothing persists, and the client presents the error inline per REQ-PROGRESS-030.
+3. **AC-03 — Boundary or failure behavior (validation)**: Given a save on any of the three paths with a non-numeric calorie value, a negative macronutrient value, an absent required value, a future date, calories outside the 0–10,000 kcal plausibility range, or any macronutrient outside 0–2,000 g (FR-8.9 named constants, fixed 2026-08-03), when validation runs, then the request is rejected naming the specific invalid field (FR-8.9, SEC-INPUT-2), nothing persists, and the client presents the error inline per REQ-PROGRESS-030.
 4. **AC-04 — Boundary or failure behavior (FR-9.12 gates)**: Given an account with no consent record, withdrawn consent, or an unverified email address, when a food entry creation or an edit that adds new intake data is attempted, then it is refused with the reason class; and given withdrawn consent, when the subscriber edits or deletes an existing entry, then the operation succeeds as an exercise of the FR-9.9 correction right.
 5. **AC-05 — Prohibited behavior (ownership and mass assignment)**: Given subscriber A authenticated, when a create, edit, or delete names subscriber B's entry identifier, or a request body supplies owner, estimate-label, or audit fields, then the operation is denied or the server-controlled fields are ignored (SEC-AUTHZ-2, SEC-INPUT-3), with no disclosure that B's entry exists; a consultant or admin attempting a food entry write is denied (FR-11.6, FR-10.3).
 6. **AC-06 — Additional criterion (edit, delete, backdating, audit)**: Given an existing entry, when the owner edits it with valid values, deletes it, or creates an entry for a past date, then the operation succeeds; every create, edit, delete, and read request on food entries produces exactly one audit entry per request with acting account, action, affected subject, and time (FR-9.7).
@@ -83,7 +83,7 @@
 - **Security Tests**: BOLA suite — subscriber A against B's entry identifiers on create/edit/delete/read, asserting denial without existence disclosure; mass-assignment suite submitting owner, label, and audit fields; consultant and admin write attempts asserting denial; log-content assertion that no health value or food description appears in logs or audit entries.
 - **Compliance Tests / Evidence**: Test evidence that no health data is recorded without consent (FR-9.2/SEC-DATA-2) and that audit granularity is one entry per request (FR-9.7), retained for the SQ-1 counsel review.
 - **Acceptance-Criteria Traceability**: AC-01 — dataset-path suite; AC-02 — manual/estimate-path suite; AC-03 — validation matrix; AC-04 — gate suite; AC-05 — BOLA and mass-assignment suites; AC-06 — edit/delete/backdate and audit-atomicity suites.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); every gate, validation, and denial path MUST have positive and negative coverage.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); every gate, validation, and denial path MUST have positive and negative coverage.
 - **Required Test Environment**: Subscriber fixtures in each consent/verification state; consultant and admin fixtures; a second subscriber for BOLA tests; dataset fixture from REQ-FOOD-010; PostgreSQL; Vitest and the HTTP test client.
 
 ## Dependencies

@@ -4,7 +4,7 @@
 
 - **ID**: REQ-INFRA-040
 - **Title**: Audit retention, append-only privileges, and the hash-chained archive
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -82,7 +82,7 @@
 - **Security Tests**: Tamper exercise — modify an archived object copy and an already-archived primary row out of band, assert chain verification reports both; attempt archive overwrite/delete with production-account credentials, assert Object Lock denial; attempt audit mutation through every application role and interface, assert denial (SEC-LOG-2 verification); scan an archived batch for raw identifiers, assert none.
 - **Compliance Tests / Evidence**: The documented retention configuration and legal-hold mechanism (SEC-LOG-5 verification: "Documented retention policy exists and is enforced by configuration"); chain-verification run records, retained for the SQ-10 assessment and SQ-1 counsel review.
 - **Acceptance-Criteria Traceability**: AC-01 — nightly-run integration test plus pseudonymization unit tests; AC-02 — privilege-migration integration test; AC-03 — tamper exercise and Object Lock denial test; AC-04 — lifecycle-configuration test; AC-05 — investigative-access policy tests and the read-audit assertion.
-- **Coverage Target**: Project coverage threshold TO BE DECIDED (`CLAUDE.md`); every pseudonymization, chaining, privilege, and access-control branch MUST have positive and negative tests.
+- **Coverage Target**: Project coverage threshold 90% line and branch (`CLAUDE.md`, 2026-08-03); every pseudonymization, chaining, privilege, and access-control branch MUST have positive and negative tests.
 - **Required Test Environment**: PostgreSQL with the migrated grants; a test log-archive bucket with Object Lock enabled (governance mode); the tombstone key fixture (REQ-INFRA-030); seeded audit fixtures across all three roles; Vitest as the runner.
 
 ## Dependencies

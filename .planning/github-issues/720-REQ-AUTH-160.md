@@ -4,7 +4,7 @@
 
 - **ID**: REQ-AUTH-160
 - **Title**: Vetting record required on privileged invitations
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -81,7 +81,7 @@
 - **Security Tests**: Bypass the client form and post issuance requests with missing or forged record fields, asserting server-side refusal (DR-2); attempt issuance as `subscriber` and `consultant`, asserting denial; attempt post-hoc record attachment to a recordless invitation fixture, asserting rejection.
 - **Compliance Tests / Evidence**: The stored vetting record and issuance audit trail as SQ-12 accountability evidence.
 - **Acceptance-Criteria Traceability**: AC-01 — issuance integration suite; AC-02 — field-validation unit suite; AC-03 — form-bypass and post-hoc security suite; AC-04 — investigative-interface integration test.
-- **Coverage Target**: Positive and negative coverage of every validation branch and the refusal path (project threshold TO BE DECIDED, `CLAUDE.md`).
+- **Coverage Target**: Positive and negative coverage of every validation branch and the refusal path (project threshold 90% line and branch, `CLAUDE.md`, 2026-08-03).
 - **Required Test Environment**: Vitest and HTTP test client; `admin`, `consultant`, and `subscriber` fixtures; invitation persistence and audit-store fixtures.
 
 ## Dependencies

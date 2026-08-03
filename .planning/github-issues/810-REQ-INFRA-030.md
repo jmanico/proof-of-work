@@ -4,7 +4,7 @@
 
 - **ID**: REQ-INFRA-030
 - **Title**: Secrets and signing-key management
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -81,7 +81,7 @@
 - **Security Tests**: gitleaks over full history and build artifacts (SEC-CICD-4 gate); client-bundle and container-image inspection for secret material; secret-read attempt under a non-task-role identity asserting denial; Terraform state inspected to confirm secret values are absent or encrypted and the backend rejects unauthenticated access; checkov rules on the state backend and secret resources.
 - **Compliance Tests / Evidence**: The rotation-procedure record and the state-backend access policy review, retained for the SQ-10 assessment.
 - **Acceptance-Criteria Traceability**: AC-01 — startup-resolution integration test and rotation exercise; AC-02 — `kid` rotation exercise; AC-03 — gitleaks/bundle/image/state scans plus the distinct-secrets check; AC-04 — denied-read test and state-backend review.
-- **Coverage Target**: Project coverage threshold TO BE DECIDED (`CLAUDE.md`); every resolution and fail-closed branch MUST have positive and negative tests.
+- **Coverage Target**: Project coverage threshold 90% line and branch (`CLAUDE.md`, 2026-08-03); every resolution and fail-closed branch MUST have positive and negative tests.
 - **Required Test Environment**: The dev AWS account with Secrets Manager, CloudTrail, and the state backend provisioned; gitleaks and checkov in CI; a non-task-role test identity.
 
 ## Dependencies

@@ -4,7 +4,7 @@
 
 - **ID**: REQ-SELECT-030
 - **Title**: Unpublication ends active selections
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -82,7 +82,7 @@
 - **Security Tests**: Assert the unpublication response body and admin plan views contain no subscriber identifiers or affected-subscriber enumeration (FR-10.3); assert no client-invocable operation can end another subscriber's selection outside the unpublication path; audit-entry presence and field assertions for the health-data modification.
 - **Compliance Tests / Evidence**: FR-9.7 audit coverage of the selection modification retained as evidence for the SQ-1 counsel review; N/A otherwise.
 - **Acceptance-Criteria Traceability**: AC-01 — unpublish-with-selections integration test; AC-02 — ended-state UI integration/Playwright test; AC-03 — no-target comparison tests; AC-04 — copy/history invariance suite; AC-05 — audit and admin-disclosure security tests.
-- **Coverage Target**: Project threshold TO BE DECIDED (`CLAUDE.md`); the transaction, invariance, and disclosure paths MUST have positive and negative coverage.
+- **Coverage Target**: Project threshold 90% line and branch (`CLAUDE.md`, 2026-08-03); the transaction, invariance, and disclosure paths MUST have positive and negative coverage.
 - **Required Test Environment**: Vitest and HTTP test client; Playwright for the subscriber-facing ended and no-target states; fixtures with a published plan selected by multiple subscribers, a derived copy, a copy-naming selection, and existing log entries.
 
 ## Dependencies

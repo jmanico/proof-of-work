@@ -4,7 +4,7 @@
 
 - **ID**: REQ-BUILD-010
 - **Title**: Workspace scaffolding and toolchain baseline
-- **Version**: 1.2.0
+- **Version**: 1.2.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -84,7 +84,7 @@
 - **Security Tests**: Import-boundary violation fixtures for `apps/web` reaching `apps/api` internals, `db/`, and a database driver, each asserted to fail (AC-03); the `vue/no-v-html` and dynamic-query fixtures asserted to fail lint (AC-04); a secret scan over the tree and its history (AC-05).
 - **Compliance Tests / Evidence**: The recorded bootstrap transcript and the passing boundary and lint fixtures, retained as evidence that SEC-RENDER-1 and SEC-INPUT-5 have a working verification mechanism before any code depends on them.
 - **Acceptance-Criteria Traceability**: AC-01 — bootstrap suite; AC-02 — stale lockfile test; AC-03 — import-boundary fixtures; AC-04 — security lint fixtures; AC-05 — secret scan; AC-06 — migration apply-and-re-run test; AC-07 — interim CI workflow with a deliberately failing check.
-- **Coverage Target**: Every documented command exercised from a clean checkout; every dependency rule named in Architecture Traceability covered by a failing fixture. A code-coverage percentage is TO BE DECIDED — Vitest is selected but no threshold has been set (`CLAUDE.md`).
+- **Coverage Target**: Every documented command exercised from a clean checkout; every dependency rule named in Architecture Traceability covered by a failing fixture. The code-coverage threshold is 90% line and branch per workspace (`CLAUDE.md`, 2026-08-03), enforced once test suites exist — the empty skeleton this issue delivers has nothing to measure.
 - **Required Test Environment**: A clean checkout with no prior npm cache or `node_modules`; a disposable PostgreSQL instance for the migration round trip; Vitest as the runner, with Playwright browsers installed so the client end-to-end harness is proven to launch before any view exists to test.
 
 ## Dependencies
@@ -102,7 +102,7 @@
 - **Implementation Guidance**: The dominant risk is scaffolding too much. A skeleton that quietly pulls in a component library, invents a directory convention, or stubs an endpoint converts an open question into a fait accompli that no reviewer will revisit — which is exactly what `CLAUDE.md` forbids. Prefer an empty workspace that fails loudly over a populated one that presumes. Wire the two security lint rules before any code exists to trip them, so they are known to work rather than assumed to.
 - **AI Development Guidance**: `CLAUDE.md`; `REF-PROMPT-QUALITY` (separation of concerns, testability without hidden global state); `REF-PROMPT-NODE`; `REF-PROMPT-VUE`; `REF-SECRETS`; `REF-SSDF`.
 - **Required Human Review**: Architecture review that the workspace boundaries actually enforce DR-1, DR-5, and DR-6 rather than merely describing them; security review of the ignore configuration and the two security lint rules.
-- **Open Decisions**: The code-coverage threshold is unset (`CLAUDE.md`, TO BE DECIDED). The concrete runner commands and local development instructions are TO BE DECIDED in `CLAUDE.md` until this issue lands and records them (AC-01). Whether Identity and Session Handling becomes a separate deployable is left open per DR-8; it is scaffolded as a module inside `apps/api` so either outcome remains available.
+- **Open Decisions**: The concrete runner commands and local development instructions are TO BE DECIDED in `CLAUDE.md` until this issue lands and records them (AC-01); the code-coverage threshold is fixed at 90% line and branch (`CLAUDE.md`, 2026-08-03). Whether Identity and Session Handling becomes a separate deployable is left open per DR-8; it is scaffolded as a module inside `apps/api` so either outcome remains available.
 
 **Estimated effort**: 1–2 engineer-days. **Estimated changed lines**: 300–600 (manifests, configuration, and documentation; excludes the generated lockfile).
 **Recommended model**: Claude Opus (`claude-opus-5`) — the difficulty is restraint rather than breadth. The failure mode is a skeleton that silently resolves an open question, and judging what to leave absent matters more than what to write.

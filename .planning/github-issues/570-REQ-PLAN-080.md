@@ -4,7 +4,7 @@
 
 - **ID**: REQ-PLAN-080
 - **Title**: Admin exercise catalog management
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -82,7 +82,7 @@
 - **Security Tests**: Catalog mutations as subscriber and consultant asserting denial; mass-assignment test supplying identifiers on create and rename; stored-XSS probe through the entry name asserting neutral rendering (SEC-RENDER-1).
 - **Compliance Tests / Evidence**: Audit-entry field assertions per lifecycle action as FR-10.2 evidence.
 - **Acceptance-Criteria Traceability**: AC-01 — create integration suite; AC-02 — rename identity suite; AC-03 — retire suite; AC-04 — delete-refusal suite; AC-05 — role-denial and mass-assignment security tests.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); all mutation paths and denials MUST have positive and negative tests.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); all mutation paths and denials MUST have positive and negative tests.
 - **Required Test Environment**: Vitest; PostgreSQL with the catalog schema and foreign-key constraints; fixtures for admin, subscriber, and consultant identities plus referencing plans, copies, and log entries; Playwright for the admin catalog list and `Retired` chip.
 
 ## Dependencies

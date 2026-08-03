@@ -4,7 +4,7 @@
 
 - **ID**: REQ-CONSULT-040
 - **Title**: Consultant capabilities within an active engagement
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -82,7 +82,7 @@
 - **Security Tests**: Attempted log-entry create/edit/delete, copy deletion, and selection change as consultant, asserting denial and no state change; BOLA probes against a non-engaged subscriber's object identifiers asserting denial with no information disclosure; mass-assignment probe on copy ownership; audit-failure injection asserting the operation fails closed (AC-05); response-shape assertions for SEC-DATA-5.
 - **Compliance Tests / Evidence**: Audit-entry field assertions per view and edit, retained as FR-11.4 evidence.
 - **Acceptance-Criteria Traceability**: AC-01 — view integration suite with audit assertions; AC-02 — copy-edit suite with ownership and provenance assertions; AC-03 — prohibited-operation suite; AC-04 — non-engaged BOLA and mass-assignment suites; AC-05 — audit-failure injection test.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); every permitted and prohibited capability MUST have positive and negative tests.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); every permitted and prohibited capability MUST have positive and negative tests.
 - **Required Test Environment**: Vitest; HTTP test client; fixtures for a consultant with an active engagement, an ended engagement, and no engagement; subscriber fixtures with plan copies, selections, and log entries.
 
 ## Dependencies

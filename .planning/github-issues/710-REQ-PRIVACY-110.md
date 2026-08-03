@@ -4,7 +4,7 @@
 
 - **ID**: REQ-PRIVACY-110
 - **Title**: Out-of-band deletion channel
-- **Version**: 1.1.0
+- **Version**: 1.1.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -83,7 +83,7 @@
 - **Security Tests**: Differential response and timing tests across registered and unregistered addresses (SEC-AUTHN-3); replay of a consumed verification step; attempts to convert the channel into a session, factor reset, or data disclosure, asserting refusal; burst tests asserting SEC-AUTHN-6 throttling; assertion that no notice or response contains account or health data.
 - **Compliance Tests / Evidence**: Logged-refusal evidence for Art. 12(6) refusals; the audit trail for a full request→execution cycle, retained for the SQ-1 counsel review.
 - **Acceptance-Criteria Traceability**: AC-01/AC-02/AC-03 — integration flow suite; AC-04 — enumeration and mismatch suite; AC-05 — channel-abuse security suite; AC-06 — refusal unit and log-assertion tests.
-- **Coverage Target**: Positive and negative coverage of every state transition and every refusal path (project threshold TO BE DECIDED, `CLAUDE.md`).
+- **Coverage Target**: Positive and negative coverage of every state transition and every refusal path (project threshold 90% line and branch, `CLAUDE.md`, 2026-08-03).
 - **Required Test Environment**: Vitest and HTTP test client; a mail-interface test double capturing sends; controllable clock for window expiry; fixtures for verified and unverified accounts with and without live sessions.
 
 ## Dependencies

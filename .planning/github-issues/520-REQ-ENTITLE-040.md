@@ -4,7 +4,7 @@
 
 - **ID**: REQ-ENTITLE-040
 - **Title**: Record retention across subscription lapse
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -81,7 +81,7 @@
 - **Security Tests**: Attempt to trigger destructive behavior through repeated lapse/reactivate cycles; assert selections are unchanged (AC-03); assert FR-9.4 deletion remains available while lapsed (AC-04).
 - **Compliance Tests / Evidence**: The record-equality integration result as evidence for the FR-3.4 retention obligation.
 - **Acceptance-Criteria Traceability**: AC-01 — lapse-cycle equality suite; AC-02 — scheduled-execution retention suite; AC-03 — destructive-path and selection-integrity assertions; AC-04 — deletion-while-lapsed test.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); the lapse/reactivation cycle MUST be covered end to end with equality assertions.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); the lapse/reactivation cycle MUST be covered end to end with equality assertions.
 - **Required Test Environment**: PostgreSQL with migrations applied; a subscriber identity with seeded records of every health-data type (FR-9.12); a controllable clock to force lapse and reactivation; Vitest as the runner.
 
 ## Dependencies

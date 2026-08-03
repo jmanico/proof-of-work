@@ -4,7 +4,7 @@
 
 - **ID**: REQ-ENTITLE-010
 - **Title**: Subscription entitlement gate on plan, customization, and progress access
-- **Version**: 1.0.0
+- **Version**: 1.0.1
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -83,7 +83,7 @@
 - **Security Tests**: Entitlement-bypass suite — request-body and header assertions of active subscription ignored (AC-03); tampered token claims have no effect; store-failure fault injection asserting denial (AC-06); enumeration that every gated route traverses the enforcement point (SEC-AUTHZ-5).
 - **Compliance Tests / Evidence**: The route-inventory result showing gated operations behind the enforcement point; denial-log samples showing SEC-LOG-4 fields.
 - **Acceptance-Criteria Traceability**: AC-01/AC-02 — per-operation integration suite; AC-03 — mass-assignment and claim-tampering suite; AC-04 — mid-session revocation test; AC-05 — bound-instant unit tests; AC-06 — fault-injection test.
-- **Coverage Target**: Project coverage threshold is TO BE DECIDED (`CLAUDE.md`); every entitlement decision branch and error path MUST have positive and negative tests.
+- **Coverage Target**: Project coverage threshold is 90% line and branch (`CLAUDE.md`, 2026-08-03); every entitlement decision branch and error path MUST have positive and negative tests.
 - **Required Test Environment**: PostgreSQL with drizzle-kit migrations applied; subscriber identities with controllable period fixtures; a controllable clock; Vitest as the runner.
 
 ## Dependencies
