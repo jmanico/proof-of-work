@@ -4,11 +4,11 @@
 
 - **ID**: REQ-PIPE-010
 - **Title**: Dependency policy and reproducible resolution
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: High
 - **Requirement Type**: Operational
 - **Source / Parent**: REQ-EPIC-001; `SECURITY.md` DEP-1 … DEP-8; threat TM-T-7
@@ -17,8 +17,8 @@
 
 - **Statement**: Production and CI builds MUST resolve dependencies to exact versions through a committed lockfile with frozen or reproducible resolution, MUST NOT resolve floating versions at build or deployment time, and every dependency addition MUST be justified against the DEP-1 … DEP-8 policy before it is merged.
 - **Rationale**: DEP-7 states the lockfile and frozen-resolution rule; DEP-2 requires per-dependency justification in the pull request; DEP-3 through DEP-6 and DEP-8 supply the maintenance, version, vulnerability, transitive-graph, and selection criteria. The threat model rates a malicious or vulnerable dependency entering the build (TM-T-7) as high severity against trust boundary 4.
-- **Assumptions**: No implementation and no dependencies exist yet (`SECURITY.md`, Dependency Security Rules — "No dependency has been assessed"), so this policy applies from the first dependency onward.
-- **Out of Scope**: The pipeline configuration and blocking gate set — including the automated dependency-scanning gate SEC-CICD-4 requires — blocked by `SECURITY.md` SQ-7; the CI platform itself is decided (GitHub Actions with OIDC federation, `CLAUDE.md`); secret scanning and IaC scanning (also SEC-CICD-4, blocked); build and deployment identities (SEC-CICD-1, pipeline design blocked by SQ-7).
+- **Assumptions**: No implementation and no dependencies exist yet (`SECURITY.md`, Dependency Security Rules — "No dependency has been assessed"), so this policy applies from the first dependency onward. It also governs the two versioned build/deploy-time artifacts the specifications name as DEP-5/DEP-7 instances: the breached-password list (SEC-AUTHN-6) and the bundled nutrition dataset (FR-8.11), each with its version recorded.
+- **Out of Scope**: The automated merge-blocking gate set — osv-scanner dependency audit, gitleaks secret scanning, checkov IaC scanning — which SEC-CICD-4 fixes (`SECURITY.md` SQ-7 RESOLVED) and REQ-INFRA-070 delivers; build and deployment identities and the deployment flow (SEC-CICD-1, SEC-CICD-2, SEC-CICD-5) — REQ-INFRA-010; the CI platform itself is decided (GitHub Actions with OIDC federation, `CLAUDE.md`).
 - **Design Traceability**: N/A
 - **Architecture Traceability**: `ARCHITECTURE.md` — trust boundary 4 (CI/CD-and-IaC to production); DR-8 (unresolved decisions must not be hard-coded). The language and package manager are TypeScript and npm (`CLAUDE.md`).
 - **Security Traceability**: DEP-1 … DEP-8; supports SEC-CICD-4, SEC-SECRET-1, SEC-TB-3 (a dependency that phones home would breach it).
@@ -27,7 +27,7 @@
 
 - **Applies To**: Server-Side Application, Web Client, Background Processing
 - **Components**: All components; the build process
-- **Interfaces / Operations**: Dependency installation and resolution in local, CI, and production builds; the dependency review step in a pull request
+- **Interfaces / Operations**: Dependency installation and resolution in local, CI, and production builds; the dependency review step in a pull request; import of the versioned build/deploy-time artifacts under the same DEP-5/DEP-7 discipline — the breached-password list (SEC-AUTHN-6) and the nutrition dataset (FR-8.11)
 - **Actors**: Developers; the CI/CD identity; a compromised upstream maintainer as adversary
 - **Preconditions**: None — TypeScript and npm are recorded in `CLAUDE.md`, so this issue is unblocked
 - **Data Classification**: Internal
@@ -48,9 +48,9 @@
 
 ## Standards Alignment
 
-- **OWASP ASVS 5.0.0**: TO BE DECIDED — not verified against `REF-ASVS-5` in this session.
+- **OWASP ASVS 5.0.0**: TO BE DECIDED — per-issue mappings are verified during the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **OWASP AISVS 1.0**: N/A
-- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
+- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — per-issue mappings are verified during the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **NIST SP 800-207**: N/A
 - **Regulatory**: N/A
 - **Other**: `REF-SUPPLY`, `REF-DEPS`, `REF-SSDF`, `REF-PROMPT-NODE`, `REF-PROMPT-VUE` — the applicable sources `SECURITY.md` names for the dependency rules.
@@ -73,7 +73,7 @@
 - **On External Dependency Failure**: If the package registry is unavailable, the build fails; it MUST NOT fall back to an alternative registry or an unpinned source.
 - **On System Error**: The build fails visibly; a partially resolved dependency graph is never deployed.
 - **Logging / Audit**: The lockfile diff and the dependency justification in the pull request are the audit record. Build logs MUST NOT contain registry credentials (SEC-SECRET-1).
-- **Alerting**: TO BE DECIDED — automated vulnerability alerting depends on the CI platform, blocked by `SECURITY.md` SQ-7.
+- **Alerting**: A failing dependency-audit gate blocks merge rather than alerting (SEC-CICD-4; REQ-INFRA-070). Findings that surface outside a merge — a newly disclosed vulnerability in an already-merged dependency — route to the security lead as SEC-OPS-2 detection inputs (`SECURITY.md` SQ-7 and SQ-11 RESOLVED).
 
 ## Test Strategy
 
@@ -83,24 +83,24 @@
 - **Compliance Tests / Evidence**: The committed lockfile, the per-dependency justification records, and the vulnerability check output, retained as supply-chain evidence for `REF-SSDF`.
 - **Acceptance-Criteria Traceability**: AC-01 — reproducible build test; AC-02 — stale and floating lockfile failure tests; AC-03 and AC-04 — pull request review checklist with recorded evidence; AC-05 — code review of security-critical paths.
 - **Coverage Target**: Every dependency in the graph covered by the vulnerability check; every addition covered by a justification record.
-- **Required Test Environment**: A clean build environment with npm, and a GitHub Actions runner; the pipeline gate set remains TO BE DECIDED (`SECURITY.md` SQ-7).
+- **Required Test Environment**: A clean build environment with npm, and a GitHub Actions runner; the merge-blocking gate set is fixed by SEC-CICD-4 (`SECURITY.md` SQ-7 RESOLVED) and delivered by REQ-INFRA-070.
 
 ## Dependencies
 
 - **Upstream Requirements**: None
-- **Downstream Requirements**: Every issue that introduces a library — REQ-API-010 (validation), REQ-API-030 (database driver), REQ-SESSION-010 (JWT), REQ-AUTH-020 (WebAuthn), REQ-CATALOG-030 (sanitizer, if rich text is adopted)
+- **Downstream Requirements**: Every issue that introduces a library — REQ-API-010 (validation), REQ-API-030 (database driver), REQ-SESSION-010 (JWT), REQ-AUTH-020 (WebAuthn), REQ-CATALOG-030 (sanitizer, if rich text is adopted); the versioned-artifact instances — REQ-AUTH-080 (breached-password list, SEC-AUTHN-6) and REQ-FOOD-010 (nutrition dataset, FR-8.11); REQ-INFRA-070 (the automated osv-scanner gate that enforces DEP-5 in CI)
 - **External Dependencies**: The package registry for the chosen ecosystem.
 - **Dependency Assumptions**: npm supports a committed `package-lock.json` and `npm ci` frozen installs, which is what DEP-7 requires.
 - **Failure Impact**: A compromised dependency executes inside the trust boundary that holds all health data, with none of the application's authorization controls applying to it.
 
 ## Implementation Notes
 
-- **Constraints**: TypeScript with npm workspaces, and GitHub Actions as the CI platform (`CLAUDE.md`). `npm ci` against the committed `package-lock.json` supplies DEP-7's frozen resolution. The policy is implementable now as a documented review gate and lockfile discipline; the SEC-CICD-4 automated gate set remains TO BE DECIDED (`SECURITY.md` SQ-7) and is tracked separately. This issue's coverage of the dependency rules is therefore process-and-lockfile, not enforcement-in-pipeline.
+- **Constraints**: TypeScript with npm workspaces, and GitHub Actions as the CI platform (`CLAUDE.md`). `npm ci` against the committed `package-lock.json` supplies DEP-7's frozen resolution. The policy is implementable now as a documented review gate and lockfile discipline; the SEC-CICD-4 automated gate set is fixed (`SECURITY.md` SQ-7 RESOLVED — osv-scanner, gitleaks, checkov, among the others) and its pipeline enforcement is delivered by REQ-INFRA-070. This issue's coverage of the dependency rules is therefore process-and-lockfile, with automated enforcement layered on by REQ-INFRA-070. The DEP-5/DEP-7 discipline also covers the named build/deploy-time artifacts: the breached-password list (SEC-AUTHN-6) and the nutrition dataset (FR-8.11), each imported as a versioned artifact with the version in use recorded.
 - **Prohibited Approaches**: Version ranges resolved at install time in CI or production; a lockfile excluded from source control; adding a dependency without the DEP-2 justification; writing custom cryptography, authentication, authorization, parsing, encoding, or sanitization to avoid a dependency (DEP-1); accepting a large opaque transitive tree for a small convenience (DEP-6).
 - **Implementation Guidance**: `SECURITY.md` DEP-2 prefers zero new dependencies, while DEP-1 forbids replacing vetted security functionality with custom code — the two together mean the dependencies this project should accept are precisely the security-critical ones, and few others.
 - **AI Development Guidance**: `REF-SUPPLY`, `REF-DEPS`, `REF-SSDF`, `REF-PROMPT-NODE`, `REF-PROMPT-VUE`; `CLAUDE.md`.
 - **Required Human Review**: Security review of every dependency addition.
-- **Open Decisions**: The pipeline gate set (`SECURITY.md` SQ-7). GitHub Actions is selected, but until the blocking-check set is designed, the automated scanning gate (SEC-CICD-4) is not built and this control depends on human review.
+- **Open Decisions**: None affecting the policy — the SEC-CICD-4 blocking-check set is fixed (`SECURITY.md` SQ-7 RESOLVED) and planned as REQ-INFRA-070; until that gate lands, this control depends on human review. Runner commands and the code-coverage threshold remain TO BE DECIDED (`CLAUDE.md`). Per-issue standards mappings remain TO BE DECIDED until the SQ-10 pre-launch assessment.
 
 **Estimated effort**: 0.5–1 engineer-day. **Estimated changed lines**: 50–200 (configuration and documentation; excludes the lockfile itself, which is a generated file).
 **Recommended model**: Claude Opus (`claude-opus-5`) — a small but consequential supply-chain discipline where the judgement calls (DEP-1 versus DEP-2) matter more than the code.

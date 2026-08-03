@@ -4,22 +4,22 @@
 
 - **ID**: REQ-CUSTOM-030
 - **Title**: Customized copy stability when the source plan changes
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: High
 - **Requirement Type**: Functional
-- **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-7.5; `SECURITY.md` SEC-INPUT-4
+- **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-7.5, FR-4.9; `SECURITY.md` SEC-INPUT-4
 
 ## Requirement
 
 - **Statement**: An existing customized copy MUST remain unchanged when the published plan it was derived from is later edited or unpublished, and MUST remain retrievable by its owner regardless of the source plan's state.
-- **Rationale**: FR-7.5 states the rule; SEC-INPUT-4 requires it as server-side validation rather than a UI convention. Without it, an admin edit silently rewrites what subscribers believe they are following, and an unpublication destroys their work.
+- **Rationale**: FR-7.5 states the rule; SEC-INPUT-4 requires it as server-side validation rather than a UI convention; FR-4.9 restates it from the unpublication side ("Unpublication MUST NOT alter customized copies (FR-7.5)"). Without it, an admin edit silently rewrites what subscribers believe they are following, and an unpublication destroys their work.
 - **Assumptions**: Copies are created as complete independent records (REQ-CUSTOM-010), which is what makes this guarantee structural rather than a runtime check.
-- **Out of Scope**: Copy creation and editing (REQ-CUSTOM-010); listing and retrieval (REQ-CUSTOM-020); whether a subscriber is notified that their copy's source changed, which no source document specifies; retention across subscription lapse (FR-3.4), blocked by `REQUIREMENTS.md` OQ-1.
-- **Design Traceability**: `DESIGN.md` OQ-5 concerns how verification and provenance are surfaced; whether a copy shows that its source has changed is unspecified and out of scope here.
+- **Out of Scope**: Copy creation and editing (REQ-CUSTOM-010); listing and retrieval (REQ-CUSTOM-020); whether a subscriber is notified that their copy's source changed, which no source document specifies; the effect of unpublication on *active selections* (FR-4.9, REQ-SELECT-030 — this issue covers only the copies); retention across subscription lapse (FR-3.4, REQ-ENTITLE-040).
+- **Design Traceability**: `DESIGN.md` OQ-5 is RESOLVED (inline references plus an Evidence section, verifier detail admin-only); it governs how review state is surfaced, and whether a copy shows that its source has changed remains unspecified and out of scope here.
 - **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application ("copy-on-customize semantics (FR-7.2, FR-7.5)"); Relational Persistence ("preserve customized copies when their source plan changes (FR-7.5)"); DR-4.
 - **Security Traceability**: SEC-INPUT-4; supports SEC-AUTHZ-2, SEC-DATA-5.
 
@@ -30,9 +30,9 @@
 - **Interfaces / Operations**: Plan edit and unpublish, viewed from the perspective of derived copies; retrieval of a copy whose source has changed
 - **Actors**: `subscriber` as copy owner; `admin` as the actor whose plan changes must not propagate
 - **Preconditions**: A customized copy exists, derived from a published plan
-- **Data Classification**: Restricted
-- **Personal or Regulated Data**: Health Data
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1)
+- **Data Classification**: Restricted — customized plan copies are health data (FR-9.12)
+- **Personal or Regulated Data**: Health Data (FR-9.12)
+- **Jurisdiction / Regulatory Scope**: GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, Washington My Health My Data, and the FTC Health Breach Notification Rule for US users; HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED)
 
 ## Security Context
 
@@ -48,11 +48,11 @@
 
 ## Standards Alignment
 
-- **OWASP ASVS 5.0.0**: TO BE DECIDED — not verified against `REF-ASVS-5` in this session.
+- **OWASP ASVS 5.0.0**: TO BE DECIDED — verified during the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **OWASP AISVS 1.0**: N/A
-- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
+- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — verified during the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **NIST SP 800-207**: N/A
-- **Regulatory**: N/A
+- **Regulatory**: GDPR/UK GDPR (EU/UK data subjects); CCPA/CPRA, Washington My Health My Data, FTC Health Breach Notification Rule (US users); HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED) — the invariant protects health data (FR-9.12) from silent alteration or loss. Statute-section precision: TO BE DECIDED — no source document states sections for this requirement.
 - **Other**: `REF-PC-2024`, `REF-ASVS-5` as cited by SEC-INPUT-4.
 - **Mapping Basis**: FR-7.5 is the normative source; SEC-INPUT-4 requires server-side enforcement and names these references.
 
@@ -73,7 +73,7 @@
 - **On External Dependency Failure**: If persistence is unavailable, retrieval fails with a generic error; no fallback to source plan content.
 - **On System Error**: Roll back; a plan edit that cannot complete without touching copies MUST fail rather than proceed.
 - **Logging / Audit**: The admin edit and unpublish actions are audited (REQ-AUDIT-030); copy reads are audited (REQ-AUDIT-020). No additional audit event is introduced here.
-- **Alerting**: N/A
+- **Alerting**: N/A — this issue governs a data-model invariant with no runtime alert condition; admin plan-action monitoring belongs to REQ-AUDIT-030, and threshold alerting generally routes to the security lead per SEC-OPS-2.
 
 ## Test Strategy
 
@@ -88,19 +88,19 @@
 ## Dependencies
 
 - **Upstream Requirements**: REQ-CUSTOM-010, REQ-CUSTOM-020, REQ-PLAN-030, REQ-PLAN-060
-- **Downstream Requirements**: None
+- **Downstream Requirements**: REQ-SELECT-030 (FR-4.9 relies on this invariant when unpublication ends selections while copies survive)
 - **External Dependencies**: None
 - **Dependency Assumptions**: The chosen RDBMS's referential actions are configurable so that no cascade reaches copies.
 - **Failure Impact**: A cascade here destroys or rewrites subscriber-owned health data during a routine admin action, and the loss is silent.
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM and drizzle-kit migrations (`CLAUDE.md`); schema design remains TO BE DECIDED. This issue is largely a schema and data-model guarantee, so it must be settled before REQ-CUSTOM-010 persists its first copy — retrofitting independence after copies exist is a migration, not a change.
+- **Constraints**: PostgreSQL with Drizzle ORM and drizzle-kit migrations (`CLAUDE.md`); schema design and indexing are implementation-level, decided with the code (`ARCHITECTURE.md`, Relational Persistence). This issue is largely a schema and data-model guarantee, so it must be settled before REQ-CUSTOM-010 persists its first copy — retrofitting independence after copies exist is a migration, not a change.
 - **Prohibited Approaches**: Storing a copy as a plan identifier plus an overrides map; sharing exercise or meal child tables between plans and copies; `ON DELETE CASCADE` or `ON UPDATE CASCADE` from plans to copies; resolving any copy field from the source plan at read time.
 - **Implementation Guidance**: Retaining the source plan identifier for provenance is permitted and useful, provided AC-05 holds — nothing is resolved through it. Verify the invariant with the same snapshot comparison used in REQ-PLAN-030 AC-04 and REQ-PLAN-060 AC-02 so the three issues assert one guarantee from three directions.
 - **AI Development Guidance**: `REF-PROMPT-QUALITY`, `REF-PROMPT-API`; `CLAUDE.md`.
 - **Required Human Review**: Architecture review of the schema and referential actions.
-- **Open Decisions**: Whether a subscriber should be told that a copy's source plan changed or was withdrawn is unspecified in all source documents; FR-7.5 requires stability, not notification. FR-3.4 retention across subscription lapse is blocked by `REQUIREMENTS.md` OQ-1.
+- **Open Decisions**: Whether a subscriber should be told that a copy's source plan changed is unspecified in all source documents; FR-7.5 requires stability, not notification (FR-4.9 does prompt for a replacement when an unpublished plan was the *active selection* — that is REQ-SELECT-030, not this issue). `REQUIREMENTS.md` OQ-1 is RESOLVED; retention across lapse is REQ-ENTITLE-040.
 
 **Estimated effort**: 0.5–1 engineer-day. **Estimated changed lines**: 100–300.
 **Recommended model**: Claude Opus (`claude-opus-5`) — a schema-level invariant whose violation is silent data loss during ordinary admin work.

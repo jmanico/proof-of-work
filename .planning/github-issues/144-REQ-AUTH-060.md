@@ -4,11 +4,11 @@
 
 - **ID**: REQ-AUTH-060
 - **Title**: Anti-automation throttling on authentication and recovery paths
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-08-01
+- **Last Updated**: 2026-08-03
 - **Priority**: Critical
 - **Requirement Type**: Security
 - **Source / Parent**: REQ-EPIC-001; `SECURITY.md` SEC-AUTHN-6, SEC-AUTHN-11; threats TM-S-1, TM-D-2
@@ -18,8 +18,8 @@
 - **Statement**: Every authentication, MFA, passkey, verification, and recovery endpoint MUST apply exponential backoff throttling keyed on both the targeted account and the request source, and the system MUST NOT implement fixed account lockout — no sequence of failed attempts by a third party may render an account permanently unusable.
 - **Rationale**: SEC-AUTHN-6 requires anti-automation proportionate to credential-attack risk (threat TM-S-1, credential stuffing). The prohibition on lockout is equally load-bearing: TM-D-2 records that lockout itself is an attack, letting anyone deny a chosen victim access by failing logins on their behalf. Backoff resolves both — it makes guessing economically infeasible while keeping a legitimate user's account recoverable by waiting.
 - **Assumptions**: The account identifier presented in a failed attempt may be attacker-chosen, so keying on it alone would let an attacker throttle a victim; keying on source alone would let a distributed attacker bypass throttling. Both keys are required.
-- **Out of Scope**: General request rate limiting and body-size limits (SEC-HTTP-5, blocked by `SECURITY.md` SQ-3 and not delivered here); the concrete thresholds, delays, and decay curve, which are `TO BE DECIDED` under SQ-3; the individual endpoints themselves, which are separate issues that consume this control; alerting on attack patterns, blocked by SQ-3.
-- **Design Traceability**: `DESIGN.md` — Components → Form feedback and errors. A throttled response must tell the user what to do (wait and retry) without revealing whether the account exists or which factor failed, which sits in tension with the "name the specific problem" guidance and is resolved the same way REQ-AUTH-040 resolves it: format problems are specific, state-dependent outcomes are generic.
+- **Out of Scope**: General request rate limiting and body-size limits (SEC-HTTP-5, now Confirmed with fixed limits and delivered by REQ-API-050 — including the 10 requests/minute per-source limit on authentication endpoints); the individual endpoints themselves, which are separate issues that consume this control; the breached-password refusal half of SEC-AUTHN-6 — a versioned list artifact imported at build or deploy time under DEP-5/DEP-7 discipline with the version in use recorded (2026-08-03) — which belongs to the password-accepting operations, not to this throttling control; alert delivery, which follows the SEC-OPS-2 process (SQ-11 RESOLVED). The thresholds, delays, and decay curve are no longer open — SQ-3 fixed them (see Constraints).
+- **Design Traceability**: `DESIGN.md` — Components → Form feedback and errors, and Product Patterns → Credentials, account security, and administration (added 2026-08-03): throttled attempts surface as a neutral "Try again shortly" state with no counts or cause, and no sign-in, reset, resend, or verification response may reveal whether an address or account exists. Format problems are specific, state-dependent outcomes are generic, exactly as REQ-AUTH-040 resolves the same tension.
 - **Architecture Traceability**: `ARCHITECTURE.md` — Identity and Session Handling; trust boundary 2; data flow 1.
 - **Security Traceability**: SEC-AUTHN-6; supports SEC-AUTHN-3 (no enumeration through timing or content), SEC-AUTHN-11 (recovery secret use is throttled), SEC-LOG-4 (failures logged with enough context to detect patterns).
 
@@ -32,7 +32,7 @@
 - **Preconditions**: None — this applies to unauthenticated paths by definition
 - **Data Classification**: Confidential
 - **Personal or Regulated Data**: Personal Data — throttling state is keyed on account identifiers
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1)
+- **Jurisdiction / Regulatory Scope**: Global service, single US primary region with standard lawful cross-border transfer mechanisms (`SECURITY.md` SQ-1 RESOLVED). Regimes: GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; HIPAA not applicable.
 
 ## Security Context
 
@@ -52,7 +52,7 @@
 - **OWASP AISVS 1.0**: N/A
 - **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
 - **NIST SP 800-207**: N/A
-- **Regulatory**: TO BE DECIDED — blocked by `SECURITY.md` SQ-1.
+- **Regulatory**: GDPR/UK GDPR (EU/UK data subjects); CCPA/CPRA, Washington My Health My Data, FTC HBNR (US users); HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED). Specific article/section mappings: TO BE DECIDED — no source document states one for anti-automation throttling.
 - **Other**: `REF-AUTH`, `REF-63B`, `REF-PROMPT-API`, `REF-ASVS-5`, as named by SEC-AUTHN-6.
 - **Mapping Basis**: SEC-AUTHN-6 names these references; CWE-307 and CWE-645 name the two opposing failure modes this control must satisfy simultaneously.
 
@@ -74,7 +74,7 @@
 - **On External Dependency Failure**: If the state store is unavailable, deny rather than allow unlimited attempts.
 - **On System Error**: Generic error with a correlation identifier (SEC-ERR-1).
 - **Logging / Audit**: Log each failure with account reference, cause class, source, and correlation identifier, with enough context to detect attack patterns and without any credential value (SEC-LOG-4, SEC-LOG-3).
-- **Alerting**: TO BE DECIDED — this control produces the signal an alert would consume, but thresholds and destinations are blocked by `SECURITY.md` SQ-3 and SQ-11.
+- **Alerting**: This control produces the signal the alerts consume: threshold alerts on failed-authentication and throttling patterns route to the security lead as SEC-OPS-2 detection inputs (`SECURITY.md` SQ-3, SQ-11 RESOLVED).
 
 ## Test Strategy
 
@@ -89,19 +89,19 @@
 ## Dependencies
 
 - **Upstream Requirements**: REQ-BUILD-010, REQ-API-040, REQ-AUTH-040
-- **Downstream Requirements**: REQ-AUTH-070, REQ-AUTH-080, REQ-AUTH-090, REQ-AUTH-100, REQ-AUTH-110, REQ-AUTH-120, REQ-AUTH-130, REQ-AUTH-140, REQ-AUTH-150, REQ-AUTH-020, REQ-AUTH-030 — every credential-bearing path
+- **Downstream Requirements**: REQ-AUTH-070, REQ-AUTH-080, REQ-AUTH-090, REQ-AUTH-100, REQ-AUTH-110, REQ-AUTH-120, REQ-AUTH-130, REQ-AUTH-140, REQ-AUTH-150, REQ-AUTH-180 (replacement-address verification and resend are throttled under SEC-AUTHN-8/SEC-AUTHN-6), REQ-AUTH-020, REQ-AUTH-030 — every credential-bearing path
 - **External Dependencies**: None
-- **Dependency Assumptions**: The throttling state store is shared across application instances; per-instance counters would be defeated by load balancing, which makes this a deployment concern interacting with SQ-7.
+- **Dependency Assumptions**: The throttling state store is shared across application instances; per-instance counters would be defeated by load balancing. SQ-7 confirms the concern: the API runs as ECS Fargate tasks behind an ALB, so shared state is required, not optional.
 - **Failure Impact**: Without it, every credential endpoint is an unlimited oracle, and SEC-AUTHN-3's non-enumeration guarantee is unenforceable in practice regardless of how uniform individual responses are.
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). Thresholds, delays, and decay are `TO BE DECIDED` (`SECURITY.md` SQ-3) and MUST be named constants with a documented basis rather than literals — this issue delivers the mechanism and its enforcement surface, not the numbers. The multi-instance assumption above should be confirmed when SQ-7 resolves.
+- **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). Thresholds are fixed (`SECURITY.md` SQ-3 RESOLVED, SEC-AUTHN-6) and MUST be recorded as named constants rather than literals: backoff engages after 3 consecutive failures, keyed per account and per source, starting at 1 second and doubling per failure to a 15-minute cap, with counters reset after 24 hours clean; authentication endpoints are additionally limited to 10 requests/minute per source (SEC-HTTP-5, delivered by REQ-API-050). The multi-instance assumption is confirmed by SQ-7 (ECS Fargate tasks behind an ALB): throttling state MUST live in shared storage, never per instance.
 - **Prohibited Approaches**: Fixed account lockout in any form, including "temporary lockout requiring admin unlock" (TM-D-2). Keying solely on source address, which a distributed attacker defeats, or solely on account, which turns the control into the lockout it replaces. Applying throttling after credential verification, which leaves the expensive Argon2id path (REQ-AUTH-070) exposed as a denial-of-service amplifier. Revealing remaining attempts or delay in the response.
 - **Implementation Guidance**: Evaluate throttling in a hook that runs before route handlers, consistent with the single-enforcement-point reasoning in SEC-AUTHZ-5. Because Argon2id is deliberately expensive, throttling should short-circuit before hashing; be careful that doing so does not itself become a timing oracle for account existence, which AC-05 tests.
 - **AI Development Guidance**: `REF-AUTH`, `REF-63B`, `REF-PROMPT-API`, `REF-PROMPT-NODE`; `CLAUDE.md`.
 - **Required Human Review**: Security review of the endpoint inventory and of the interaction between early short-circuit and the timing-uniformity requirement.
-- **Open Decisions**: Thresholds, delay curve, and decay period (`SECURITY.md` SQ-3). Whether the state store is shared infrastructure depends on deployment topology (SQ-7). SEC-HTTP-5's general rate limiting remains blocked and is not delivered here.
+- **Open Decisions**: None from the specifications — thresholds (SQ-3) and deployment topology (SQ-7) are RESOLVED, and SEC-HTTP-5's general rate limiting is Confirmed and delivered by REQ-API-050, not here. Standards mappings remain TO BE DECIDED until the SQ-10 pre-launch assessment.
 
 **Estimated effort**: 1–2 engineer-days. **Estimated changed lines**: 300–650.
 **Recommended model**: Claude Opus (`claude-opus-5`) — the control must satisfy two directly opposing requirements at once, and the naive implementation of either one violates the other.

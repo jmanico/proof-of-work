@@ -4,11 +4,11 @@
 
 - **ID**: REQ-CONSULT-020
 - **Title**: Ending an engagement revokes consultant access
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: Critical
 - **Requirement Type**: Security
 - **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-11.3; `SECURITY.md` SEC-AUTHZ-3, SEC-SESSION-4; threat TM-I-2
@@ -18,8 +18,8 @@
 - **Statement**: A subscriber MUST be able to end a consultant engagement, and that consultant's access to the subscriber's data MUST be revoked immediately — including for a session or token issued before the engagement ended, without waiting for natural expiry.
 - **Rationale**: FR-11.3 grants the subscriber the right to end an engagement and requires revocation; SEC-AUTHZ-3 requires denial immediately once the subscriber ends it; SEC-SESSION-4 requires revocation of authorization state to take effect without waiting for token expiry. The threat model records a consultant retaining access via a still-valid JWT (TM-I-2) as high severity, mitigated by the resolved server-side session design (SQ-2; SEC-AUTHZ-3, SEC-SESSION-4).
 - **Assumptions**: An engagement exists and access is evaluated per request from persisted state (REQ-CONSULT-010).
-- **Out of Scope**: Creating or purchasing an engagement (FR-11.1), blocked by `REQUIREMENTS.md` OQ-13 and OQ-1; whether a consultant may also end an engagement, which no source document states — FR-11.3 grants it to the subscriber; the JWT revocation mechanism for logout generally, resolved by `SECURITY.md` SQ-2 and delivered by REQ-SESSION-040 (SEC-SESSION-3); consultant capabilities (OQ-12).
-- **Design Traceability**: `DESIGN.md` — Components → Buttons ("Destructive actions use `error` as the filled color and require explicit confirmation"), Form feedback and errors, Focus states; `DESIGN.md` OQ-7 (how a subscriber sees consultant access) is open.
+- **Out of Scope**: Creating an engagement and administrative revocation by an `admin` (FR-11.1, FR-11.5; `REQUIREMENTS.md` OQ-13 and OQ-1 RESOLVED) — REQ-CONSULT-030; ending by the consultant themselves, which no source document grants — FR-11.3 gives the right to the subscriber and FR-11.5 to an `admin` as revocation; the JWT revocation mechanism for logout generally, resolved by `SECURITY.md` SQ-2 and delivered by REQ-SESSION-040 (SEC-SESSION-3); consultant capabilities within an active engagement (FR-11.6; OQ-12 RESOLVED) — REQ-CONSULT-040.
+- **Design Traceability**: `DESIGN.md` — Core Components → Actions ("**Destructive button:** `error` treatment, explicit verb, and confirmation"; button labels use specific verbs such as "End access"); Information Architecture and Navigation (`DESIGN.md` OQ-7 RESOLVED): subscribers see consultant access on Home and in Account → Consultant access, both offering **End access**, and "No client data remains visible after an engagement ends (FR-11.3)."
 - **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application ("consultant engagement scoping (FR-11.2, FR-11.3)"); data flow 7; Identity and Session Handling (revocation of authorization state).
 - **Security Traceability**: SEC-AUTHZ-3, SEC-SESSION-4, SEC-LOG-1, SEC-LOG-4.
 
@@ -32,7 +32,7 @@
 - **Preconditions**: Authenticated subscriber session; an active engagement between that subscriber and the consultant
 - **Data Classification**: Restricted
 - **Personal or Regulated Data**: Health Data — the data whose access is being revoked
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1, `REQUIREMENTS.md` OQ-3)
+- **Jurisdiction / Regulatory Scope**: GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED, `REQUIREMENTS.md` OQ-3 RESOLVED)
 
 ## Security Context
 
@@ -48,11 +48,11 @@
 
 ## Standards Alignment
 
-- **OWASP ASVS 5.0.0**: TO BE DECIDED — not verified against `REF-ASVS-5` in this session.
+- **OWASP ASVS 5.0.0**: TO BE DECIDED — per-issue mappings are verified during the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **OWASP AISVS 1.0**: N/A
-- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
+- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — per-issue mappings are verified during the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **NIST SP 800-207**: TO BE DECIDED — see Zero Trust Relevance.
-- **Regulatory**: TO BE DECIDED — blocked by `SECURITY.md` SQ-1; withdrawal of third-party access is a data-subject control under the regimes `REQUIREMENTS.md` names.
+- **Regulatory**: Withdrawal of third-party access to health data is a data-subject control under the `SECURITY.md` SQ-1 regime set — GDPR/UK GDPR for EU/UK data subjects; CCPA/CPRA, Washington My Health My Data, and the FTC Health Breach Notification Rule for US users; HIPAA not applicable. Statute-section precision: TO BE DECIDED per-issue (SQ-1 counsel review, SQ-10).
 - **Other**: `REF-PROMPT-JWT`, `REF-PROMPT-ABAC` as cited by SEC-SESSION-4 and SEC-AUTHZ-3.
 - **Mapping Basis**: FR-11.3, SEC-AUTHZ-3, and SEC-SESSION-4 are the normative sources and name these references; CWE-613 names the stale-authority class.
 
@@ -62,7 +62,7 @@
 2. **AC-02 — Boundary or failure behavior**: Given a consultant holding a session or token issued while the engagement was active, when they request that subscriber's data after the engagement ends, then the request is denied on the next request without waiting for token expiry, and no data is returned.
 3. **AC-03 — Prohibited behavior**: Given the implementation, when engagement state is evaluated, then it MUST NOT be read from a token claim, a session cache, or a client assertion; and a consultant MUST NOT be able to end or reinstate an engagement on the subscriber's behalf.
 4. **AC-04 — Additional criterion**: Given an ended engagement, when the consultant requests the subscriber's data, then the response is indistinguishable from that for a subscriber they never had an engagement with (REQ-CONSULT-010 AC-02).
-5. **AC-05 — Additional criterion**: Given the subscriber's engagement management view, when ending an engagement is invoked, then it is presented as a destructive action requiring explicit confirmation (`DESIGN.md`, Components → Buttons).
+5. **AC-05 — Additional criterion**: Given the subscriber's engagement management view, when ending an engagement is invoked, then it is presented as a destructive action with an explicit verb ("End access") requiring explicit confirmation (`DESIGN.md`, Core Components → Actions; Information Architecture and Navigation).
 
 ## Failure Behavior
 
@@ -73,7 +73,7 @@
 - **On External Dependency Failure**: If persistence is unavailable, the end-engagement operation fails atomically; consultant access evaluation, unable to confirm an active engagement, denies.
 - **On System Error**: Roll back; generic error with a correlation identifier.
 - **Logging / Audit**: Log the engagement termination as a security-relevant authorization change (SEC-LOG-4) and audit it as an action affecting the subscriber's data access (REQ-AUDIT-020). Post-termination consultant attempts are logged as denials (REQ-AUTHZ-040).
-- **Alerting**: TO BE DECIDED — repeated post-termination access attempts by a consultant would be a natural signal; thresholds are blocked by `SECURITY.md` SQ-3.
+- **Alerting**: Post-termination denials are logged as security events (SEC-LOG-4) and are detection inputs; threshold alerts route to the security lead under SEC-OPS-2 (`SECURITY.md` SQ-3 and SQ-11 RESOLVED). Repeated post-termination access attempts by a consultant are a natural signal within that channel.
 
 ## Test Strategy
 
@@ -87,8 +87,8 @@
 
 ## Dependencies
 
-- **Upstream Requirements**: REQ-CONSULT-010, REQ-AUTHZ-020, REQ-AUTHZ-040, REQ-AUDIT-020, REQ-SESSION-020, REQ-PLATFORM-030
-- **Downstream Requirements**: None
+- **Upstream Requirements**: REQ-CONSULT-010, REQ-CONSULT-030, REQ-AUTHZ-020, REQ-AUTHZ-040, REQ-AUDIT-020, REQ-SESSION-020, REQ-PLATFORM-030
+- **Downstream Requirements**: REQ-AUTH-170 (deprovisioning a consultant ends every active engagement per FR-11.3), REQ-PRIVACY-090 (deleting a consultant account first ends its active engagements per FR-9.4)
 - **External Dependencies**: None
 - **Dependency Assumptions**: Engagement state is evaluated per request from persistence (REQ-CONSULT-010), which is what makes immediate revocation achievable without a token revocation mechanism.
 - **Failure Impact**: Access surviving termination is a continuing unauthorized third-party disclosure of health data, initiated by a control the subscriber was told would stop it.
@@ -100,7 +100,7 @@
 - **Implementation Guidance**: Because REQ-CONSULT-010 evaluates the engagement predicate per request, this issue's revocation is a state change plus a test that proves the predicate is genuinely per-request. Keep the ended state rather than deleting the engagement record, so the historical audit trail remains interpretable.
 - **AI Development Guidance**: `REF-PROMPT-JWT`, `REF-PROMPT-ABAC`, `REF-PROMPT-API`; `CLAUDE.md`.
 - **Required Human Review**: Security review of the revocation path and the captured-token test; privacy review of what the subscriber is told about past access.
-- **Open Decisions**: Session lifetimes remain open (`SECURITY.md` SQ-3; SQ-2 is RESOLVED); `REQUIREMENTS.md` OQ-12 (capabilities) and OQ-13 (engagement lifecycle and payment) remain open, so engagement *creation* has no issue.
+- **Open Decisions**: None affecting this issue's behavior — `SECURITY.md` SQ-2 and SQ-3 are RESOLVED (privileged sessions 12 h absolute / 30 min idle, though revocation here never waits on either), and `REQUIREMENTS.md` OQ-12 and OQ-13 are RESOLVED, with engagement creation and administrative revocation planned as REQ-CONSULT-030 and capabilities as REQ-CONSULT-040. Per-issue standards mappings remain TO BE DECIDED until the SQ-10 pre-launch assessment.
 
 **Estimated effort**: 0.5–1.5 engineer-days. **Estimated changed lines**: 150–400.
 **Recommended model**: Claude Opus (`claude-opus-5`) — small in code, but it is the mitigation for a threat the specification rates as high severity (TM-I-2).

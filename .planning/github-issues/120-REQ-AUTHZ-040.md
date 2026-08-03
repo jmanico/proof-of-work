@@ -4,11 +4,11 @@
 
 - **ID**: REQ-AUTHZ-040
 - **Title**: Authorization denial response and logging semantics
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: High
 - **Requirement Type**: Security
 - **Source / Parent**: REQ-EPIC-001; `SECURITY.md` SEC-LOG-4, SEC-ERR-1, SEC-AUTHZ-7; threats TM-I-1, TM-I-4, TM-E-2
@@ -18,8 +18,8 @@
 - **Statement**: Every authorization denial MUST produce a uniform response that does not disclose the existence, ownership, or attributes of the target resource, and MUST be recorded as a structured security log event carrying the acting account, the attempted operation, the target class, and a correlation identifier, without recording health values, credentials, or tokens.
 - **Rationale**: SEC-LOG-4 requires authorization denials to be logged with enough context to detect attack patterns without logging credentials; SEC-ERR-1 requires responses free of internal detail; the threat model records enumeration (TM-I-4) and BOLA (TM-I-1) as threats that a leaky denial response assists.
 - **Assumptions**: Denials originate from REQ-AUTHZ-010, REQ-AUTHZ-020, REQ-AUTHZ-030, and REQ-CONSULT-010.
-- **Out of Scope**: The authorization decisions themselves; audit entries for successful health-data access (REQ-AUDIT-020); log retention and access control (SEC-LOG-5, blocked by `SECURITY.md` SQ-8); alert thresholds (SQ-3).
-- **Design Traceability**: `DESIGN.md` — Components → Form feedback and errors, insofar as a denial surfaced in the UI must be presented as text plus icon, never color alone, and announced to assistive technology.
+- **Out of Scope**: The authorization decisions themselves; audit entries for successful health-data access (REQ-AUDIT-020); log retention and access control (SEC-LOG-5; REQ-INFRA-040 — `SECURITY.md` SQ-8 RESOLVED); alert routing and incident process (SQ-3, SQ-11 RESOLVED; REQ-OPS-010).
+- **Design Traceability**: `DESIGN.md` — Core Components → Status, feedback, and loading (statuses combine text with an icon; permission states explain the reason and next step without exposing hidden data) and Accessibility (assertive announcements only when submission fails), insofar as a denial surfaced in the UI must be presented as text plus icon, never color alone, and announced to assistive technology.
 - **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application outputs ("authorization errors carrying the specific failing … reason"), bounded here by SEC-ERR-1's disclosure limits.
 - **Security Traceability**: SEC-LOG-4, SEC-ERR-1, SEC-AUTHZ-7, SEC-LOG-3.
 
@@ -32,7 +32,7 @@
 - **Preconditions**: An authorization decision has been evaluated and returned deny
 - **Data Classification**: Restricted
 - **Personal or Regulated Data**: Health Data — MUST NOT appear in denial responses or logs
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1)
+- **Jurisdiction / Regulatory Scope**: GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED)
 
 ## Security Context
 
@@ -52,7 +52,7 @@
 - **OWASP AISVS 1.0**: N/A
 - **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
 - **NIST SP 800-207**: N/A
-- **Regulatory**: N/A
+- **Regulatory**: The SQ-1 regime set applies to the health data this control keeps out of denial responses and logs — GDPR/UK GDPR, CCPA/CPRA, Washington My Health My Data, FTC HBNR; HIPAA not applicable. Statute-section mappings: TO BE DECIDED (SQ-1 counsel review).
 - **Other**: `REF-LOG`, `REF-ERROR` as cited by SEC-LOG-4 and SEC-ERR-1.
 - **Mapping Basis**: The cited rules name these references; the CWE identifiers name the disclosure and insufficient-logging classes.
 
@@ -61,7 +61,7 @@
 1. **AC-01 — Expected behavior**: Given any authorization denial, when the response is produced, then it carries a generic denial message and a correlation identifier, and a structured log event records the account identifier, operation, target class, decision reason class, and the same correlation identifier.
 2. **AC-02 — Boundary or failure behavior**: Given a request for a record that does not exist and a request for a record owned by another subject, when both are denied, then the two responses are indistinguishable in status, body, and observable timing characteristics.
 3. **AC-03 — Prohibited behavior**: Given any denial log or response, when it is inspected, then it MUST NOT contain a health value, credential, token, full personal record, target record content, or internal identifier beyond the correlation identifier.
-4. **AC-04 — Additional criterion**: Given a denial surfaced in the client, when it is presented, then it appears as text with an icon rather than color alone and is announced to assistive technology (`DESIGN.md`, Components; SEC-RENDER-4).
+4. **AC-04 — Additional criterion**: Given a denial surfaced in the client, when it is presented, then it appears as text with an icon rather than color alone and is announced to assistive technology (`DESIGN.md`, Core Components → Status, feedback, and loading; Accessibility; SEC-RENDER-4).
 
 ## Failure Behavior
 
@@ -72,7 +72,7 @@
 - **On External Dependency Failure**: If the logging sink is unavailable, the denial still occurs; the logging failure is recorded through the local fallback path and MUST NOT convert the denial into an allow.
 - **On System Error**: Generic error, correlation identifier, diagnostics server-side only.
 - **Logging / Audit**: Events: authorization denial, authentication failure, security-relevant account change (SEC-LOG-4). Fields: timestamp, account identifier, role, operation, target class, reason class, correlation identifier. Redaction per SEC-LOG-3.
-- **Alerting**: TO BE DECIDED — `SECURITY.md` SQ-3 leaves abuse thresholds open, so no alert condition can be specified without inventing one.
+- **Alerting**: Threshold alerts route to the security lead as SEC-OPS-2 detection inputs (`SECURITY.md` SQ-3, SQ-11 RESOLVED); the SEC-LOG-4 denial events this issue produces are among those detection inputs.
 
 ## Test Strategy
 
@@ -94,12 +94,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime with Fastify and its pino logger (`CLAUDE.md`); the log sink and retention remain TO BE DECIDED (`SECURITY.md` SQ-7, SQ-8).
+- **Constraints**: Node.js runtime with Fastify and its pino logger (`CLAUDE.md`); log retention and archive storage are fixed (SEC-LOG-5, SEC-LOG-7; `SECURITY.md` SQ-7, SQ-8 RESOLVED — REQ-INFRA-040).
 - **Prohibited Approaches**: Distinct status codes or messages for "not found" versus "forbidden" on owned records; echoing the requested identifier's associated content; logging the presented token or credential; shipping logs to an external analytics or monitoring destination (SEC-TB-3).
 - **Implementation Guidance**: Timing uniformity need only be addressed to the extent it is observable at the response level; `SECURITY.md` SEC-AUTHN-3 already requires timing-insensitive authentication responses, and the same helper can serve both.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Security review of the denial shape and the log field set; privacy review that log fields carry no health data.
-- **Open Decisions**: Log retention, storage location, and access control are blocked by `SECURITY.md` SQ-8; alerting is blocked by SQ-3.
+- **Open Decisions**: None. Log retention, storage, and access control are fixed (`SECURITY.md` SQ-8 RESOLVED — REQ-INFRA-040); alerting routes to the security lead per SQ-11 (REQ-OPS-010).
 
 **Estimated effort**: 0.5–1 engineer-day. **Estimated changed lines**: 150–350.
 **Recommended model**: Claude Opus (`claude-opus-5`) — small, security-sensitive, and dependent on getting disclosure boundaries exactly right.

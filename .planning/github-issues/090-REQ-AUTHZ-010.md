@@ -4,11 +4,11 @@
 
 - **ID**: REQ-AUTHZ-010
 - **Title**: Deny-by-default authentication requirement on protected operations
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: Critical
 - **Requirement Type**: Security
 - **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-2.1; `SECURITY.md` SEC-AUTHN-1, SEC-AUTHZ-1
@@ -18,7 +18,7 @@
 - **Statement**: The REST API Application MUST deny every request that lacks a valid authenticated session by default, and MUST require an explicit, reviewed declaration for each route intended to be reachable without authentication.
 - **Rationale**: FR-2.1 requires an account for all plan, customization, and progress functionality and denial of unauthenticated access; SEC-AUTHN-1 requires denial by default rather than per-endpoint allow-listing, so that a newly added route is protected unless someone deliberately opens it.
 - **Assumptions**: Session validity is determined by Identity and Session Handling (REQ-SESSION-010).
-- **Out of Scope**: What an authenticated actor may then do — ownership scoping (REQ-AUTHZ-020), role restriction (REQ-AUTHZ-030), engagement scoping (REQ-CONSULT-010), and subscription entitlement (blocked by `REQUIREMENTS.md` OQ-1); the central ABAC policy architecture (SEC-AUTHZ-5, SEC-AUTHZ-6, blocked by `SECURITY.md` SQ-4).
+- **Out of Scope**: What an authenticated actor may then do — ownership scoping (REQ-AUTHZ-020), role restriction (REQ-AUTHZ-030), engagement scoping (REQ-CONSULT-010), and subscription entitlement (FR-3.1, FR-3.2; REQ-ENTITLE-010 — `REQUIREMENTS.md` OQ-1 RESOLVED); the central typed authorization policy module (SEC-AUTHZ-5, SEC-AUTHZ-6, SEC-AUTHZ-7; REQ-AUTHZ-050 — `SECURITY.md` SQ-4 RESOLVED).
 - **Design Traceability**: N/A — `DESIGN.md` does not specify unauthenticated views.
 - **Architecture Traceability**: `ARCHITECTURE.md` — trust boundary 2 (unauthenticated → authenticated); REST API Application ("Authenticates every request via Identity and Session Handling"); DR-3.
 - **Security Traceability**: SEC-AUTHN-1, SEC-AUTHZ-1; supports SEC-TB-1.
@@ -32,7 +32,7 @@
 - **Preconditions**: None
 - **Data Classification**: Restricted
 - **Personal or Regulated Data**: Health Data
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1)
+- **Jurisdiction / Regulatory Scope**: GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED)
 
 ## Security Context
 
@@ -52,7 +52,7 @@
 - **OWASP AISVS 1.0**: N/A
 - **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
 - **NIST SP 800-207**: TO BE DECIDED — see Zero Trust Relevance.
-- **Regulatory**: N/A
+- **Regulatory**: The SQ-1 regime set applies to the health data this gate protects — GDPR/UK GDPR, CCPA/CPRA, Washington My Health My Data, FTC HBNR; HIPAA not applicable. Statute-section mappings: TO BE DECIDED (SQ-1 counsel review).
 - **Other**: `REF-AUTH`, `REF-PROMPT-API` as cited by SEC-AUTHN-1.
 - **Mapping Basis**: SEC-AUTHN-1 names these references; the CWE identifiers describe the missing-authentication and missing-authorization classes.
 
@@ -72,7 +72,7 @@
 - **On External Dependency Failure**: If session state cannot be resolved because a dependency is unavailable, deny; MUST NOT degrade to allowing the request.
 - **On System Error**: Generic error with a correlation identifier (SEC-ERR-1); no handler execution.
 - **Logging / Audit**: Log every denial with route, reason class, correlation identifier, and — where known — the account identifier; never the presented credential or token (SEC-LOG-3, SEC-LOG-4).
-- **Alerting**: TO BE DECIDED — thresholds for repeated denials are undefined (`SECURITY.md` SQ-3).
+- **Alerting**: Threshold alerts route to the security lead as SEC-OPS-2 detection inputs (`SECURITY.md` SQ-3, SQ-11 RESOLVED).
 
 ## Test Strategy
 
@@ -96,10 +96,10 @@
 
 - **Constraints**: Node.js runtime with Fastify (`CLAUDE.md`). The guard MUST be part of the request pipeline, not an opt-in decorator, so that omission cannot silently open a route.
 - **Prohibited Approaches**: Per-endpoint opt-in protection; deriving identity from a request header or body (DR-3); treating an unverified token payload as identity; catching and ignoring session-resolution errors.
-- **Implementation Guidance**: `SECURITY.md` SEC-AUTHZ-5 requires a single enforcement point for authorization policy; this guard is the natural site for it once SQ-4 resolves, so structure it to accept a policy decision component later without moving the enforcement point.
+- **Implementation Guidance**: `SECURITY.md` SEC-AUTHZ-5 requires a single enforcement point for authorization policy, and SQ-4 is resolved: policy is a first-party typed policy module evaluated at the single Fastify preHandler enforcement point (REQ-AUTHZ-050). This guard is that enforcement point's authentication stage; structure it so the policy module composes behind it without moving the enforcement point.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-ABAC`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Security review of the guard and of every entry in the public-route declaration.
-- **Open Decisions**: The ABAC attribute schema, policy language, and PDP/PEP architecture remain open (`SECURITY.md` SQ-4); this issue delivers the authentication gate only and does not resolve them.
+- **Open Decisions**: None. The attribute schema and the first-party typed policy module are fixed (`SECURITY.md` SQ-4 RESOLVED) and delivered by REQ-AUTHZ-050; this issue delivers the authentication gate only.
 
 **Estimated effort**: 0.5–1.5 engineer-days. **Estimated changed lines**: 200–450.
 **Recommended model**: Claude Opus (`claude-opus-5`) — a small but security-critical control where fail-closed behavior and exhaustive route coverage are the acceptance bar.

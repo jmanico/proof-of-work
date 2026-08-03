@@ -4,11 +4,11 @@
 
 - **ID**: REQ-AUTH-080
 - **Title**: Subscriber registration with email and password
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-08-01
+- **Last Updated**: 2026-08-03
 - **Priority**: Critical
 - **Requirement Type**: Functional
 - **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-2.2, FR-2.7; `SECURITY.md` SEC-AUTHN-5, SEC-AUTHN-6
@@ -18,7 +18,7 @@
 - **Statement**: The system MUST allow a person to register an account with an email address and a password, MUST assign that account the `subscriber` role, and MUST refuse a password that fails the policy in SEC-AUTHN-6 or appears in the known-breached list.
 - **Rationale**: FR-2.2 requires registration; FR-2.7 requires exactly one role per account, and registration is the only self-service path that creates one, so it is where the `subscriber` default is fixed. SEC-AUTHN-6 sets the policy — a length floor with no composition rules and no forced rotation, plus refusal of known-breached passwords — because `REF-63B` finds composition rules degrade real-world password choice while breach reuse is the dominant practical attack (threat TM-S-1).
 - **Assumptions**: Credential storage is provided by REQ-AUTH-070 and is not reimplemented here. Privileged roles are never created by this path; they come only from REQ-AUTH-140.
-- **Out of Scope**: Credential hashing itself (REQ-AUTH-070); email verification and the health-data gate (REQ-AUTH-090); authentication (REQ-AUTH-100); throttling (REQ-AUTH-060); `admin` and `consultant` creation (REQ-AUTH-140); subscription and entitlement, blocked by `REQUIREMENTS.md` OQ-1; the source and refresh cadence of the breached-password list, which is an operational decision noted under Open Decisions.
+- **Out of Scope**: Credential hashing itself (REQ-AUTH-070); email verification and the health-data gate (REQ-AUTH-090); authentication (REQ-AUTH-100); throttling (REQ-AUTH-060); `admin` and `consultant` creation (REQ-AUTH-140); subscription entitlement (`REQUIREMENTS.md` OQ-1 RESOLVED — admin-granted periods, delivered by REQ-ENTITLE-010 and REQ-ENTITLE-030); the concrete source selection for the breached-password list, an implementation decision under the DEP-1–DEP-8 rules noted under Open Decisions — its import discipline is fixed by SEC-AUTHN-6 (versioned build- or deploy-time artifact under DEP-5/DEP-7, version recorded).
 - **Design Traceability**: `DESIGN.md` — Components → Inputs (persistent visible labels, required fields marked in the label rather than by color) and Form feedback and errors (inline, field-associated, focus moved to the first invalid field). Password-policy failures are format problems and so may be specific; anything revealing whether the address is already registered may not be.
 - **Architecture Traceability**: `ARCHITECTURE.md` — Identity and Session Handling (registration); REST API Application; Relational Persistence; trust boundary 2; data flow 1.
 - **Security Traceability**: SEC-AUTHN-6 (policy), SEC-AUTHN-5 (storage, via REQ-AUTH-070), SEC-AUTHN-3 (no account enumeration), SEC-INPUT-1 (schema validation), SEC-INPUT-3 (role is not client-assignable).
@@ -32,7 +32,7 @@
 - **Preconditions**: None
 - **Data Classification**: Restricted
 - **Personal or Regulated Data**: Personal Data — email address and credential
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1)
+- **Jurisdiction / Regulatory Scope**: Global service, single US primary region (`SECURITY.md` SQ-1 RESOLVED): GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; GDPR-grade rights granted to all users; HIPAA not applicable
 
 ## Security Context
 
@@ -52,7 +52,7 @@
 - **OWASP AISVS 1.0**: N/A
 - **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
 - **NIST SP 800-207**: N/A
-- **Regulatory**: TO BE DECIDED — blocked by `SECURITY.md` SQ-1.
+- **Regulatory**: GDPR and UK GDPR (EU/UK data subjects); CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule (US users); HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED). Statute-section mappings: TO BE DECIDED — verified at the SQ-1 pre-launch counsel review.
 - **Other**: `REF-63B` for the password policy, `REF-AUTH`, and `REF-INPUT`, as named by SEC-AUTHN-6 and SEC-INPUT-1.
 - **Mapping Basis**: SEC-AUTHN-6 adopts `REF-63B` explicitly; the CWE identifiers name the weak-requirements, response-discrepancy, and credential-protection classes.
 
@@ -71,10 +71,10 @@
 - **On Authentication Failure**: N/A — no authentication precedes registration.
 - **On Authorization Failure**: N/A
 - **On Security-Decision Failure**: If the breached-password list cannot be consulted, refuse the registration rather than accept an unchecked password. A control that silently degrades is worse than a visible failure.
-- **On External Dependency Failure**: The breached-password list is locally hosted (SEC-AUTHN-6) precisely so this is not a network dependency; an external lookup MUST NOT be introduced without a SEC-EXT-1 change.
+- **On External Dependency Failure**: The breached-password list is a locally hosted, versioned build- or deploy-time artifact (SEC-AUTHN-6, 2026-08-03) precisely so this is not a network dependency; an external lookup MUST NOT be introduced without a SEC-EXT-1 change.
 - **On System Error**: Generic error with a correlation identifier (SEC-ERR-1); no partial account is left behind — creation is transactional.
 - **Logging / Audit**: Audit entry per AC-06. The password MUST NOT appear in any log, error, or audit record (SEC-LOG-3, SEC-SECRET-1). The email address is personal data and is referenced rather than duplicated across logs.
-- **Alerting**: TO BE DECIDED — mass-registration alerting is blocked by `SECURITY.md` SQ-3.
+- **Alerting**: Threshold alerts on mass-registration bursts (SEC-LOG-4 events; rate limits fixed by SQ-3) route to the security lead as SEC-OPS-2 detection inputs (`SECURITY.md` SQ-3, SQ-11 RESOLVED).
 
 ## Test Strategy
 
@@ -90,18 +90,18 @@
 
 - **Upstream Requirements**: REQ-BUILD-010, REQ-AUTH-070, REQ-AUTH-060, REQ-API-010, REQ-API-020, REQ-AUTH-010, REQ-AUDIT-010
 - **Downstream Requirements**: REQ-AUTH-090 (verification is initiated here), REQ-AUTH-100 (authentication consumes the credential), REQ-AUTH-130 (reset consumes the same credential path)
-- **External Dependencies**: None — the breached-password list is locally hosted by design (SEC-AUTHN-6).
-- **Dependency Assumptions**: The breached list is present and current enough to be meaningful; a stale or empty list silently weakens AC-02, so its provenance must be reviewable.
+- **External Dependencies**: None at runtime — the breached-password list is a locally hosted, versioned artifact imported at build or deploy time under DEP-5/DEP-7 discipline, like the FR-8.11 dataset, with the version in use recorded (SEC-AUTHN-6, 2026-08-03). Verification mail initiated here is sent through the in-account SES channel (SEC-EXT-3, REQ-INFRA-060), which is in-boundary.
+- **Dependency Assumptions**: The breached list is present and current enough to be meaningful; a stale or empty list silently weakens AC-02, so its recorded version and provenance must be reviewable (SEC-AUTHN-6).
 - **Failure Impact**: This is the only self-service path that creates an account. Without it there are no subscribers, and every subscriber-facing issue in the plan is unreachable in a running system.
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime with Fastify; PostgreSQL with Drizzle ORM; Vue single-page application (`CLAUDE.md`). Subscription entitlement is blocked by `REQUIREMENTS.md` OQ-1, so registration creates an account without any entitlement state; that gap must be stated when the issue is closed. The concrete length minimum is fixed by SEC-AUTHN-6 at 8 with 15 encouraged; anything beyond that is `TO BE DECIDED` under SQ-3.
+- **Constraints**: Node.js runtime with Fastify; PostgreSQL with Drizzle ORM; Vue single-page application (`CLAUDE.md`). Subscription entitlement is resolved (`REQUIREMENTS.md` OQ-1: admin-granted periods, FR-3.5/FR-3.6), so registration creates an account with no active subscription until an admin grants a period (REQ-ENTITLE-010, REQ-ENTITLE-030). The length minimum is fixed by SEC-AUTHN-6 at 8 with 15 encouraged; backoff and rate thresholds are fixed by SQ-3 and delivered by REQ-AUTH-060.
 - **Prohibited Approaches**: Composition rules, forced rotation, or password hints, all excluded by SEC-AUTHN-6. Any response, status code, or latency difference between registered and unregistered addresses. Binding role or status from the request body. Logging the submitted password, including inside a validation error. Accepting registration when the breach list is unavailable.
-- **Implementation Guidance**: Fastify's route-level JSON Schema handles shape; the policy and breach checks are business-rule validation and belong behind it. Send the same response for a new and an existing address and initiate the verification email in both cases — for an existing account, an email saying "someone tried to register your address" preserves AC-04 while still being useful to the real owner.
+- **Implementation Guidance**: Fastify's route-level JSON Schema handles shape; the policy and breach checks are business-rule validation and belong behind it. Send the same response for a new and an existing address and initiate the verification email in both cases — for an existing account, an email saying "someone tried to register your address" preserves AC-04 while still being useful to the real owner; SEC-EXT-3 requires exactly this non-enumerating send behavior of the mail channel.
 - **AI Development Guidance**: `REF-63B`, `REF-AUTH`, `REF-INPUT`, `REF-PROMPT-API`, `REF-PROMPT-NODE`; `CLAUDE.md`.
 - **Required Human Review**: Security review of the enumeration-resistance behavior, including timing, and of the mass-assignment allow-list.
-- **Open Decisions**: The source, format, and refresh cadence of the locally hosted breached-password list is not specified by any source document and MUST be recorded as a decision rather than chosen silently. Whether registration is open to the public or gated by a subscription purchase depends on `REQUIREMENTS.md` OQ-1 and is not settled here.
+- **Open Decisions**: The concrete source of the breached-password list is not named by any source document and MUST be recorded as a decision rather than chosen silently; its import discipline is fixed (SEC-AUTHN-6, 2026-08-03: versioned build- or deploy-time artifact under DEP-5/DEP-7, version recorded). Registration is open to the public: `REQUIREMENTS.md` OQ-1 is RESOLVED — payment is out of band in v1 and access is granted by admin subscription periods (FR-3.5, FR-3.6; REQ-ENTITLE-010, REQ-ENTITLE-030), so no purchase gate precedes registration.
 
 **Estimated effort**: 1.5–2 engineer-days. **Estimated changed lines**: 400–850.
 **Recommended model**: Claude Opus (`claude-opus-5`) — the functional path is simple, but enumeration resistance and mass-assignment defence are both easy to implement in a way that passes functional tests and fails the security requirement.

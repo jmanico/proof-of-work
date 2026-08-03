@@ -4,11 +4,11 @@
 
 - **ID**: REQ-SESSION-030
 - **Title**: Server-side session records and per-request resolution
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-08-01
+- **Last Updated**: 2026-08-03
 - **Priority**: Critical
 - **Requirement Type**: Security
 - **Source / Parent**: REQ-EPIC-001; `SECURITY.md` SEC-SESSION-3; SQ-2
@@ -18,7 +18,7 @@
 - **Statement**: Every authenticated request MUST resolve the session identifier carried in its token against a persisted session record before the request proceeds, and MUST be refused when that record is absent, expired, or invalidated. The token MUST carry the session identifier and no authorization state.
 - **Rationale**: SEC-SESSION-3 selects server-side session records as the revocation mechanism, because a self-contained token cannot be withdrawn before it expires. This issue supplies the record and the lookup that every other session behavior depends on: logout (REQ-SESSION-040), engagement termination (REQ-CONSULT-020), and credential-change revocation (SEC-AUTHN-12) are all just invalidations of a record this issue defines. DR-3 already requires role and ownership to be re-read from persisted state on every request, so this adds a lookup to a path that was never stateless.
 - **Assumptions**: Token signature, algorithm, and claim verification happen first (REQ-SESSION-010); this issue runs after a token is known to be authentic and before authorization (REQ-AUTHZ-010).
-- **Out of Scope**: Token signature and claim verification (REQ-SESSION-010); the claim allow-list (REQ-SESSION-020); logout and the revocation triggers (REQ-SESSION-040); cookie transport and CSRF (REQ-SESSION-050); how a session is first created, which belongs to the authentication issues that issue one; absolute and idle session lifetimes, which are `TO BE DECIDED` under `SECURITY.md` SQ-3; signing key storage (SEC-SESSION-7, blocked by SQ-7).
+- **Out of Scope**: Token signature and claim verification (REQ-SESSION-010); the claim allow-list (REQ-SESSION-020); logout and the revocation triggers (REQ-SESSION-040); cookie transport and CSRF (REQ-SESSION-050); how a session is first created, which belongs to the authentication issues that issue one; signing key storage (SEC-SESSION-7 — resolved by SQ-7: AWS Secrets Manager with `kid`-based 90-day rotation; delivered by REQ-INFRA-030). Absolute and idle session lifetimes are no longer open — SQ-3 fixed them, and the record's expiry fields (see Constraints) carry them.
 - **Design Traceability**: N/A — no user-facing surface. A refused session surfaces through the error contract in REQ-API-040.
 - **Architecture Traceability**: `ARCHITECTURE.md` — Identity and Session Handling (session state is data it owns); trust boundary 2; data flow 1. The session record is a persisted entity listed under Data model expectations. DR-3: identity and role come from Identity and Session Handling, never from a client assertion.
 - **Security Traceability**: SEC-SESSION-3; enables SEC-SESSION-4, SEC-AUTHN-12; supports SEC-AUTHZ-1 by guaranteeing an authenticated subject exists before any authorization decision.
@@ -32,7 +32,7 @@
 - **Preconditions**: A token has been presented and has passed signature and claim verification (REQ-SESSION-010)
 - **Data Classification**: Confidential
 - **Personal or Regulated Data**: Personal Data — a session record links an account to a device and time
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1)
+- **Jurisdiction / Regulatory Scope**: Global service, single US primary region with standard lawful cross-border transfer mechanisms (`SECURITY.md` SQ-1 RESOLVED). Regimes: GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; HIPAA not applicable.
 
 ## Security Context
 
@@ -52,7 +52,7 @@
 - **OWASP AISVS 1.0**: N/A
 - **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
 - **NIST SP 800-207**: TO BE DECIDED — see Zero Trust Relevance.
-- **Regulatory**: TO BE DECIDED — blocked by `SECURITY.md` SQ-1.
+- **Regulatory**: GDPR/UK GDPR (EU/UK data subjects); CCPA/CPRA, Washington My Health My Data, FTC HBNR (US users); HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED). Specific article/section mappings: TO BE DECIDED — no source document states one for session-record mechanics.
 - **Other**: `REF-SESSION` (OWASP Session Management Cheat Sheet) and `REF-PROMPT-JWT`, both named by SEC-SESSION-3.
 - **Mapping Basis**: SEC-SESSION-3 names these references directly; the CWE identifiers name the expiration and fixation classes this control addresses.
 
@@ -73,7 +73,7 @@
 - **On External Dependency Failure**: If Relational Persistence is unavailable, deny; the system MUST NOT fall back to trusting token contents.
 - **On System Error**: Generic error with a correlation identifier (SEC-ERR-1); no session detail in the response.
 - **Logging / Audit**: Log session resolution failures with cause class and correlation identifier (SEC-LOG-4). MUST NOT log the session identifier or the token (SEC-LOG-3, SEC-SECRET-1).
-- **Alerting**: TO BE DECIDED — thresholds for anomalous resolution-failure rates are blocked by `SECURITY.md` SQ-3.
+- **Alerting**: Threshold alerts on anomalous resolution-failure rates route to the security lead as SEC-OPS-2 detection inputs (`SECURITY.md` SQ-3, SQ-11 RESOLVED).
 
 ## Test Strategy
 
@@ -95,12 +95,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime with Fastify; PostgreSQL with Drizzle ORM (`CLAUDE.md`). Session lifetimes are `TO BE DECIDED` (SQ-3), so the record MUST carry explicit expiry fields rather than assuming a fixed window, and the values MUST be named constants.
+- **Constraints**: Node.js runtime with Fastify; PostgreSQL with Drizzle ORM (`CLAUDE.md`). Session lifetimes are fixed (`SECURITY.md` SQ-3 RESOLVED, SEC-SESSION-3): subscriber sessions 24 hours absolute and 2 hours idle; `admin` and `consultant` sessions 12 hours absolute and 30 minutes idle. The record MUST carry explicit absolute and idle expiry fields, and the values MUST be named constants carrying these SQ-3 figures.
 - **Prohibited Approaches**: Caching session validity in the token, in a client-readable field, or in an in-process cache without an invalidation path — any of these reintroduces the revocation delay the mechanism was chosen to eliminate. Resolving the session inside individual route handlers rather than in the pipeline. Distinguishing session-absent from session-expired in the response.
 - **Implementation Guidance**: Fastify's `onRequest` hook is the natural home, which also places it before the authorization enforcement point SEC-AUTHZ-5 requires. Keep the resolved session an immutable value for the request's lifetime, per `REF-PROMPT-QUALITY`, so nothing downstream can mutate identity mid-request and create a time-of-check-to-time-of-use gap.
 - **AI Development Guidance**: `REF-PROMPT-JWT`, `REF-SESSION`, `REF-PROMPT-NODE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Security review that no protected route can reach a handler without resolution, and that no code path treats a store error as a valid session.
-- **Open Decisions**: Absolute and idle session lifetimes (`SECURITY.md` SQ-3). Whether the session store is a table or a cache with durable backing is an implementation choice, but it MUST satisfy the consistency assumption above; if a cache is used, the invalidation path is part of this issue, not a later optimization.
+- **Open Decisions**: None from the specifications — session lifetimes are fixed (SQ-3 RESOLVED). Whether the session store is a table or a cache with durable backing is an implementation choice, but it MUST satisfy the consistency assumption above; if a cache is used, the invalidation path is part of this issue, not a later optimization. Standards mappings remain TO BE DECIDED until the SQ-10 pre-launch assessment.
 
 **Estimated effort**: 1–1.5 engineer-days. **Estimated changed lines**: 250–500.
 **Recommended model**: Claude Opus (`claude-opus-5`) — a small mechanism that every other session behavior rests on, where a fail-open branch or a per-handler bypass silently defeats revocation across the whole system.

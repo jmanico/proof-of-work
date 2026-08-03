@@ -4,11 +4,11 @@
 
 - **ID**: REQ-SESSION-020
 - **Title**: Token claim allow-list excluding sensitive data
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: High
 - **Requirement Type**: Security
 - **Source / Parent**: REQ-EPIC-001; `SECURITY.md` SEC-SESSION-6; threats TM-S-5, TM-I-9
@@ -18,7 +18,7 @@
 - **Statement**: Issued token payloads MUST contain only claims on an approved allow-list, and MUST NOT contain health data, credentials, or sensitive personal data.
 - **Rationale**: SEC-SESSION-6 states the rule, on the ground that a signed JWT is not confidential — anyone who obtains the token can read its payload. The threat model records token theft and replay (TM-S-5) and health-data residue on shared devices (TM-I-9); a token carrying health data turns either into a direct disclosure.
 - **Assumptions**: Tokens are issued by Identity and Session Handling and verified per REQ-SESSION-010.
-- **Out of Scope**: Token lifetime (`SECURITY.md` SQ-3); transport and revocation, resolved by SQ-2 and delivered by REQ-SESSION-030/040/050; which authorization attributes the policy engine consumes (SQ-4) — this issue constrains only what may be carried in the token.
+- **Out of Scope**: Session lifetimes (fixed by SQ-3; enforced by the session record, REQ-SESSION-030); transport and revocation, resolved by SQ-2 and delivered by REQ-SESSION-030/040/050; the authorization attribute schema, fixed by SQ-4 (SEC-AUTHZ-6) and delivered by REQ-AUTHZ-050 — every attribute comes from Identity and Session Handling or persisted state, never the token, so this issue constrains only what may be carried in the token.
 - **Design Traceability**: N/A
 - **Architecture Traceability**: `ARCHITECTURE.md` — Identity and Session Handling ("Outputs: Authenticated session context including account identity and role"); Browser Client ("Holds transient view state and session credentials as issued by Identity and Session Handling").
 - **Security Traceability**: SEC-SESSION-6; supports SEC-TB-3, SEC-DATA-5, SEC-RENDER-4, SEC-AUTHZ-6 (attributes must have a declared source and trust level).
@@ -27,12 +27,12 @@
 
 - **Applies To**: Server-Side Application
 - **Components**: Identity and Session Handling; REST API Application (as consumer of the session context)
-- **Interfaces / Operations**: Token issuance at successful authentication and at any refresh
+- **Interfaces / Operations**: Token issuance at session establishment — no refresh path exists, because revocation under the SQ-2 session model is immediate rather than bounded by token lifetime
 - **Actors**: `subscriber`, `consultant`, `admin`
 - **Preconditions**: Authentication has succeeded
 - **Data Classification**: Confidential — the payload is readable by anyone holding the token
-- **Personal or Regulated Data**: Personal Data — account identifier and role only; Health Data MUST NOT appear
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1)
+- **Personal or Regulated Data**: Personal Data — the payload carries the session identifier and required registered claims only, and no authorization state (SEC-SESSION-3); Health Data MUST NOT appear
+- **Jurisdiction / Regulatory Scope**: Global service, single US primary region with standard lawful cross-border transfer mechanisms (`SECURITY.md` SQ-1 RESOLVED). Regimes: GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; HIPAA not applicable.
 
 ## Security Context
 
@@ -52,13 +52,13 @@
 - **OWASP AISVS 1.0**: N/A
 - **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
 - **NIST SP 800-207**: N/A
-- **Regulatory**: TO BE DECIDED — blocked by `SECURITY.md` SQ-1; a token carrying health data would engage whichever regime SQ-1 resolves to.
+- **Regulatory**: GDPR/UK GDPR (EU/UK data subjects); CCPA/CPRA, Washington My Health My Data, FTC HBNR (US users); HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED) — a token carrying health data would engage this regime set directly. Specific article/section mappings: TO BE DECIDED — no source document states one for token content.
 - **Other**: `REF-PROMPT-JWT` as cited by SEC-SESSION-6. RFC 7519 for the registered claims used.
 - **Mapping Basis**: SEC-SESSION-6 cites `REF-PROMPT-JWT`; RFC 7519 defines the registered claim names; the CWE identifiers name the exposure classes.
 
 ## Acceptance Criteria
 
-1. **AC-01 — Expected behavior**: Given a successful authentication, when a token is issued, then its payload contains exactly the claims on the approved allow-list — the registered claims required by SEC-SESSION-2 plus the account identifier and role — and nothing else.
+1. **AC-01 — Expected behavior**: Given a successful authentication, when a token is issued, then its payload contains exactly the claims on the approved allow-list — the registered claims required by SEC-SESSION-2 (`exp`, `iss`, `aud`) plus the session identifier — and nothing else; in particular no authorization state such as role, entitlement, or engagement (SEC-SESSION-3, SQ-2 RESOLVED).
 2. **AC-02 — Boundary or failure behavior**: Given a change that adds a claim not on the allow-list, when the issued-token test runs, then it fails and the change does not merge.
 3. **AC-03 — Prohibited behavior**: Given any issued token, when its payload is decoded without the signing key, then it MUST NOT reveal a body weight, measurement, workout, food entry, plan association, email address, password, password hash, MFA secret, or passkey material.
 4. **AC-04 — Additional criterion**: Given the allow-list, when it is reviewed, then every claim has a documented purpose and a declared trust level for authorization use (SEC-AUTHZ-6).
@@ -72,7 +72,7 @@
 - **On External Dependency Failure**: If signing material is unavailable, no token is issued and authentication returns a generic failure.
 - **On System Error**: No token is issued; generic error with a correlation identifier.
 - **Logging / Audit**: Log issuance with account identifier, correlation identifier, and time (SEC-LOG-4). MUST NOT log the token itself or any claim value beyond the account identifier (SEC-LOG-3).
-- **Alerting**: N/A
+- **Alerting**: N/A — no runtime alert condition exists: the claim allow-list is enforced by the merge-blocking issued-token test (AC-02), not by a production threshold.
 
 ## Test Strategy
 
@@ -99,7 +99,7 @@
 - **Implementation Guidance**: Because SEC-SESSION-4 requires role, subscription, and engagement changes to take effect without waiting for token expiry, keeping volatile authorization state out of the token is also the design the resolved SQ-2 session model requires.
 - **AI Development Guidance**: `REF-PROMPT-JWT`, `REF-PROMPT-ABAC`; `CLAUDE.md`.
 - **Required Human Review**: Security and privacy review of the claim allow-list.
-- **Open Decisions**: `SECURITY.md` SQ-4 remains open (SQ-2 is RESOLVED); this issue's allow-list may gain claims once the authorization attribute schema is settled, and any addition must re-pass AC-03.
+- **Open Decisions**: None — SQ-2 and SQ-4 are both RESOLVED. The SQ-4 attribute schema sources every authorization attribute from Identity and Session Handling or persisted state, never the token (SEC-AUTHZ-6; delivered by REQ-AUTHZ-050), so no attribute claim will be added to the token; any allow-list change must still re-pass AC-03. Standards mappings remain TO BE DECIDED until the SQ-10 pre-launch assessment.
 
 **Estimated effort**: 0.5–1 engineer-day. **Estimated changed lines**: 100–250.
 **Recommended model**: Claude Opus (`claude-opus-5`) — small and security-sensitive; the failure mode is a silent privacy leak rather than a broken test.

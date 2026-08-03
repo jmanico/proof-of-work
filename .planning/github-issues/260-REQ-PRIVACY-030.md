@@ -4,11 +4,11 @@
 
 - **ID**: REQ-PRIVACY-030
 - **Title**: View and correct personal data
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: High
 - **Requirement Type**: Privacy
 - **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-9.5
@@ -16,10 +16,10 @@
 ## Requirement
 
 - **Statement**: The system MUST allow a user to view the personal data held about them and to correct it, scoped strictly to their own account.
-- **Rationale**: FR-9.5 states the right. `REQUIREMENTS.md` asserts GDPR and CCPA data-subject rights, and correction is one of the behaviors it mandates regardless of how the jurisdiction question resolves (`SECURITY.md`, Applicable privacy or regulatory obligations).
+- **Rationale**: FR-9.5 states the right. GDPR-grade data-subject rights are granted to all users regardless of jurisdiction (`SECURITY.md` SQ-1 RESOLVED, Applicable privacy or regulatory obligations), and correction is one of the mandated behaviors.
 - **Assumptions**: "Personal data held about them" means the account profile fields the system stores. Health log entries are corrected through their own edit operations (FR-8.7, REQ-PROGRESS-010, REQ-PROGRESS-020), not through this surface.
-- **Out of Scope**: Data export (FR-9.3) and deletion (FR-9.4), both blocked; correction of health log entries, owned by the progress issues; changing the email address, which interacts with the email-verification flow delivered by REQ-AUTH-090 (SEC-AUTHN-8; `REQUIREMENTS.md` OQ-15 RESOLVED) and is excluded here; role, subscription state, and any server-controlled field, which are not user-correctable (SEC-INPUT-3).
-- **Design Traceability**: `DESIGN.md` — Components → Inputs (persistent visible labels, required fields marked in the label), Form feedback and errors (inline, field-adjacent, icon plus text, focus moves to the first invalid field), Focus states, Empty states; Layout and Spacing (72ch for long-form).
+- **Out of Scope**: Data export (FR-9.3 — delivered by REQ-PRIVACY-080) and deletion (FR-9.4 — delivered by REQ-PRIVACY-090); correction of health log entries, owned by the progress issues; changing the email address, which is its own requirement — FR-2.18, delivered by REQ-AUTH-180 with re-authentication, verify-new-first sequencing, notice to the old address, and session termination (SEC-AUTHN-7, SEC-AUTHN-8, SEC-AUTHN-12) — and is excluded here; role, subscription state, and any server-controlled field, which are not user-correctable (SEC-INPUT-3).
+- **Design Traceability**: `DESIGN.md` — Core Components → Forms and validation (persistent visible labels, required fields marked in text, inline errors with a summary linking each invalid field and focus moved to the first); Accessibility (focus, announcements); Product Patterns → Account, privacy, and destructive actions (Account groups Profile, Units and appearance, Security, Subscription, Consultant access, and Privacy); Layout, Spacing, and Responsive Behavior (40rem single-column form, 68ch prose).
 - **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application (FR-9.5 traceability row); Browser Client; data flow 8 (owner scoping and sensitive-operation authorization).
 - **Security Traceability**: SEC-AUTHZ-1, SEC-AUTHZ-2 (owner scoping), SEC-INPUT-1, SEC-INPUT-3 (server-controlled fields not settable), SEC-DATA-5 (least-privilege response), SEC-LOG-1 (access to health-adjacent data is audited).
 
@@ -32,7 +32,7 @@
 - **Preconditions**: Authenticated session
 - **Data Classification**: Restricted
 - **Personal or Regulated Data**: Personal Data
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1, `REQUIREMENTS.md` OQ-3)
+- **Jurisdiction / Regulatory Scope**: GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; HIPAA not applicable; GDPR-grade rights granted to all users (`SECURITY.md` SQ-1 RESOLVED, `REQUIREMENTS.md` OQ-3 RESOLVED)
 
 ## Security Context
 
@@ -48,11 +48,11 @@
 
 ## Standards Alignment
 
-- **OWASP ASVS 5.0.0**: TO BE DECIDED — not verified against `REF-ASVS-5` in this session.
+- **OWASP ASVS 5.0.0**: TO BE DECIDED — mapped only when verified during the independent pre-launch assessment (`SECURITY.md` SQ-10 RESOLVED).
 - **OWASP AISVS 1.0**: N/A
-- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
+- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — mapped only when verified during the independent pre-launch assessment (`SECURITY.md` SQ-10 RESOLVED).
 - **NIST SP 800-207**: TO BE DECIDED — see Zero Trust Relevance.
-- **Regulatory**: TO BE DECIDED — `REQUIREMENTS.md` asserts GDPR and CCPA data-subject rights, but `SECURITY.md` SQ-1 records that the governing set is unresolved; the behavior is required regardless.
+- **Regulatory**: The SQ-1 regime set governs (GDPR/UK GDPR for EU/UK data subjects; CCPA/CPRA, Washington My Health My Data, FTC HBNR for US users; HIPAA not applicable), with GDPR-grade rights granted to all users; the correction behavior is required regardless of jurisdiction. Statute-section precision: TO BE DECIDED — per-issue mappings await the SQ-1 pre-launch counsel review.
 - **Other**: `REF-API-2023`, `REF-PROMPT-API` for object-level authorization and excessive data exposure.
 - **Mapping Basis**: FR-9.5 is the normative source; the API references are those `SECURITY.md` cites for the authorization and response-shaping rules this issue depends on.
 
@@ -73,7 +73,7 @@
 - **On External Dependency Failure**: If persistence is unavailable, the read returns a generic error and the correction fails atomically.
 - **On System Error**: Roll back so no partial correction survives; generic error with a correlation identifier.
 - **Logging / Audit**: Audit entry per AC-04. Log the field names changed but MUST NOT log the values, which are personal data (SEC-LOG-3).
-- **Alerting**: N/A
+- **Alerting**: N/A — the source documents attach no alert condition to profile correction; denials are ordinary authorization events logged under SEC-LOG-4, whose threshold alerts route to the security lead as SEC-OPS-2 detection inputs (SQ-11 RESOLVED).
 
 ## Test Strategy
 
@@ -95,12 +95,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); the client is a Vite-built single-page application with `vue-router`. Email address changes are excluded because control of a registered address must be verified before it is relied upon (SEC-AUTHN-8), and that flow is delivered by REQ-AUTH-090 (`REQUIREMENTS.md` OQ-15 RESOLVED).
-- **Prohibited Approaches**: A generic profile-update endpoint that binds the whole body; returning the full account record including credential, role, and audit fields; treating correction as sufficient to satisfy export (FR-9.3) or deletion (FR-9.4), which are separate and blocked.
+- **Constraints**: PostgreSQL with Drizzle ORM (`CLAUDE.md`); the client is a Vite-built single-page application with `vue-router`. Email address changes are excluded because the address is also the recovery anchor: FR-2.18 (added 2026-08-03) gives the change its own flow — fresh re-authentication, verification of the new address before it replaces the old, notice to the previous address, session termination, audit, and refusal while an FR-9.11 deletion request is pending — delivered by REQ-AUTH-180, with initial verification delivered by REQ-AUTH-090 (SEC-AUTHN-8).
+- **Prohibited Approaches**: A generic profile-update endpoint that binds the whole body; returning the full account record including credential, role, and audit fields; treating correction as sufficient to satisfy export (FR-9.3, REQ-PRIVACY-080) or deletion (FR-9.4, REQ-PRIVACY-090), which are separate requirements; routing an email-address change through this surface instead of REQ-AUTH-180.
 - **Implementation Guidance**: Derive the correctable-field allow-list from the same declaration used by REQ-API-020 so a new account field cannot become silently correctable.
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-VUE`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Privacy review of which fields are exposed and correctable; security review of the binding allow-list.
-- **Open Decisions**: Which fields constitute "the personal data held about them" is not enumerated by any source document beyond the account entity; the set delivered here must be reviewed against the governing regime once `SECURITY.md` SQ-1 resolves. Email change is deferred to the verification flow (REQ-AUTH-090; OQ-15 RESOLVED).
+- **Open Decisions**: Which fields constitute "the personal data held about them" is not enumerated by any source document beyond the account entity; the set delivered here is reviewed at the SQ-1 pre-launch counsel review (`SECURITY.md` SQ-1 RESOLVED fixes the regime set). Email change is resolved: FR-2.18, delivered by REQ-AUTH-180.
 
 **Estimated effort**: 1–1.5 engineer-days. **Estimated changed lines**: 250–550.
 **Recommended model**: Claude Opus (`claude-opus-5`) — a user-facing surface that is simultaneously a mass-assignment and BOLA target.

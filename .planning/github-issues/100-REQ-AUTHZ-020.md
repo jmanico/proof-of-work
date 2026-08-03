@@ -4,11 +4,11 @@
 
 - **ID**: REQ-AUTHZ-020
 - **Title**: Object-level ownership scoping
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: Critical
 - **Requirement Type**: Security
 - **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-7.4, FR-9.1; `SECURITY.md` SEC-AUTHZ-2; threat TM-I-1
@@ -18,7 +18,7 @@
 - **Statement**: Every operation that addresses a subscriber-owned record by identifier MUST verify that the authenticated actor is authorized for that specific record before performing the operation, and every query returning such records MUST be constrained by the authorized owner scope in the query rather than filtered after retrieval.
 - **Rationale**: FR-9.1 requires every plan copy and log entry to be scoped to its owning subscriber and never exposed to another; FR-7.4 forbids viewing or modifying another subscriber's customized plans. SEC-AUTHZ-2 states the in-query constraint. The threat model rates BOLA/IDOR (TM-I-1) as high severity.
 - **Assumptions**: The actor's identity comes from the verified session (REQ-AUTHZ-010).
-- **Out of Scope**: Consultant engagement scope (REQ-CONSULT-010); admin role restrictions (REQ-AUTHZ-030); subscription entitlement (blocked by `REQUIREMENTS.md` OQ-1); the ABAC policy language (blocked by `SECURITY.md` SQ-4).
+- **Out of Scope**: Consultant engagement scope (REQ-CONSULT-010); admin role restrictions (REQ-AUTHZ-030); subscription entitlement (FR-3.1, FR-3.2; REQ-ENTITLE-010 — `REQUIREMENTS.md` OQ-1 RESOLVED); the central typed authorization policy module (SEC-AUTHZ-5–SEC-AUTHZ-7; REQ-AUTHZ-050 — `SECURITY.md` SQ-4 RESOLVED).
 - **Design Traceability**: N/A
 - **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application ("enforces … owner scoping (FR-7.4, FR-9.1) … before any data access"); DR-3 ("ownership comes from persisted state"); DR-4.
 - **Security Traceability**: SEC-AUTHZ-1, SEC-AUTHZ-2, SEC-DATA-3, SEC-DATA-5.
@@ -32,7 +32,7 @@
 - **Preconditions**: Authenticated session (REQ-AUTHZ-010)
 - **Data Classification**: Restricted
 - **Personal or Regulated Data**: Health Data
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1)
+- **Jurisdiction / Regulatory Scope**: GDPR and UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED)
 
 ## Security Context
 
@@ -52,7 +52,7 @@
 - **OWASP AISVS 1.0**: N/A
 - **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
 - **NIST SP 800-207**: TO BE DECIDED — see Zero Trust Relevance.
-- **Regulatory**: TO BE DECIDED — blocked by `SECURITY.md` SQ-1 and `REQUIREMENTS.md` OQ-3.
+- **Regulatory**: The SQ-1 regime set applies to the health data this control scopes — GDPR/UK GDPR, CCPA/CPRA, Washington My Health My Data, FTC HBNR; HIPAA not applicable (`SECURITY.md` SQ-1 and `REQUIREMENTS.md` OQ-3 RESOLVED). Statute-section mappings: TO BE DECIDED (SQ-1 counsel review).
 - **Other**: `REF-API-2023`, `REF-PROMPT-API`, `REF-PROMPT-ABAC` as cited by SEC-AUTHZ-1 and SEC-AUTHZ-2.
 - **Mapping Basis**: The cited rules name these references; the CWE identifiers name the object-level authorization failure class.
 
@@ -72,7 +72,7 @@
 - **On External Dependency Failure**: If persistence is unavailable, deny with a generic error; MUST NOT proceed on an assumption of ownership.
 - **On System Error**: Roll back; generic error with a correlation identifier.
 - **Logging / Audit**: Log every ownership denial with actor, operation, and target class — never the target's health values (SEC-LOG-3). A successful access to health data additionally emits an audit entry via REQ-AUDIT-020 (FR-9.7).
-- **Alerting**: TO BE DECIDED — repeated cross-subject denial thresholds are undefined (`SECURITY.md` SQ-3).
+- **Alerting**: Threshold alerts route to the security lead as SEC-OPS-2 detection inputs (`SECURITY.md` SQ-3, SQ-11 RESOLVED).
 
 ## Test Strategy
 
@@ -99,7 +99,7 @@
 - **Implementation Guidance**: A single scope-resolution function used by every owned-record operation makes AC-03 mechanically reviewable and keeps the rule out of individual handlers (`SECURITY.md` code-quality resolution).
 - **AI Development Guidance**: `REF-PROMPT-API`, `REF-PROMPT-ABAC`, `REF-PROMPT-QUALITY`; `CLAUDE.md`.
 - **Required Human Review**: Security review of every owned-record operation and of the scope resolver.
-- **Open Decisions**: Consultant capabilities (`REQUIREMENTS.md` OQ-12) determine what an engaged consultant may do within a subscriber's scope; this issue covers subscriber-owner scope only and defers engagement scope to REQ-CONSULT-010.
+- **Open Decisions**: None. Consultant capabilities are fixed (`REQUIREMENTS.md` OQ-12 RESOLVED; FR-11.6 — views plus plan-copy edits only, audited); this issue covers subscriber-owner scope only and defers engagement scope to REQ-CONSULT-010 and REQ-CONSULT-040.
 
 **Estimated effort**: 1–2 engineer-days. **Estimated changed lines**: 300–700.
 **Recommended model**: Claude Opus (`claude-opus-5`) — the highest-severity authorization control in the threat model; correctness and exhaustive negative coverage dominate.

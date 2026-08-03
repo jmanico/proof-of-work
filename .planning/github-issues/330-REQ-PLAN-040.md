@@ -4,11 +4,11 @@
 
 - **ID**: REQ-PLAN-040
 - **Title**: Plan citation management with URL scheme validation
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-07-31
+- **Last Updated**: 2026-08-03
 - **Priority**: High
 - **Requirement Type**: Functional
 - **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-4.4, FR-4.6; `SECURITY.md` SEC-EXT-2, SEC-RENDER-3
@@ -18,8 +18,8 @@
 - **Statement**: An `admin` MUST be able to attach citations to a plan and to remove them, every citation URL MUST be parsed and scheme-checked against an explicit allow-list before it is stored, and the server MUST NOT issue a request to a citation URL.
 - **Rationale**: FR-4.4 requires every plan to carry at least one citation to a peer-reviewed source before publication, which requires citations to be managed as first-class records; FR-4.6 requires them to be displayed to the reader. SEC-EXT-2 forbids server-side requests to admin-supplied URLs without an allow-list, and SEC-RENDER-3 requires scheme checking before a URL is bound to a link.
 - **Assumptions**: The plan content models exist (REQ-PLAN-010, REQ-PLAN-020) and carry citations as associated records.
-- **Out of Scope**: The publication gate that requires at least one citation (REQ-PLAN-050); client-side rendering of citation links (REQ-CATALOG-030); how citations and verification status are presented in the interface (`DESIGN.md` OQ-5, open); any automated verification that a source is genuinely peer-reviewed, which no source document specifies and which would require an external service the system may not have (FR-9.8).
-- **Design Traceability**: `DESIGN.md` — Components → Links ("Citation links on plan content are always visibly links, since the evidence behind a plan must be reachable by the reader"); Typography (xs step for citation attribution); `DESIGN.md` OQ-5 leaves the surfacing pattern open.
+- **Out of Scope**: The publication gate that requires at least one citation (REQ-PLAN-050); client-side rendering of citation links (REQ-CATALOG-030); how citations and verification status are presented in the interface — resolved by `DESIGN.md` OQ-5 (Product Patterns → Plans, citations, and review state) and implemented by REQ-CATALOG-030; any automated verification that a source is genuinely peer-reviewed, which no source document specifies and which would require an external service the system may not have (FR-9.8).
+- **Design Traceability**: `DESIGN.md` — Product Patterns → Plans, citations, and review state (bracketed inline reference links such as `[1]`, an Evidence section carrying the full citation, a peer-reviewed-source label, and a safe external link; "The UI never fetches citation URLs server-side (SEC-EXT-2)"); Color System color rules (links are underlined); `DESIGN.md` OQ-5 RESOLVED (2026-08-01).
 - **Architecture Traceability**: `ARCHITECTURE.md` — REST API Application ("Owns … plan citations and verification records"); data flow 2 and 6.
 - **Security Traceability**: SEC-EXT-2, SEC-RENDER-3, SEC-INPUT-1, SEC-INPUT-3, SEC-LOG-6 (citation changes are part of the audited edit lifecycle).
 
@@ -31,7 +31,7 @@
 - **Actors**: `admin` as author; `subscriber` as reader of published plans' citations
 - **Preconditions**: An existing plan and an authenticated `admin` session
 - **Data Classification**: Internal
-- **Personal or Regulated Data**: None
+- **Personal or Regulated Data**: Personal Data — the acting admin's identifier in the audit entry
 - **Jurisdiction / Regulatory Scope**: N/A
 
 ## Security Context
@@ -61,7 +61,7 @@
 1. **AC-01 — Expected behavior**: Given an authenticated `admin` and an existing plan, when they add a citation whose URL parses and whose scheme is on the allow-list, then the citation is persisted against the plan, is retrievable with the plan, and the change is audited as a plan edit (REQ-AUDIT-030).
 2. **AC-02 — Boundary or failure behavior**: Given a citation URL that fails to parse, or whose scheme is not on the allow-list — including `javascript:`, `data:`, `vbscript:`, and `file:` — when it is submitted, then it is rejected with the failing field named and nothing is persisted.
 3. **AC-03 — Prohibited behavior**: Given any citation URL, when it is added, edited, retrieved, or published, then the server MUST NOT issue a request to it for validation, preview, metadata, or link checking (SEC-EXT-2), and the scheme check MUST NOT be performed by substring matching on the raw string.
-4. **AC-04 — Additional criterion**: Given a plan's last remaining citation, when removal is attempted while the plan is published, then the removal is refused, because a published plan must carry at least one citation (FR-4.4).
+4. **AC-04 — Additional criterion**: Given a plan's last remaining citation, when removal is attempted while the plan is published, then the removal is refused, because a published plan must carry at least one citation (FR-4.4), and an edit may never leave a published plan without one (FR-4.8).
 5. **AC-05 — Additional criterion**: Given a citation URL pointing at an internal, loopback, or cloud metadata address, when it is submitted, then it is stored or rejected according to the scheme allow-list but is never dereferenced, and no internal address is reachable through this field.
 
 ## Failure Behavior
@@ -73,7 +73,7 @@
 - **On External Dependency Failure**: N/A by construction — no external request is made, which is the point of AC-03.
 - **On System Error**: Roll back so no citation is persisted without its audit entry.
 - **Logging / Audit**: Citation changes are audited as plan edit actions (FR-10.2, REQ-AUDIT-030). Log rejected URLs by failure class; the URL itself is admin-supplied content and may be logged, but never a health value (SEC-LOG-3).
-- **Alerting**: TO BE DECIDED — no alerting model exists in the source documents.
+- **Alerting**: Rejected hostile-scheme submissions and authorization denials are SEC-LOG-4 security events; threshold alerts route to the security lead as SEC-OPS-2 detection inputs (`SECURITY.md` SQ-11 RESOLVED).
 
 ## Test Strategy
 
@@ -97,10 +97,10 @@
 
 - **Constraints**: PostgreSQL with Drizzle ORM and Fastify (`CLAUDE.md`). The scheme allow-list itself is not enumerated by any source document; `https` is the only scheme a peer-reviewed citation plausibly needs, but that choice must be recorded and confirmed rather than assumed to be settled.
 - **Prohibited Approaches**: Fetching the URL to validate it, to check for link rot, or to build a preview; substring or regular-expression scheme checks on the raw string; storing an unvalidated URL and relying on the renderer alone; auto-correcting a malformed URL.
-- **Implementation Guidance**: Perform the same scheme check at storage and at render (REQ-CATALOG-030), so a record written before a rule change cannot render as an active hostile link. `DESIGN.md` requires citation links to be visibly links; external links must not grant opener access to the application window (SEC-RENDER-3), which REQ-CATALOG-030 implements.
+- **Implementation Guidance**: Perform the same scheme check at storage and at render (REQ-CATALOG-030), so a record written before a rule change cannot render as an active hostile link. `DESIGN.md` renders citations as underlined links in the plan's Evidence section with a peer-reviewed-source label; external links must not grant opener access to the application window (SEC-RENDER-3), which REQ-CATALOG-030 implements.
 - **AI Development Guidance**: `REF-PC-2024`, `REF-XSS`, `REF-PROMPT-VUE`, `REF-PROMPT-API`; `CLAUDE.md`.
 - **Required Human Review**: Security review of the scheme allow-list and the SSRF test coverage.
-- **Open Decisions**: The permitted scheme set (not enumerated in any source document); how citations are surfaced in the interface (`DESIGN.md` OQ-5); whether any check that a source is genuinely peer-reviewed is required beyond admin judgement — FR-4.4 requires the citation, not its automated validation.
+- **Open Decisions**: The permitted scheme set — SEC-RENDER-3 requires an explicit allow-list but no source document enumerates it, so the chosen set (plausibly `https` only) must be recorded and confirmed at review. Citation presentation is resolved (`DESIGN.md` OQ-5); no check that a source is genuinely peer-reviewed is required beyond admin judgement — FR-4.4 requires the citation, not its automated validation.
 
 **Estimated effort**: 1–1.5 engineer-days. **Estimated changed lines**: 250–500.
 **Recommended model**: Claude Opus (`claude-opus-5`) — a small feature sitting on top of two high-severity injection classes, where the safe implementation differs subtly from the obvious one.

@@ -4,11 +4,11 @@
 
 - **ID**: REQ-AUTH-110
 - **Title**: MFA enrolment, recovery codes, and disablement
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
-- **Last Updated**: 2026-08-01
+- **Last Updated**: 2026-08-03
 - **Priority**: High
 - **Requirement Type**: Security
 - **Source / Parent**: REQ-EPIC-001; `REQUIREMENTS.md` FR-2.5, FR-2.13, FR-2.14; `SECURITY.md` SEC-AUTHN-7, SEC-AUTHN-10, SEC-AUTHN-11, SEC-AUTHN-12
@@ -16,10 +16,10 @@
 ## Requirement
 
 - **Statement**: The system MUST allow a `subscriber` to enable and disable MFA on their own account using TOTP or a passkey, MUST issue single-use recovery codes at enrolment and present them exactly once, MUST state before enrolment that losing every factor and code makes the account permanently unrecoverable, and MUST require fresh re-authentication for each of these changes.
-- **Rationale**: FR-2.5 makes MFA optional and user-controlled. FR-2.13 supplies the only sanctioned route around a lost factor, because SEC-AUTHN-10 forbids any other bypass — no admin reset, no email fallback — which would otherwise reduce MFA to the security of whatever the bypass depends on (threat TM-S-2). FR-2.14 requires the consequence be stated up front, since the alternative to a bypass is permanent loss of access to one's own health data, recorded as `REQUIREMENTS.md` OQ-17. These three behaviors are one user flow: codes are generated at enrolment and the warning is what makes enrolment informed.
-- **Assumptions**: Recovery codes are stored with the Argon2id function from REQ-AUTH-070, as SEC-AUTHN-11 requires. Disabling MFA is itself a credential change and so revokes sessions via REQ-SESSION-040.
-- **Out of Scope**: The MFA challenge during authentication and recovery-code redemption (REQ-AUTH-120); password authentication (REQ-AUTH-100); passkey authentication for privileged roles (REQ-AUTH-020); throttling (REQ-AUTH-060); the number of recovery codes issued, `TO BE DECIDED` under `SECURITY.md` SQ-3; SMS and email codes, excluded by `REQUIREMENTS.md` OQ-9.
-- **Design Traceability**: `DESIGN.md` — Components → Inputs, Buttons (destructive actions use `error` and require explicit confirmation, which applies to disabling MFA), Form feedback and errors, and Accessibility (the one-time code display must be selectable, readable, and announced, not an image). The FR-2.14 warning is content, paired with an icon and text rather than color alone.
+- **Rationale**: FR-2.5 makes MFA optional and user-controlled. FR-2.13 supplies the only sanctioned route around a lost factor, because SEC-AUTHN-10 forbids any other bypass — no admin reset, no email fallback — which would otherwise reduce MFA to the security of whatever the bypass depends on (threat TM-S-2). FR-2.14 requires the consequence be stated up front, since the alternative to a bypass is permanent loss of access to one's own health data — a trade `REQUIREMENTS.md` OQ-17 resolves as standing, softened only by the FR-9.11 out-of-band deletion channel (REQ-PRIVACY-110), which destroys data without restoring access. These three behaviors are one user flow: codes are generated at enrolment and the warning is what makes enrolment informed.
+- **Assumptions**: Recovery codes are user-typed secrets and so are stored with the Argon2id function from REQ-AUTH-070, as amended SEC-AUTHN-11 requires — the HMAC-SHA-256 path it defines is for machine-held high-entropy tokens only and does not apply here. Disabling MFA is itself a credential change and so revokes sessions via REQ-SESSION-040.
+- **Out of Scope**: The MFA challenge during authentication and recovery-code redemption (REQ-AUTH-120); password authentication (REQ-AUTH-100); passkey authentication for privileged roles (REQ-AUTH-020); throttling (REQ-AUTH-060); SMS and email codes, excluded by `REQUIREMENTS.md` OQ-9.
+- **Design Traceability**: `DESIGN.md` — Product Patterns → Credentials, account security, and administration (MFA enrolment and recovery codes: the FR-2.14 interstitial with a primary **I understand — enable two-factor** action and no pre-checked control; the ten recovery codes shown exactly once in the data face with copy and download affordances, left only through an explicit **I saved my recovery codes** action; disablement and regeneration require re-authentication and end other sessions); Core Components → Actions (destructive actions use `error` and require explicit confirmation, which applies to disabling MFA), Forms and validation; Accessibility (the one-time code display must be selectable, readable, and announced, not an image).
 - **Architecture Traceability**: `ARCHITECTURE.md` — Identity and Session Handling owns MFA enrolment state; Relational Persistence stores enrolment and recovery-code entities; Browser Client presents enrolment; trust boundary 2.
 - **Security Traceability**: SEC-AUTHN-7 (re-authentication and audit for security-relevant changes), SEC-AUTHN-10 (no other bypass exists), SEC-AUTHN-11 (recovery secret handling), SEC-AUTHN-12 (change revokes sessions), SEC-SECRET-4 (generation).
 
@@ -32,7 +32,7 @@
 - **Preconditions**: An authenticated session for the account whose MFA is being changed
 - **Data Classification**: Restricted
 - **Personal or Regulated Data**: Personal Data — MFA enrolment state, TOTP secret, recovery codes
-- **Jurisdiction / Regulatory Scope**: TO BE DECIDED (`SECURITY.md` SQ-1)
+- **Jurisdiction / Regulatory Scope**: Global service with GDPR as the design ceiling (`SECURITY.md` SQ-1 RESOLVED): GDPR/UK GDPR for EU/UK data subjects; CCPA/CPRA, US state consumer-health laws (e.g. Washington My Health My Data), and the FTC Health Breach Notification Rule for US users; HIPAA not applicable
 
 ## Security Context
 
@@ -48,11 +48,11 @@
 
 ## Standards Alignment
 
-- **OWASP ASVS 5.0.0**: TO BE DECIDED — not verified against `REF-ASVS-5` in this session.
+- **OWASP ASVS 5.0.0**: TO BE DECIDED — mapping verified only at the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **OWASP AISVS 1.0**: N/A
-- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — not verified against the catalog in this session.
+- **NIST SP 800-53 Rev. 5**: TO BE DECIDED — mapping verified only at the independent pre-launch assessment (`SECURITY.md` SQ-10).
 - **NIST SP 800-207**: TO BE DECIDED — see Zero Trust Relevance.
-- **Regulatory**: TO BE DECIDED — blocked by `SECURITY.md` SQ-1.
+- **Regulatory**: GDPR/UK GDPR (EU/UK data subjects); CCPA/CPRA, Washington My Health My Data, FTC Health Breach Notification Rule (US users); HIPAA not applicable (`SECURITY.md` SQ-1 RESOLVED). Statute-section precision: TO BE DECIDED pending the SQ-1 pre-launch counsel review.
 - **Other**: RFC 6238 (TOTP), named by `REQUIREMENTS.md` OQ-9; `REF-63B`, `REF-AUTH`, `REF-PASSKEY`, `REF-WEBAUTHN`.
 - **Mapping Basis**: OQ-9 selects TOTP by RFC 6238 and passkeys; SEC-AUTHN-7 and SEC-AUTHN-11 name the OWASP and NIST references; the CWE identifiers name the single-factor and secret-protection classes.
 
@@ -75,7 +75,7 @@
 - **On External Dependency Failure**: N/A — TOTP verification is local; passkey registration is handled by REQ-AUTH-030's mechanism.
 - **On System Error**: Generic error with a correlation identifier (SEC-ERR-1); the TOTP secret and recovery codes MUST NOT appear in the response after the single display.
 - **Logging / Audit**: Audit each change with account, action, and time (SEC-AUTHN-7, SEC-LOG-4). The TOTP secret, recovery codes, and their digests MUST NOT be logged (SEC-LOG-3, SEC-SECRET-1).
-- **Alerting**: TO BE DECIDED — blocked by `SECURITY.md` SQ-3.
+- **Alerting**: Threshold alerts route to the security lead as SEC-OPS-2 detection inputs (`SECURITY.md` SQ-3, SQ-11 RESOLVED); SEC-LOG-4 security-relevant account-change events are among those inputs.
 
 ## Test Strategy
 
@@ -97,12 +97,12 @@
 
 ## Implementation Notes
 
-- **Constraints**: Node.js runtime with Fastify; PostgreSQL with Drizzle ORM; Vue single-page application (`CLAUDE.md`). The recovery-code count and TOTP drift window are `TO BE DECIDED` (`SECURITY.md` SQ-3) and MUST be named constants. SMS and email codes are excluded by `REQUIREMENTS.md` OQ-9 and MUST NOT be added.
+- **Constraints**: Node.js runtime with Fastify; PostgreSQL with Drizzle ORM; Vue single-page application (`CLAUDE.md`). The recovery-code count is fixed at 10 (SEC-AUTHN-11; `SECURITY.md` SQ-3 RESOLVED) and the re-authentication freshness window at 5 minutes (SEC-AUTHN-7); both MUST be named constants. The TOTP drift window is fixed by no spec document and MUST be a named constant with a documented basis. SMS and email codes are excluded by `REQUIREMENTS.md` OQ-9 and MUST NOT be added.
 - **Prohibited Approaches**: Any administrative or support path that enables, disables, or resets a subscriber's MFA (SEC-AUTHN-10). Storing recovery codes or the TOTP secret in recoverable form. Displaying recovery codes more than once or making them re-retrievable. Enabling MFA before possession is proven, which locks users out of their own accounts through a mis-scanned code. Enabling MFA without successfully issuing recovery codes. Treating the FR-2.14 warning as optional copy — it is a normative requirement with its own acceptance criterion.
 - **Implementation Guidance**: Order enrolment as re-authenticate, generate secret, prove possession, generate and persist codes, then enable — so any failure leaves MFA off rather than half-on. Because disabling MFA weakens the account, `DESIGN.md` treats it as destructive: confirm explicitly and use the `error` color with text.
 - **AI Development Guidance**: `REF-63B`, `REF-AUTH`, `REF-PASSKEY`, `REF-WEBAUTHN`, `REF-PROMPT-QUALITY`, `REF-PROMPT-VUE`; `CLAUDE.md`.
 - **Required Human Review**: Security review confirming no path bypasses re-authentication and no administrative route touches subscriber MFA; accessibility review of the one-time code display.
-- **Open Decisions**: Recovery-code count and TOTP drift window (`SECURITY.md` SQ-3). Whether a subscriber may enrol several second factors simultaneously is implied by `REQUIREMENTS.md` OQ-9 offering both TOTP and passkey, but the multi-factor case is not explicitly specified; implement one factor per account unless a decision records otherwise, and note the position as provisional.
+- **Open Decisions**: The TOTP drift window — an implementation constant no spec document fixes. The recovery-code count is resolved at 10 (`SECURITY.md` SQ-3, SEC-AUTHN-11). Whether a subscriber may enrol several second factors simultaneously is implied by `REQUIREMENTS.md` OQ-9 offering both TOTP and passkey, but the multi-factor case is not explicitly specified; implement one factor per account unless a decision records otherwise, and note the position as provisional.
 
 **Estimated effort**: 2 engineer-days. **Estimated changed lines**: 500–900.
 **Recommended model**: Claude Opus (`claude-opus-5`) — several irreversible operations whose partial-failure states silently strand users, plus an absolute prohibition on administrative bypass.
