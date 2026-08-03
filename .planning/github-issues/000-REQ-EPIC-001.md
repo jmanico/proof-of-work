@@ -58,7 +58,7 @@
 
 ## Acceptance Criteria
 
-1. **AC-01 — Expected behavior**: Given the full decomposition — the 62 filed leaf issues listed below plus the 38 leaves planned in the 2026-08-03 refresh (filed as sub-issues after this branch merges) — when every child issue is closed as Verified, then every one of the 83 functional requirements in `REQUIREMENTS.md` and every SEC-* rule in `SECURITY.md` has passing acceptance tests traceable to at least one child issue, per the `ISSUE_PLAN.md` coverage matrices. Closing only the previously filed subset does not satisfy this criterion.
+1. **AC-01 — Expected behavior**: Given the full decomposition — all 100 filed leaf issues listed below (#9–#56, #60, #66–#78, and #109–#146, each a sub-issue of this epic) — when every child issue is closed as Verified, then every one of the 83 functional requirements in `REQUIREMENTS.md` and every SEC-* rule in `SECURITY.md` has passing acceptance tests traceable to at least one child issue, per the `ISSUE_PLAN.md` coverage matrices. Closing only the previously filed subset does not satisfy this criterion.
 2. **AC-02 — Boundary or failure behavior**: Given work that depends on a marker that remains open — a `TO BE DECIDED` or `UNKNOWN` in `CLAUDE.md` or `ARCHITECTURE.md`, or the deferred OQ-18 — when implementation is attempted, then the dependent part remains blocked and no implementation resolves the open marker in code.
 3. **AC-03 — Prohibited behavior**: Given this epic, when child work is planned or executed, then no behavior outside `REQUIREMENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, or `DESIGN.md` is introduced, and no specification file is modified as part of implementation.
 
@@ -165,45 +165,45 @@
 - [ ] https://github.com/jmanico/proof-of-work/issues/77 — Privileged provisioning by invitation and first passkey enrolment
 - [ ] https://github.com/jmanico/proof-of-work/issues/78 — Privileged account minimums and passkey recovery
 
-Planned leaves from the 2026-08-03 refresh, filed as sub-issues after this branch merges (drafts in `.planning/github-issues/`):
+Leaves added by the 2026-08-03 refresh, filed 2026-08-03 as issues #109–#146, each a sub-issue of this epic (drafts in `.planning/github-issues/`):
 
-- [ ] REQ-ENTITLE-010 — Subscription entitlement gate on plan, customization, and progress access
-- [ ] REQ-ENTITLE-020 — View own subscription status
-- [ ] REQ-ENTITLE-030 — Admin subscription-period grant, extension, and revocation
-- [ ] REQ-ENTITLE-040 — Record retention across subscription lapse
-- [ ] REQ-SELECT-010 — Active exercise plan selection
-- [ ] REQ-SELECT-020 — Active diet plan selection
-- [ ] REQ-SELECT-030 — Unpublication ends active selections
-- [ ] REQ-PLAN-070 — One-time plan verification operation
-- [ ] REQ-PLAN-080 — Admin exercise catalog management
-- [ ] REQ-AUTHZ-060 — Admin health-data prohibition and administrative account views
-- [ ] REQ-PROGRESS-040 — Body measurement entry logging
-- [ ] REQ-PROGRESS-050 — Per-account unit system and display-only conversion
-- [ ] REQ-PROGRESS-060 — Progress history display with trend charts and paired tables
-- [ ] REQ-FOOD-010 — Bundled nutrition dataset import, versioning, and search
-- [ ] REQ-FOOD-020 — Food log entry with calorie and macronutrient attribution
-- [ ] REQ-FOOD-030 — Daily intake versus selected diet plan targets
-- [ ] REQ-FOOD-040 — AI-assisted nutrition estimation flow
-- [ ] REQ-FOOD-050 — In-boundary inference service configuration
-- [ ] REQ-PRIVACY-070 — Health-data definition binding the consent, verification, audit, and admin gates
-- [ ] REQ-PRIVACY-080 — Synchronous JSON data export
-- [ ] REQ-PRIVACY-090 — Synchronous account deletion with deletion-ledger write
-- [ ] REQ-PRIVACY-100 — Audit tombstoning on account deletion
-- [ ] REQ-PRIVACY-110 — Out-of-band deletion channel
-- [ ] REQ-AUTH-160 — Vetting record required on privileged invitations
-- [ ] REQ-AUTH-170 — Privileged deprovisioning
-- [ ] REQ-AUTH-180 — Email-address change
-- [ ] REQ-AUTHZ-050 — Central typed authorization policy module
-- [ ] REQ-CONSULT-030 — Consultant engagement lifecycle by admin action
-- [ ] REQ-CONSULT-040 — Consultant capabilities within an active engagement
-- [ ] REQ-API-050 — Rate limits, body-size limits, and time-bounded request handling
-- [ ] REQ-INFRA-010 — Environment accounts, pipeline identities, and deployment flow
-- [ ] REQ-INFRA-020 — Network tiering and encryption at rest and in transit
-- [ ] REQ-INFRA-030 — Secrets and signing-key management
-- [ ] REQ-INFRA-040 — Audit retention, append-only privileges, and the hash-chained archive
-- [ ] REQ-INFRA-050 — Break-glass operational access
-- [ ] REQ-INFRA-060 — Transactional email delivery via in-account SES
-- [ ] REQ-INFRA-070 — Merge-blocking CI security gates
-- [ ] REQ-OPS-010 — Incident-response runbook and readiness
+- [ ] https://github.com/jmanico/proof-of-work/issues/112 — Subscription entitlement gate on plan, customization, and progress access
+- [ ] https://github.com/jmanico/proof-of-work/issues/113 — View own subscription status
+- [ ] https://github.com/jmanico/proof-of-work/issues/114 — Admin subscription-period grant, extension, and revocation
+- [ ] https://github.com/jmanico/proof-of-work/issues/115 — Record retention across subscription lapse
+- [ ] https://github.com/jmanico/proof-of-work/issues/116 — Active exercise plan selection
+- [ ] https://github.com/jmanico/proof-of-work/issues/117 — Active diet plan selection
+- [ ] https://github.com/jmanico/proof-of-work/issues/118 — Unpublication ends active selections
+- [ ] https://github.com/jmanico/proof-of-work/issues/119 — One-time plan verification operation
+- [ ] https://github.com/jmanico/proof-of-work/issues/120 — Admin exercise catalog management
+- [ ] https://github.com/jmanico/proof-of-work/issues/111 — Admin health-data prohibition and administrative account views
+- [ ] https://github.com/jmanico/proof-of-work/issues/122 — Body measurement entry logging
+- [ ] https://github.com/jmanico/proof-of-work/issues/121 — Per-account unit system and display-only conversion
+- [ ] https://github.com/jmanico/proof-of-work/issues/123 — Progress history display with trend charts and paired tables
+- [ ] https://github.com/jmanico/proof-of-work/issues/124 — Bundled nutrition dataset import, versioning, and search
+- [ ] https://github.com/jmanico/proof-of-work/issues/125 — Food log entry with calorie and macronutrient attribution
+- [ ] https://github.com/jmanico/proof-of-work/issues/126 — Daily intake versus selected diet plan targets
+- [ ] https://github.com/jmanico/proof-of-work/issues/135 — AI-assisted nutrition estimation flow
+- [ ] https://github.com/jmanico/proof-of-work/issues/134 — In-boundary inference service configuration
+- [ ] https://github.com/jmanico/proof-of-work/issues/110 — Health-data definition binding the consent, verification, audit, and admin gates
+- [ ] https://github.com/jmanico/proof-of-work/issues/140 — Synchronous JSON data export
+- [ ] https://github.com/jmanico/proof-of-work/issues/141 — Synchronous account deletion with deletion-ledger write
+- [ ] https://github.com/jmanico/proof-of-work/issues/139 — Audit tombstoning on account deletion
+- [ ] https://github.com/jmanico/proof-of-work/issues/142 — Out-of-band deletion channel
+- [ ] https://github.com/jmanico/proof-of-work/issues/137 — Vetting record required on privileged invitations
+- [ ] https://github.com/jmanico/proof-of-work/issues/138 — Privileged deprovisioning
+- [ ] https://github.com/jmanico/proof-of-work/issues/143 — Email-address change
+- [ ] https://github.com/jmanico/proof-of-work/issues/109 — Central typed authorization policy module
+- [ ] https://github.com/jmanico/proof-of-work/issues/144 — Consultant engagement lifecycle by admin action
+- [ ] https://github.com/jmanico/proof-of-work/issues/145 — Consultant capabilities within an active engagement
+- [ ] https://github.com/jmanico/proof-of-work/issues/136 — Rate limits, body-size limits, and time-bounded request handling
+- [ ] https://github.com/jmanico/proof-of-work/issues/127 — Environment accounts, pipeline identities, and deployment flow
+- [ ] https://github.com/jmanico/proof-of-work/issues/128 — Network tiering and encryption at rest and in transit
+- [ ] https://github.com/jmanico/proof-of-work/issues/129 — Secrets and signing-key management
+- [ ] https://github.com/jmanico/proof-of-work/issues/130 — Audit retention, append-only privileges, and the hash-chained archive
+- [ ] https://github.com/jmanico/proof-of-work/issues/131 — Break-glass operational access
+- [ ] https://github.com/jmanico/proof-of-work/issues/132 — Transactional email delivery via in-account SES
+- [ ] https://github.com/jmanico/proof-of-work/issues/133 — Merge-blocking CI security gates
+- [ ] https://github.com/jmanico/proof-of-work/issues/146 — Incident-response runbook and readiness
 
 No blocked scope remains: every specified behavior maps to a filed or planned leaf (`ISSUE_PLAN.md`, coverage matrices).

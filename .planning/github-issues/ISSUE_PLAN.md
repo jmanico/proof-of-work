@@ -1,11 +1,11 @@
 # ISSUE_PLAN.md — Specification decomposition
 
 - **Scope**: ALL requirements in `REQUIREMENTS.md`
-- **Execution mode**: originally `DRAFT_ONLY`; the epic was subsequently filed as GitHub issue #8 and the first 62 leaves as issues #9–#56, #60, and #66–#78, each linked as a sub-issue of the epic; the 38 leaves added 2026-08-03 are drafted and await filing after this branch merges
+- **Execution mode**: originally `DRAFT_ONLY`; the epic was subsequently filed as GitHub issue #8 and the first 62 leaves as issues #9–#56, #60, and #66–#78, each linked as a sub-issue of the epic; the 38 leaves added 2026-08-03 were filed the same day as issues #109–#146, each linked as a sub-issue of the epic
 - **Sources**: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, `DESIGN.md`, `REQUIREMENT_TEMPLATE.md`; `CLAUDE.md` followed as agent instruction, not as product specification
 - **Produced**: 2026-07-31
 - **Updated**: 2026-08-03 — reflects the 2026-08-03 specification amendments: five new functional requirements (FR-2.18, FR-4.9, FR-5.4, FR-9.12, FR-10.3), bringing the total to 83, and three new security rules (SEC-AUTHZ-9, SEC-EXT-3, SEC-INPUT-7), plus the amended FRs and rules recorded in the documents themselves
-- **Result**: 1 epic + 62 previously filed leaves (epic #8; leaves #9–#56, #60, #66–#78) + 38 new leaves drafted 2026-08-03 awaiting filing — 100 leaves total; scope is still ALL requirements; no blocked scope remains (section 4 is empty as of 2026-08-03)
+- **Result**: 1 epic + 100 leaves, all filed as live GitHub issues (epic #8; leaves #9–#56, #60, #66–#78, #109–#146) — scope is still ALL requirements; no blocked scope remains (section 4 is empty as of 2026-08-03)
 
 ---
 
@@ -461,7 +461,7 @@ Effort is engineer-days; LOC is human-authored changed lines, excluding generate
 
 ## 7. Topological creation order
 
-The manifest's `#` column is the creation order; the dependency graph is acyclic, and for rows 62–99 every `Depends on` entry precedes its dependent (re-verified 2026-08-03). Three legacy edges among the already-filed rows run forward of the `#` order — row 37 (REQ-CUSTOM-030) depends on rows 38 and 39, and row 38 (REQ-CUSTOM-010) depends on row 41 — an ordering artifact of the original pass that is moot for creation, because rows 0–61 are already live and keep the numbers their issues were filed under. Create the epic first, then leaves in `#` order, each with `--parent` set to the epic's number. Rows 0–61 are already created; rows 62–99 are created after this branch merges (section 8). File-name prefixes reflect grouping rather than dependency order; the manifest's `#` column is the authority.
+The manifest's `#` column is the creation order; the dependency graph is acyclic, and for rows 62–99 every `Depends on` entry precedes its dependent (re-verified 2026-08-03). Three legacy edges among the already-filed rows run forward of the `#` order — row 37 (REQ-CUSTOM-030) depends on rows 38 and 39, and row 38 (REQ-CUSTOM-010) depends on row 41 — an ordering artifact of the original pass that is moot for creation, because rows 0–61 are already live and keep the numbers their issues were filed under. Create the epic first, then leaves in `#` order, each linked as a sub-issue of the epic. Rows 0–61 and rows 62–99 are all created and linked (section 8; rows 62–99 are issues #109–#146). File-name prefixes reflect grouping rather than dependency order; the manifest's `#` column is the authority.
 
 REQ-BUILD-010 is numbered 0 rather than renumbering the original 48, whose numbers are already referenced across the manifest's `Depends on` column. It is the root: every leaf depends on it transitively, and the six leaves that previously had no in-plan predecessor — 1, 4, 5, 9, 16, and 47 — now depend on it directly.
 
@@ -542,9 +542,9 @@ gh issue create --title "[REQ-AUTH-150] Privileged account minimums and passkey 
 
 After creation, every `{{ISSUE_URL:<ID>}}` placeholder in `000-REQ-EPIC-001.md` was replaced with the created issue URL and the epic body was updated; the file now contains no placeholders.
 
-### 2026-08-03 additions — TO BE EXECUTED AFTER THIS BRANCH MERGES
+### 2026-08-03 additions — EXECUTED 2026-08-03
 
-The 38 commands below have **not** been run. They are to be executed from the repository root after this branch merges, in manifest order (rows 62–99), each with `--parent 8` so the new leaves join the epic's existing sub-issue set. The draft files are the source of truth; live bodies sync from them.
+The 38 commands below were run 2026-08-03 in manifest order (rows 62–99): the leaves are live as issues #109–#146, each linked as a sub-issue of epic #8 (linking done via the sub-issues REST API, since `gh issue create` in use has no `--parent` flag). All 62 previously filed leaf bodies were re-synced from the refreshed drafts the same day, and the epic body was updated with the new sub-issue URLs. The draft files remain the source of truth; live bodies sync from them.
 
 ```sh
 # Leaves 62–99, in topological order (add --parent 8 to each)
@@ -592,7 +592,7 @@ When the 2026-08-03 batch is filed, the epic body is updated the same way with t
 
 ## 9. Notes on drafting decisions
 
-- **The consolidated refresh pass promised throughout this plan was executed 2026-08-03.** All 62 previously filed drafts were refreshed against the amended specifications in the same pass that produced the 38 new drafts: `Alerting` fields now route threshold alerts to the security lead as SEC-OPS-2 detection inputs per SQ-11 (or record `N/A` with a reason where a requirement genuinely has no alert condition); `Regulatory` fields name the SQ-1 regime set; and ASVS/AISVS/NIST mappings remain deferred to the pre-launch assessment per SQ-10. Live GitHub bodies sync from the drafts after this branch merges.
+- **The consolidated refresh pass promised throughout this plan was executed 2026-08-03.** All 62 previously filed drafts were refreshed against the amended specifications in the same pass that produced the 38 new drafts: `Alerting` fields now route threshold alerts to the security lead as SEC-OPS-2 detection inputs per SQ-11 (or record `N/A` with a reason where a requirement genuinely has no alert condition); `Regulatory` fields name the SQ-1 regime set; and ASVS/AISVS/NIST mappings remain deferred to the pre-launch assessment per SQ-10. Live GitHub bodies were synced from the drafts on 2026-08-03 (all 62 existing leaves re-synced, the 38 new leaves filed as #109–#146, and the epic body updated).
 - **`OWASP ASVS 5.0.0` and `NIST SP 800-53 Rev. 5` mappings are `TO BE DECIDED` in every issue.** `REQUIREMENT_TEMPLATE.md` states that only mappings verified against the cited version may be included and that control identifiers must not be guessed. Neither catalog was retrieved in this session; `SECURITY.md` SQ-10 has since fixed the target (Level 3) and the verifier (independent pre-launch assessment), and mappings stay `TO BE DECIDED` until verified there — the 2026-08-03 refresh confirmed this position across all 100 drafts and extends it to `OWASP AISVS 1.0` for the AI-component issues. CWE identifiers and the `SECURITY.md` threat-model identifiers are cited where confident.
 - **`Regulatory` fields were `TO BE DECIDED` wherever health data is involved**, because PQ-21 originally recorded the jurisdiction question as unresolved by the specification itself. Superseded at the 2026-08-03 refresh: with SQ-1 resolved, every issue touching health or personal data now names the regime set — GDPR/UK GDPR for EU/UK data subjects; CCPA/CPRA, Washington My Health My Data, and the FTC Health Breach Notification Rule for US users; HIPAA not applicable — while statute-section precision stays per-issue `TO BE DECIDED` except where a specification document states a section (GDPR Art. 12(6) in FR-9.11; the GDPR 72-hour and FTC HBNR 60-day clocks in SEC-OPS-2).
 - **`Alerting` fields were `TO BE DECIDED` throughout the original pass.** Written before the alerting model existed; the thresholds are fixed (PQ-17 RESOLVED) and destinations/process too (SQ-11 RESOLVED: alerts route to the security lead as SEC-OPS-2 detection inputs). The per-issue `Alerting` fields were updated accordingly at the 2026-08-03 consolidated refresh.
