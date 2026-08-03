@@ -77,6 +77,7 @@ Color rules:
 - The primary filled button uses light `brand` with white text and dark `brand` with dark `canvas` text.
 - Links are underlined. Statuses combine text with an icon or shape.
 - Macro or plan-target variance uses neutral brand tones. `error` is reserved for invalid, failed, or destructive states.
+- `signal` fails contrast on light surfaces (1.12:1 against light `canvas`, 1.24:1 against white `surface`): in light mode it MUST NOT meet `canvas`, `surface`, or `surface-subtle` without a 2px `ink` boundary that carries the 3:1 graphics requirement, and chart emphasis without such a boundary uses `brand` instead. In dark mode `signal` meets 3:1 directly (14.80:1 on `canvas`, 13.48:1 on `surface`). *(2026-08-03.)*
 - Dark mode changes color only. Spacing, hierarchy, border meaning, and elevation remain stable.
 
 ## Typography and Iconography
@@ -170,7 +171,7 @@ Validation appears inline with an error icon and a specific correction. After fa
 
 ### Status, feedback, and loading
 
-Status chips contain a short text label and an icon or distinct outline. Approved vocabulary includes `Active`, `Inactive`, `Draft`, `Reviewed`, `Published`, `Unpublished`, `Estimate`, and `Email unverified`. Status labels use nouns or factual states, not praise.
+Status chips contain a short text label and an icon or distinct outline. Approved vocabulary includes `Active`, `Inactive`, `Draft`, `Reviewed`, `Published`, `Unpublished`, `Estimate`, `Retired`, `Pending deletion`, and `Email unverified`. Status labels use nouns or factual states, not praise.
 
 Inline confirmation stays near the action. A toast MAY duplicate that message but MUST NOT be the only record of success or failure. Loading skeletons use `aria-busy`; shimmer is disabled under reduced motion. Empty states say what belongs in the region and provide the action that creates it. Permission, lapsed-subscription, withdrawn-consent, and ended-engagement states explain the exact reason and the available next step without exposing hidden data.
 
@@ -206,7 +207,7 @@ The medical disclaimer and health-data consent are separate decisions.
 - **Medical disclaimer (FR-9.6):** immediately before the subscriber first selects or customizes a plan, a focused interstitial shows a short plain-language summary, a link to the full disclaimer, a secondary Back action, and a primary **I understand — continue** action. No pre-checked checkbox is used. After acknowledgement, plan pages retain a quiet “Not medical advice · Safety information” link near the Evidence section; the blocking interstitial does not repeat unless the disclaimer materially changes.
 - **Health-data consent (FR-9.2):** immediately before the first health-data write, a separate consent screen names the categories collected, purposes, withdrawal path, export/deletion rights, and the effect of withdrawal. An unchecked **I consent to the collection and use described above** checkbox plus **Continue** records the explicit action. Declining returns without saving health data. Account → Privacy makes the consent state and withdrawal action continuously available.
 
-Neither flow uses a persistent warning banner. Banners are reserved for current actionable states such as unverified email, withdrawn consent, lapsed subscription, or pending out-of-band deletion (FR-2.11, FR-3.2, FR-9.9, FR-9.11).
+Neither flow uses a persistent warning banner. Banners are reserved for current actionable states such as unverified email, withdrawn consent, lapsed subscription, or pending out-of-band deletion (FR-2.11, FR-3.2, FR-9.9, FR-9.11). The pending-deletion banner names the scheduled execution date and offers **Cancel deletion request** from any authenticated session (FR-9.11).
 
 ### Logging and AI-assisted food estimates
 
@@ -218,9 +219,28 @@ The food flow offers three equal-entry methods: search the bundled dataset, desc
 
 Progress pages pair every trend chart with a data table showing the same full-granularity entries (FR-8.14). Range controls are 4 weeks, 3 months, 1 year, and all time. The selected range is programmatically exposed.
 
-Charts use direct labels where space allows, visible point shapes, and a stroke of at least 2px. Multiple series differ by both color and dash or point shape. Keyboard focus can reach each data point and expose its label and value. Tooltips duplicate information; they never contain unique data. Reduced motion removes drawing animations.
+Charts use direct labels where space allows, visible point shapes, and a stroke of at least 2px. Multiple series differ by both color and dash or point shape. The emphasized or most-recent point uses `brand` in light mode — or a `signal` fill inside a 2px `ink` stroke, where the stroke is the meaningful boundary — and `signal` directly in dark mode (Color System, `signal` rule). Keyboard focus can reach each data point and expose its label and value. Tooltips duplicate information; they never contain unique data. Reduced motion removes drawing animations.
 
 Daily calorie and macro comparisons show explicit text such as “82 g of 110 g target” beside a linear indicator (FR-8.5). Going past a target continues the bar with a labelled over-target value; it does not turn red or use failure language.
+
+### Credentials, account security, and administration
+
+Added 2026-08-03: the credential lifecycle previously had no design home. All flows below use the 32rem authentication width or the standard form patterns, existing components, and the content voice; none introduces a new visual system. Throttled attempts (SECURITY.md SEC-AUTHN-6) surface as a neutral "Try again shortly" state with no counts or cause, and no sign-in, reset, resend, or verification response may reveal whether an address or account exists (SEC-AUTHN-3, SEC-AUTHN-8): request confirmations read "If that address is registered, we sent a message."
+
+- **Sign-in and second factor.** Email and password on one screen. When MFA is enabled, a second step requests the TOTP code or passkey (REQUIREMENTS.md OQ-9); a quiet "Use a recovery code instead" action swaps the input and states that each code works once (FR-2.13). Failure copy never names the failing factor (FR-2.3).
+- **Email verification.** The `Email unverified` banner links to a screen that explains logging stays unavailable until the address is verified (FR-2.11), offers a rate-limited resend (SEC-AUTHN-8), and confirms non-committally. The emailed link lands on a confirmation route that returns the user to what they were doing.
+- **Password reset.** The request screen accepts an address and always confirms neutrally. The completion screen sets the new password — minimum 8 characters with 15 or more encouraged and no composition demands (SEC-AUTHN-6); a breached password is refused inline with "This password appears in known breach lists; choose another" — and states that an enabled second factor still applies (FR-2.12) and that other sessions end (SEC-AUTHN-12).
+- **MFA enrolment and recovery codes.** Before enabling, a focused interstitial states the FR-2.14 consequence in plain language — losing every factor and every recovery code makes the account permanently unrecoverable — with a primary **I understand — enable two-factor** action and a secondary Back; no pre-checked control. On success, the ten recovery codes (SEC-AUTHN-11) appear exactly once (FR-2.13) in the data face with copy and download affordances and the instruction to store them somewhere safe; the screen is left only through an explicit **I saved my recovery codes** action, and the codes are never shown again. Disabling MFA and regenerating codes require re-authentication and end other sessions (SEC-AUTHN-7, SEC-AUTHN-12).
+- **Re-authentication.** Sensitive operations — passkey, password, and MFA changes, email change, account deletion, data export (SEC-AUTHN-7) — interrupt with a focused re-authentication step matching the account's factors. The prompt names the operation it protects ("Confirm it's you to export your data"), honors the 5-minute freshness window, and returns focus to the interrupted operation.
+- **Email change (FR-2.18).** Lives in Account → Security. The screen states the sequence before starting: the new address is verified first, the old address remains active for recovery until then, a notice goes to the old address, and all sessions end on completion. Starting requires re-authentication. While an out-of-band deletion request is pending, the action is unavailable and says why.
+- **Passkeys.** Account → Security lists each registered passkey with a user-supplied label and its registration date. A privileged account below two passkeys sees a persistent `warning-soft` callout prompting registration of the second (FR-2.15); it blocks nothing and stays until satisfied. Registration and replacement require re-authentication (SEC-AUTHN-7); a removal that would leave fewer than two is refused with the reason and the remedy of registering a replacement first.
+- **Invitation acceptance.** The invitation link opens a pre-authentication route at the authentication width showing the lockup, the role being granted, and a single action: register the first passkey (SEC-AUTHN-9 — the token authorizes enrolment, never a session). An expired or used token shows a neutral dead end — "This invitation is no longer valid. Contact the administrator who invited you." — with no account detail. After enrolment the new account signs in with its passkey and sees the second-passkey callout.
+
+Administration surfaces follow the same system:
+
+- **People (admin).** Accounts are listed and searched by administrative fields only — email, role, verification state, MFA on or off, consent state, subscription summary, and engagements (FR-10.3); no health data appears anywhere in admin chrome. The invitation form requires the vetting record — who vetted the invitee, when, and on what basis — before **Send invitation** is available (FR-2.16), and says the record is kept. Deprovisioning uses a dedicated destructive page stating what happens — sessions end immediately, passkeys are invalidated, engagements end — and, when the action would leave fewer than two admins, the refusal explains the two-admin minimum and the remedy of inviting a replacement first (FR-2.17).
+- **Access (admin).** Subscription-period grants and consultant-engagement actions name the affected subscriber by administrative identity, show the period or engagement bounds being written, and confirm with "Recorded and audited" (FR-3.5, FR-11.5).
+- **Exercise catalog (admin Plans).** The catalog is a searchable list of exercises with rename and **Retire** actions; retiring removes an entry from new plan composition and never from history or charts (FR-5.4). Retired entries carry the `Retired` chip.
 
 ### Account, privacy, and destructive actions
 
@@ -243,7 +263,7 @@ Proof of Work writes like a knowledgeable training partner: direct, specific, no
 
 - **Target:** WCAG 2.2 AA (REQUIREMENTS.md OQ-11 resolved).
 - **Keyboard:** all functionality is keyboard operable in a logical reading order with no traps. A skip link precedes repeated navigation. Focus is never suppressed.
-- **Focus:** use a 2px high-contrast outline with a 2px offset. In light mode use `#176B45`; in dark mode use `#92D7AA`. Components near the same color add an outer canvas-colored separation ring.
+- **Focus:** use a 2px high-contrast outline with a 2px offset. The outline is the `brand` token — `#1E6A48` in light mode (5.94:1 on `canvas`, 6.54:1 on `surface`) and `#92D7AA` in dark mode (10.91:1 on `canvas`, 9.94:1 on `surface`); no raw non-token value is used *(2026-08-03)*. Components near the same color add an outer canvas-colored separation ring.
 - **Structure:** one `h1` per page, sequential heading levels, landmarks, labelled regions, persistent control labels, and text alternatives for meaningful graphics.
 - **Reflow:** no loss of content or function at 320px width or 200% zoom. Text uses relative units.
 - **Color and graphics:** never rely on color alone; meaningful graphics and control boundaries meet 3:1; text meets 4.5:1 except qualifying large text.
@@ -258,7 +278,7 @@ Implementation is not design-complete until automated and manual checks cover:
 
 - light, dark, and forced-colors/high-contrast behavior;
 - 320px reflow and 200% zoom without lost content or page-level horizontal scrolling;
-- keyboard-only completion of authentication, plan selection, logging, consent, disclaimer, consultant-access termination, and admin publication;
+- keyboard-only completion of authentication — including the second-factor, recovery-code, and re-authentication steps — MFA enrolment with recovery-code saving, invitation acceptance and passkey registration, password reset, email change, plan selection, logging, consent, disclaimer, consultant-access termination, and admin publication;
 - visible focus, correct focus return, no traps, and logical route-change focus;
 - axe-core checks plus manual screen-reader checks of forms, dialogs, charts/tables, and status announcements;
 - contrast of every actual token pairing, including hover, disabled, focus, and error states;
