@@ -4,7 +4,7 @@
 
 - **ID**: REQ-PRIVACY-110
 - **Title**: Out-of-band deletion channel
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -15,7 +15,7 @@
 
 ## Requirement
 
-- **Statement**: The system MUST accept an account-deletion request submitted out of band from the account's verified email address when the requester cannot authenticate, and MUST execute it only after verifying control of that address and matching account details, recording a pending deletion request, sending notice to the address and surfacing it in any live session, and waiting 14 days during which any authenticated session can cancel — after which FR-9.4 deletion executes; the channel MUST NOT restore access, satisfy or bypass any authentication factor, or disclose any account or health data.
+- **Statement**: The system MUST accept an account-deletion request submitted out of band from the account's verified email address when the requester cannot authenticate, and MUST execute it only after verifying control of that address by a single-use, time-limited confirmation token (SEC-AUTHN-11 discipline) matched to a registered account — that proof and match are the entire identity check (FR-9.11, fixed 2026-08-03) — recording a pending deletion request, sending notice to the address and surfacing it in any live session, and waiting 14 days during which any authenticated session can cancel — after which FR-9.4 deletion executes; the channel MUST NOT restore access, satisfy or bypass any authentication factor, or disclose any account or health data.
 - **Rationale**: FR-2.14's deliberate unrecoverability trade would otherwise extinguish the deletion right for a locked-out user; FR-9.11 preserves that right without weakening authentication (SEC-AUTHN-10), and the 14-day cancellable window prevents a mailbox thief from silently destroying an active user's data (OQ-17).
 - **Assumptions**: The account's email address was verified before it became usable in this channel (FR-2.11, SEC-AUTHN-8; REQ-AUTH-090). FR-9.4 synchronous deletion, including the deletion-ledger write, is delivered by REQ-PRIVACY-090. The mail interface exists (SEC-EXT-3; REQ-INFRA-060).
 - **Out of Scope**: The deletion execution mechanics themselves — hard delete, tombstoning, deletion ledger, backup horizon (REQ-PRIVACY-090, REQ-PRIVACY-100); in-session authenticated deletion with re-authentication (FR-9.4, SEC-AUTHN-7; REQ-PRIVACY-090); refusal of email change while a request is pending (FR-2.18; REQ-AUTH-180); the scheduled-execution infrastructure shared with archival and ledger maintenance beyond this channel's expiry evaluation.

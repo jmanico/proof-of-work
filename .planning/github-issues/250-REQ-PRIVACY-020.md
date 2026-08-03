@@ -4,7 +4,7 @@
 
 - **ID**: REQ-PRIVACY-020
 - **Title**: Consent withdrawal blocks new health-data writes
-- **Version**: 1.1.0
+- **Version**: 1.2.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -15,7 +15,7 @@
 
 ## Requirement
 
-- **Statement**: The system MUST allow a user to withdraw previously given consent to health-data collection, MUST NOT record new health data for that user while consent is withdrawn — no new log entries, plan copies, plan selections, or AI estimation requests (FR-9.12) — and MUST keep existing records subject to the export, deletion, and correction rights in FR-9.3–FR-9.5, with editing and deleting existing entries (FR-8.7) remaining available as exercise of the correction and deletion rights over already-collected data.
+- **Statement**: The system MUST allow a user to withdraw previously given consent to health-data collection, MUST NOT record new health data for that user while consent is withdrawn — no new log entries, plan copies, plan selections, or AI estimation requests (FR-9.12) — and MUST keep existing records subject to the export, deletion, and correction rights in FR-9.3–FR-9.5, with editing and deleting existing entries (FR-8.7) and the subscriber's own existing customized plan copies remaining available as exercise of the correction and deletion rights over already-collected data — the sole exception to the FR-9.12 consent gate, covering only the owning subscriber; consultant edits under FR-11.6 are refused while the subscriber's consent is withdrawn (FR-9.9, fixed 2026-08-03).
 - **Rationale**: FR-9.9 states the rule, including the 2026-08-03 clarifications: new collection is enumerated through the FR-9.12 health-data boundary, and correction of existing records is expressly preserved under withdrawal — blocking a user from editing or deleting what was already collected would defeat the rights the withdrawal is meant to serve. The requirement exists because the threat model found that consent was captured (FR-9.2) with no path to withdraw it short of account deletion — LINDDUN Unawareness, recorded as TM-P-2.
 - **Assumptions**: Consent capture exists and is checked on every health-data write and estimation request (REQ-PRIVACY-010). The health-data boundary is defined by FR-9.12 (REQ-PRIVACY-070).
 - **Out of Scope**: Export (FR-9.3) and deletion (FR-9.4), which execute synchronously (`SECURITY.md` SQ-5 RESOLVED) and are delivered by REQ-PRIVACY-080 and REQ-PRIVACY-090; whether withdrawal should also suspend subscription entitlement, which no source document states; re-consent semantics beyond granting again.
@@ -61,7 +61,7 @@
 1. **AC-01 — Expected behavior**: Given a subscriber with active consent, when they withdraw it, then the consent record is marked withdrawn with the time, an audit entry is written, and the response confirms that no new health data will be recorded.
 2. **AC-02 — Boundary or failure behavior**: Given a subscriber whose consent is withdrawn, when any new health-data collection is attempted — a new log entry, plan copy, plan selection, or AI estimation request (FR-9.12), by the subscriber, by an engaged consultant, or from a session established before the withdrawal — then it is refused with a message stating that consent is required, and nothing is persisted and no estimation is performed.
 3. **AC-03 — Prohibited behavior**: Given a withdrawal, when it is processed, then it MUST NOT delete, alter, or hide existing health records, MUST NOT be satisfiable by a client-side flag, and MUST NOT require the user to delete their account to achieve it.
-4. **AC-04 — Additional criterion**: Given a subscriber with withdrawn consent, when they exercise export or correction rights, then those rights still operate on the retained records (FR-9.3–FR-9.5) — in particular, editing and deleting their existing log entries (FR-8.7) succeeds while consent is withdrawn — so withdrawal does not strand the data. An edit corrects an existing entry; it does not create a new one.
+4. **AC-04 — Additional criterion**: Given a subscriber with withdrawn consent, when they exercise export or correction rights, then those rights still operate on the retained records (FR-9.3–FR-9.5) — in particular, editing and deleting their existing log entries (FR-8.7) and their own existing customized plan copies succeeds while consent is withdrawn, while a consultant edit of those copies is refused — so withdrawal does not strand the data. An edit corrects an existing record; it does not create a new one.
 5. **AC-05 — Additional criterion**: Given a subscriber who withdrew consent, when they grant consent again, then new health-data writes are permitted from that point, and both the withdrawal and the re-grant are separately audited.
 
 ## Failure Behavior

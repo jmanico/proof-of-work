@@ -4,7 +4,7 @@
 
 - **ID**: REQ-CUSTOM-010
 - **Title**: Customize a published plan into a private copy
-- **Version**: 1.1.0
+- **Version**: 1.2.0
 - **Status**: Draft
 - **Owner**: TO BE DECIDED
 - **Author**: Jim Manico
@@ -64,7 +64,7 @@
 4. **AC-04 — Additional criterion**: Given a customization of an unpublished plan, or of a plan the subscriber cannot see, when it is attempted, then it is refused and the plan's existence is not disclosed (FR-4.7).
 5. **AC-05 — Additional criterion**: Given a created or edited copy, when the operation completes, then an audit entry records the acting account, the action, the affected subject, and the time (FR-9.7, REQ-AUDIT-020), since a customized plan copy is health data (FR-9.12).
 6. **AC-06 — Additional criterion**: Given an exercise-plan customization, when it edits the exercises, then it may select among FR-5.4 catalog entries and edit prescriptions (sets, repetitions, order), and a submission referencing a movement outside the catalog — a nonexistent or free-text exercise — is rejected with the failing field named and no copy created or changed (FR-5.4).
-7. **AC-07 — Additional criterion**: Given an account without recorded consent, with consent withdrawn (FR-9.9), or with an unverified email address (FR-2.11), when a copy create or edit is attempted, then it is refused as a health-data write (FR-9.12, SEC-DATA-2) and nothing is persisted.
+7. **AC-07 — Additional criterion**: Given an account without recorded consent or with an unverified email address (FR-2.11), when a copy create or edit is attempted, then it is refused as a health-data write (FR-9.12, SEC-DATA-2) and nothing is persisted. Given an account with consent withdrawn (FR-9.9), a copy *create* is refused identically, but the owning subscriber editing or deleting an *existing* copy succeeds under FR-9.9's correction carve-out (fixed 2026-08-03); a consultant edit under FR-11.6 is refused while the subscriber's consent is withdrawn.
 
 ## Failure Behavior
 
