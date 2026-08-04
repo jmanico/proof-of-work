@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./logo.svg" width="96" height="96" alt="Proof of Work logo">
+  <img src="./logo.svg" width="96" height="96" alt="">
 </p>
 
 <h1 align="center">Proof of Work</h1>
@@ -43,7 +43,7 @@ The planned experience includes:
 
 The interface combines warm paper-like surfaces, dark ink, grounded forest green, and a small signal-lime accent. It is disciplined and quietly encouraging—credible without looking clinical, motivating without hype, shame, streak pressure, or competitive gamification.
 
-The Proof mark above pairs a `P` with a check: the product name and a visible record that work happened. The identity deliberately avoids coin, chain, mining, hexagon, and other cryptocurrency cues.
+The Proof mark above pairs a custom `P` with a small datum: the product name and one observation in an accumulating record. It deliberately avoids completion badges as well as coin, chain, mining, hexagon, and other cryptocurrency cues.
 
 The design system specifies:
 
