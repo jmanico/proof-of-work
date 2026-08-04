@@ -25,23 +25,35 @@ Normative product-design specification for **Proof of Work**. This document gove
 
 ### Visual direction
 
-The visual metaphor is a **field notebook for training**: warm paper-like canvas, dark ink, functional green, tabular data, and a single signal-lime accent. The result should feel considered and durable rather than medical, futuristic, or aggressive.
+The visual metaphor is a **field notebook for training**: warm paper-like canvas, dark ink, functional green, tabular data, and a single signal-lime accent. The metaphor is expressed through alignment, ruled separators, bracketed references, and compact record metadata — never through faux paper texture, rings, torn edges, handwriting, stamps, or other literal notebook decoration. The result should feel considered and durable rather than medical, futuristic, or aggressive.
 
 The initials “PoW” MUST NOT be used as the primary product label because of their strong cryptocurrency association. The full name is preferred. Coin, chain, mining, hexagon, lightning-bolt, and blockchain imagery MUST NOT be used.
 
 ### Logo
 
-The Proof mark in `logo.svg` is a rounded ink tile with an evergreen boundary, containing a `P` and a signal-lime check. The `P` names the product; the check is the evidence that a piece of work was completed. Its simple, incomplete-record metaphor suggests ongoing work rather than a finish line.
+The Proof mark in `logo.svg` is a rounded ink tile with an evergreen boundary, containing a custom paper-colored `P` and a signal-lime datum in its counter. The `P` names the product; the square datum represents one observation entered into an accumulating record. It is deliberately not a check, badge, trophy, arrow, or finish-line symbol: the product records evidence of continuing work rather than awarding completion.
 
 The standard lockup consists of the mark followed by the live-text wordmark **Proof of Work**. The wordmark uses the interface sans-serif at weight 700 with `-0.02em` letter spacing. Live text is intentional: it stays crisp, introduces no font file, and avoids inaccessible text embedded in an image.
 
 - **Primary lockup:** horizontal, mark on the left and wordmark on the right, separated by half the mark width.
 - **Compact lockup:** mark alone only where the product name is already visible or programmatically available, such as a favicon or collapsed navigation.
 - **Clear space:** at least 25% of the mark width on every side.
-- **Minimum size:** 24×24 CSS pixels for the mark; 32×32 is preferred in application chrome. The horizontal lockup MUST NOT be displayed below 120 CSS pixels wide.
-- **Backgrounds:** the self-contained ink tile is approved on light canvas, white surfaces, dark canvas, and dark surfaces. Its fixed `#2B7C55` boundary is 4.63:1 against light canvas and 3.59:1 against dark canvas; that boundary MUST NOT be removed.
-- **Accessibility:** when the adjacent wordmark is visible, the SVG is decorative. When the mark stands alone as the product identifier, its accessible name is “Proof of Work.”
-- **Incorrect use:** do not stretch, rotate, outline, crop, add a shadow or gradient, recolor individual paths, place it over a photograph, use the check without the `P`, or recreate the mark with an icon-font glyph.
+- **Minimum size:** 16×16 CSS pixels is allowed only for a browser favicon. The mark MUST otherwise be at least 24×24, and 32×32 is preferred in application chrome. The horizontal lockup MUST NOT be displayed below 120 CSS pixels wide.
+- **Backgrounds:** the self-contained ink tile is approved on light canvas, white surfaces, dark canvas, and dark surfaces. Its fixed `#2B7C55` boundary is 4.63:1 against light canvas and 3.59:1 against dark canvas; the 4-unit SVG stroke renders as 1 CSS pixel at the 16px favicon size and MUST NOT be thinned or removed. The paper `P` and lime datum are each completely bounded by ink, with contrast ratios of 15.01:1 and 13.37:1 respectively.
+- **Color-independent form:** the square datum, not its lime color, carries the recorded-observation metaphor. The `P`, datum, tile, and boundary MUST remain distinguishable in grayscale and when color is unavailable. A monochrome reproduction uses one light foreground for both the `P` and datum against the dark tile; it does not outline or omit either shape.
+- **Accessibility:** `logo.svg` is presentation-neutral and contains no fixed ARIA role or accessible name. When the adjacent live-text wordmark is visible, embed the mark with an empty alternative (`alt=""`). When the mark stands alone as the product identifier, use `alt="Proof of Work"`; an inline-SVG implementation applies the equivalent `aria-hidden="true"` or `role="img"` plus `aria-label="Proof of Work"`. The visible wordmark and the SVG MUST NOT both announce the product name.
+- **Incorrect use:** do not stretch, rotate, crop, add a shadow or gradient, recolor individual paths, place it over a photograph, add a check or completion badge, use the datum without the `P`, or recreate the mark with an icon-font glyph.
+
+The source asset MUST be visually checked at 16, 24, 32, and 64 CSS pixels on every approved background, plus in grayscale and forced-colors/high-contrast testing. At every size the `P` must be recognizable, the datum must remain a separate square, no required edge may resolve below one device pixel at 1×, and no color transition may be the sole boundary between adjacent shapes.
+
+### Brand grammar
+
+The field-notebook identity extends beyond the logo through a restrained set of structural devices:
+
+- **Record rows:** logged values, plan prescriptions, evidence metadata, and audit-style summaries align a short label, the value, and the date or source on a stable grid. Rules separate records; nested cards do not.
+- **Evidence notation:** numbered references remain bracketed, and review/source metadata sits adjacent to the claim or object it qualifies. A decorative seal, stamp, score, or approval badge MUST NOT replace this plain-language evidence.
+- **Margin rule:** a major evidence, logging, or progress region MAY use one leading 2px `border` or `brand` rule to connect its heading with related entries. It is structural, never repeated on every card, and never communicates status by color alone.
+- **Signal datum:** the small square from the mark MAY reappear as a chart point or current-record locator only under the `signal` contrast rules. It is not a list bullet, success icon, or decorative pattern.
 
 ## Color System
 
@@ -59,7 +71,7 @@ All interface color is assigned by semantic token. Components MUST NOT reference
 | `brand` | `#1E6A48` | `#92D7AA` | Links, selected states, primary actions |
 | `brand-strong` | `#15563A` | `#B7E9C7` | Hover/pressed emphasis |
 | `brand-soft` | `#DCEEE3` | `#233D2D` | Selected and informational backgrounds |
-| `signal` | `#D7F45B` | `#D7F45B` | Logo check, chart highlight, small emphasis |
+| `signal` | `#D7F45B` | `#D7F45B` | Logo datum, chart highlight, small emphasis |
 | `error` | `#B42318` | `#FFB4AB` | Validation and destructive states |
 | `error-soft` | `#FEE4E2` | `#482522` | Error callout background |
 | `success` | `#18794E` | `#85D6A3` | Confirmed completion and saved state |
@@ -74,6 +86,7 @@ Verified core contrast pairs include: `ink` on `canvas` at 15.01:1 light and 16.
 Color rules:
 
 - `signal` is paired with `ink`, never white, and is never the only status cue.
+- The logo datum is fully surrounded by fixed ink; no paper-colored or white edge meets it.
 - The primary filled button uses light `brand` with white text and dark `brand` with dark `canvas` text.
 - Links are underlined. Statuses combine text with an icon or shape.
 - Macro or plan-target variance uses neutral brand tones. `error` is reserved for invalid, failed, or destructive states.
@@ -167,7 +180,7 @@ Every field has a persistent visible label. A placeholder is an example, never t
 
 Numeric health fields use the data face and an adjacent unit suffix tied to the account preference (FR-8.10). Dates use a visible calendar control plus an editable text value; launch display format uses an unambiguous month name such as “1 Aug 2026”.
 
-Validation appears inline with an error icon and a specific correction. After failed submission, a summary at the top links to each invalid field and focus moves to the first invalid field (FR-8.9). Server-returned field errors override optimistic client assumptions. A generic system failure includes the correlation identifier from SEC-ERR-1 without internal detail.
+Validation appears inline with an error icon and a specific correction. After a failed submission with multiple invalid fields, a summary at the top links to each field and receives focus so assistive technology announces the complete problem set. When exactly one field is invalid, focus MAY move directly to that field. Server-returned field errors override optimistic client assumptions. A generic system failure includes the correlation identifier from SEC-ERR-1 without internal detail.
 
 ### Status, feedback, and loading
 
@@ -282,6 +295,7 @@ Implementation is not design-complete until automated and manual checks cover:
 - visible focus, correct focus return, no traps, and logical route-change focus;
 - axe-core checks plus manual screen-reader checks of forms, dialogs, charts/tables, and status announcements;
 - contrast of every actual token pairing, including hover, disabled, focus, and error states;
+- logo recognition and edge integrity at 16, 24, 32, and 64 CSS pixels on all approved backgrounds, in grayscale, and under forced colors/high contrast;
 - `prefers-reduced-motion` and 400% text-size stress checks;
 - no health values or photos retained in browser storage after the relevant view ends (SEC-RENDER-4, FR-8.13).
 
@@ -289,7 +303,7 @@ These browser-level commitments belong in the Playwright and axe suite named by 
 
 ## Resolved Design Questions
 
-- **OQ-1 — RESOLVED (2026-08-01):** The product name is **Proof of Work**. The primary identity is the Proof mark plus a live-text wordmark; the mark also supplies the favicon/app-icon strategy.
+- **OQ-1 — RESOLVED (2026-08-03):** The product name is **Proof of Work**. The primary identity is the datum-bearing Proof mark plus a live-text wordmark; the mark also supplies the favicon strategy. The original completion-check mark was replaced after small-size, contrast-boundary, semantic, and distinctiveness review.
 - **OQ-2 — RESOLVED (2026-08-01):** The personality is disciplined, evidence-led, calm, candid, and quietly encouraging—not clinical and not high-energy gym marketing.
 - **OQ-3 — RESOLVED (2026-08-01):** Light and dark themes are in scope, with `System` as the initial preference and explicit Light/Dark choices.
 - **OQ-4 — RESOLVED (2026-08-01):** Progress uses trend charts paired with full-granularity accessible tables over 4 weeks, 3 months, 1 year, and all time (FR-8.14).
